@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Window background (hud_bg) shows through around the frame, so any screen shape is letterboxed seamlessly. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- fitCenter = uniform scale, never stretched or cropped. -->
+    <ImageView
+        android:id="@+id/hud_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:src="@drawable/hud_frame" />
+
+</FrameLayout>
