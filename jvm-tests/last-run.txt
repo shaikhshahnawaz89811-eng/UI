@@ -1,0 +1,102 @@
+
+== state machine: full 4x4 transition table
+
+== module flow: NOT_IMPORTED -> IMPORT -> LOAD -> UNLOAD -> DELETE
+
+== protection: programmatic calls in every wrong state
+
+== protection: 64 threads hit Load at once
+
+== protection: 8 threads x 3000 random actions (invariants checked every step)
+  (engine.load calls: 15, unload calls: 14)
+
+== failure handling rolls the state back
+
+== cold start reconciliation
+
+== an AI reply in progress blocks Unload (and Delete)
+
+== FileModelStorage (real files)
+
+== spec 7: AC -> follow-up -> Train -> 'wapas AC wale mein'
+
+== spec 8: same question + paraphrase
+
+== spec 9: Electrical -> Train -> Android -> 'AC wale question par wapas aao'
+
+== spec 6/11: only relevant context reaches the model
+
+== edge cases: odd input never crashes or corrupts topics
+
+== persistence: new ConversationBrain over the same store (app restart)
+
+== chat controller: model gating, streaming, background survival
+
+== STRESS: 1,300 messages, 12 topics, switching back and forth, repeats, coding
+
+  behaviour               ok / total     accuracy
+  FIRST                    1 / 1       100.0%
+  STANDALONE             137 / 137     100.0%
+  FOLLOWUP               277 / 288      96.2%
+  SWITCH                  56 / 58       96.6%
+  RETURN                 118 / 119      99.2%
+  REPEAT_EXACT           607 / 613      99.0%
+  REPEAT_PARA             19 / 39       48.7%
+  REPEAT_XLANG            11 / 45       24.4%
+  ALL                   1226 / 1300     94.3%
+
+  topic-change detection : TP=320 FN=2 FP=11 TN=966  (recall 99.4%, precision 96.7%)
+  same-question detection: TP=642 FN=55 FP=2 TN=601  (recall 92.1%, false-positive rate 0.33%)
+  follow-up needs-context: 285/288
+  brain topics created   : 12 (ground truth: 12)
+  avg beginTurn+finish   : 1.034 ms, worst 9.682 ms
+
+  first misses:
+   #19 "What will the weather be like in Bhopal today?"  -> REPEAT_XLANG: expected weather QA{topic=Weather ? bhopal, aaj, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #29 "What will the weather be like in Amritsar today?"  -> REPEAT_XLANG: expected weather QA{topic=Weather ? bhopal, aaj, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #50 "What amp MCB does a Refrigerator need?"  -> REPEAT_XLANG: expected electrical QA{topic=Electrical wiring ? microwave, amp, prev=Study & exams ? photosynthesis, biology, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #55 "Is app mein permission kaise maangein?"  -> FOLLOWUP: expected android QA{topic=Android app development ? android, file, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #66 "Jaipur mein is hafte kitni garmi padegi?"  -> REPEAT_PARA: expected weather QA{topic=Weather ? bhopal, aaj, prev=Cooking & food ? kheer, recipe, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #71 "Kolkata mein kal humidity kitni rahegi?"  -> REPEAT_PARA: expected weather QA{topic=Weather ? bhopal, aaj, prev=Cooking & food ? kheer, recipe, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #120 "First 20 elements of the periodic table?"  -> REPEAT_XLANG: expected education QA{topic=Study & exams ? photosynthesis, biology, prev=Health ? vitamin, kami, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #123 "Android app background mein kill kyun hoti hai?"  -> REPEAT_PARA: expected android QA{topic=Android app development ? android, file, prev=Study & exams ? photosynthesis, biology, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #124 "How to sign a release APK on Android?"  -> REPEAT_XLANG: expected android QA{topic=Android app development ? android, file, prev=Study & exams ? photosynthesis, biology, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #126 "Android app mein deep links kaise lagayein?"  -> REPEAT_PARA: expected android QA{topic=Android app development ? android, file, prev=Study & exams ? photosynthesis, biology, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #147 "Which books for UPSC prelims?"  -> REPEAT_XLANG: expected education QA{topic=Study & exams ? photosynthesis, biology, prev=Weather ? bhopal, aaj, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #162 "Gold par kitna GST hota hai?"  -> REPEAT_PARA: expected finance QA{topic=Money & finance ? upi, paisa, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=true, returning=false}
+   #178 "Paneer butter masala kaise banate hain?"  -> REPEAT_PARA: expected cooking QA{topic=Cooking & food ? kheer, recipe, prev=Study & exams ? photosynthesis, biology, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #197 "Kashmir mein hotel kaunse best hain Dal Lake ke paas?"  -> SWITCH: expected travel got topic#8 QA{topic=Cooking & food ? kheer, recipe, prev=Money & finance ? upi, paisa, changed=true, same=false, related=false, needsCtx=true, returning=true}
+   #211 "AC ke liye 20A MCB ki wiring kaise karte hain?"  -> REPEAT_PARA: expected electrical QA{topic=Electrical wiring ? microwave, amp, prev=Train & transport ? jaipur, delhi, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #282 "Model quantization size kaise ghatata hai?"  -> REPEAT_PARA: expected ai QA{topic=AI models ? offline, ai, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #286 "Which documents are needed for a passport?"  -> REPEAT_XLANG: expected travel QA{topic=Travel & stays ? shimla, homestay, prev=AI models ? offline, ai, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #287 "Best hotels near Dal Lake in Kashmir?"  -> REPEAT_XLANG: expected travel QA{topic=Travel & stays ? shimla, homestay, prev=AI models ? offline, ai, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #329 "Kashmir mein hotel kaunse best hain Dal Lake ke paas?"  -> REPEAT_EXACT: expected travel got topic#8 QA{topic=Cooking & food ? kheer, recipe, prev=Health ? vitamin, kami, changed=true, same=true, related=false, needsCtx=true, returning=true}
+   #332 "Earthing wire ki thickness kitni honi chahiye?"  -> REPEAT_PARA: expected electrical QA{topic=Electrical wiring ? microwave, amp, prev=Cooking & food ? kheer, recipe, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #351 "How much GST is charged on AC?"  -> REPEAT_XLANG: expected finance QA{topic=Money & finance ? upi, paisa, prev=Programming ? selection, sort, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #352 "How much should I invest in SIP every month?"  -> REPEAT_XLANG: expected finance QA{topic=Money & finance ? upi, paisa, prev=Programming ? selection, sort, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #356 "How do I create a virtual environment in Python?"  -> REPEAT_XLANG: expected coding QA{topic=Programming ? selection, sort, prev=Money & finance ? upi, paisa, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #382 "Weight loss ke liye diet plan kaisa hona chahiye?"  -> SWITCH: expected health got topic#5 QA{topic=Money & finance ? upi, paisa, prev=Cooking & food ? kheer, recipe, changed=true, same=false, related=false, needsCtx=true, returning=true}
+   #384 "Is dawai ka side effect kya hai?"  -> FOLLOWUP: expected health QA{topic=Health ? vitamin, kami, prev=Money & finance ? upi, paisa, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #411 "How does quantization reduce model size?"  -> REPEAT_XLANG: expected ai QA{topic=AI models ? offline, ai, prev=Study & exams ? photosynthesis, biology, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #434 "How is a 3 phase motor starter connected?"  -> REPEAT_XLANG: expected electrical QA{topic=Electrical wiring ? microwave, amp, prev=Cricket ? shami, wickets, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #459 "1.5mm vs 2.5mm wire ka farq batao"  -> REPEAT_PARA: expected electrical QA{topic=Electrical wiring ? microwave, amp, prev=Cooking & food ? kheer, recipe, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #469 "What interest does a PPF account give?"  -> REPEAT_XLANG: expected finance QA{topic=Money & finance ? upi, paisa, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #482 "Aur isko train kaise karte hain?"  -> FOLLOWUP: expected ai got topic#11 QA{topic=Train & transport ? jaipur, delhi, prev=AI models ? offline, ai, changed=true, same=false, related=false, needsCtx=true, returning=true}
+   #490 "Home loan EMI calculate karne ka formula kya hai?"  -> REPEAT_PARA: expected finance QA{topic=Money & finance ? upi, paisa, prev=AI models ? offline, ai, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #501 "Aur isko train kaise karte hain?"  -> FOLLOWUP: expected ai got topic#11 QA{topic=Train & transport ? jaipur, delhi, prev=AI models ? offline, ai, changed=true, same=false, related=false, needsCtx=true, returning=true}
+   #520 "How fast does Bumrah bowl?"  -> REPEAT_XLANG: expected cricket QA{topic=Cricket ? shami, wickets, prev=Weather ? bhopal, aaj, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #594 "Android app mein camera permission kaise lagayein?"  -> REPEAT_PARA: expected android QA{topic=Android app development ? android, file, prev=Health ? vitamin, kami, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #662 "How much GST is charged on Insurance premium?"  -> REPEAT_XLANG: expected finance QA{topic=Money & finance ? upi, paisa, prev=AI models ? offline, ai, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #665 "Mobile phone par GST kitna hota hai?"  -> REPEAT_PARA: expected finance QA{topic=Money & finance ? upi, paisa, prev=AI models ? offline, ai, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #671 "How many IPL wickets does Bhuvneshwar have?"  -> REPEAT_XLANG: expected cricket QA{topic=Cricket ? shami, wickets, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #688 "What is the best time to visit Goa?"  -> REPEAT_XLANG: expected travel QA{topic=Travel & stays ? shimla, homestay, prev=Android app development ? android, file, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #702 "How to make Kadhi?"  -> REPEAT_XLANG: expected cooking QA{topic=Cooking & food ? kheer, recipe, prev=Programming ? selection, sort, changed=false, same=false, related=true, needsCtx=true, returning=false}
+   #707 "Roti phulane ka tarika kya hai?"  -> REPEAT_PARA: expected cooking QA{topic=Cooking & food ? kheer, recipe, prev=Programming ? selection, sort, changed=false, same=false, related=true, needsCtx=true, returning=false}
+  total misses: 74
+
+== prompt size after 1,300 messages
+  prompt chars: 1937, history turns: 8, memory chars: 578
+
+================================================
+checks: 316   failures: 0   time: 3078 ms
+RESULT: PASS

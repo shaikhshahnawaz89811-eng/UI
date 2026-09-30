@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Window background (hud_bg) shows through around the frame, so any screen shape is letterboxed seamlessly. -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Window background (hud_bg) shows through around the frame, so any screen shape is letterboxed seamlessly.
+     HudLayout keeps the frame image inside the safe area (never behind the camera cut-out, status bar or battery),
+     and places the minimize / settings / close touch areas exactly over the icons drawn in the image. -->
+<com.neonhud.app.ui.HudLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/hud_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -14,4 +17,4 @@
         android:scaleType="fitCenter"
         android:src="@drawable/hud_frame" />
 
-</FrameLayout>
+</com.neonhud.app.ui.HudLayout>
