@@ -32,7 +32,17 @@ jobs:
       - name: Build debug APK
         run: gradle assembleDebug --stacktrace
 
-      - name: Upload APK
+      # 1) The raw .apk itself (not zipped) - download it on the phone and tap it to install.
+      #    archive:false uploads exactly one file, so the path must point at that file.
+      - name: Upload APK (plain file, no zip)
+        uses: actions/upload-artifact@v7
+        with:
+          path: app/build/outputs/apk/debug/app-debug.apk
+          archive: false
+          if-no-files-found: error
+
+      # 2) Same APK inside a zip, as a fallback.
+      - name: Upload APK (zip)
         uses: actions/upload-artifact@v7
         with:
           name: neon-hud-debug-apk

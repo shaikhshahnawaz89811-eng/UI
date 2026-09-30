@@ -42,10 +42,8 @@ public final class HudLayout extends ViewGroup {
         close = touchArea("Close");
         content = new FrameLayout(c);
         content.setClipChildren(true);
-        addView(minimize);
-        addView(gear);
-        addView(close);
-        addView(content);
+        // NOTE: these are added in onFinishInflate(), AFTER the frame image from the XML. Adding them here made
+        // them children 0-3 and the (opaque) frame ImageView, inflated later, was drawn on top of the whole UI.
     }
 
     private View touchArea(String description) {
@@ -59,6 +57,11 @@ public final class HudLayout extends ViewGroup {
     @Override protected void onFinishInflate() {
         super.onFinishInflate();
         frame = (ImageView) findViewById(com.neonhud.app.R.id.hud_frame);
+        // z-order, bottom to top: frame image, content (chat / settings), then the three icon touch areas
+        addView(content);
+        addView(minimize);
+        addView(gear);
+        addView(close);
     }
 
     public FrameLayout content() { return content; }
