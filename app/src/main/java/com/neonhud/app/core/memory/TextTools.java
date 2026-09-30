@@ -37,6 +37,7 @@ public final class TextTools {
         public boolean weakAnaphora;     // ye / wo / this ...
         public boolean followStart;      // starts with aur / phir / and / also / what about ...
         public boolean ack;              // ok / thanks / haan ... (no real question)
+        public boolean correctionCue;    // "nahi tum sikhao", "no code likho" -> correct the previous reply
     }
 
     private TextTools() { }
@@ -65,7 +66,7 @@ public final class TextTools {
       + "down over again now ok okay yes no not hey hi hello thanks thank sir bro bhai yaar dost suno sun dekho "
       + "dekh kindly help tha bolo bol sakte hain kr krna krte kro hoga hga kitna bhaiya didi ji jee "
       + "ho jayega jayegi jaega jaegi jayenge chalega chalegi chalenge chalta chalti sahi theek thik possible "
-      + "toh na kaha kya question topic sawal conversation chalo chalte chalein chalen aao aana back go lets let's "
+      + "toh na kaha kya question topic sawal conversation chalo chalte chalein chalen aao aana back go lets let's continue next aage ao jao pura "
       + "bare baare wapas");
 
     private static final Set<String> STRONG_ANAPHORA = setOf(
@@ -92,6 +93,8 @@ public final class TextTools {
             {"aap", "aap"}, {"tumhe", "tum"}, {"ko", "ko"}, {"kon", "kaun"}, {"konsa", "kaunsa"},
             {"pe", "par"}, {"per", "par"}, {"acha", "accha"}, {"achha", "accha"}, {"thik", "theek"},
             {"ismai", "isme"}, {"ismein", "isme"}, {"usmein", "usme"}, {"usmai", "usme"},
+            {"sikho", "sikhao"}, {"sikhado", "sikhao"}, {"sikhado", "sikhao"}, {"sikhana", "sikhao"},
+            {"likhdo", "likho"}, {"likhnaa", "likho"}, {"bnao", "banao"}, {"bnado", "banao"},
             {"kahaan", "kahan"}, {"kyu", "kyun"}, {"kyon", "kyun"}, {"kitni", "kitna"}, {"kitne", "kitna"},
             {"hain", "hai"}, {"hoon", "hun"}, {"hu", "hun"}, {"tho", "toh"}, {"to", "toh"}, {"esi", "ac"},
             // light bilingual / synonym folding so "toofan" = "cyclone", "ghar" = "home", "kiraya" = "fare" ...
@@ -215,6 +218,10 @@ public final class TextTools {
         String first = p.tokens.get(0);
         p.followStart = FOLLOW_START.contains(first)
                 || joined.startsWith(" what about ") || joined.startsWith(" how about ");
+        // A correction/redirect such as "nahi tum sikhao" is not a standalone ACK.
+        // It means: reject the previous direction and perform the requested action now.
+        p.correctionCue = containsAny(p.tokens, setOf("nahi naheen no nahin"))
+                && containsAny(p.tokens, setOf("sikhao teach likho code banao bana karo kar continue aage samjhao explain dikhao batao"));
         // content stems ----------------------------------------------------------------
         Set<String> all = new LinkedHashSet<String>();
         Set<String> words = new LinkedHashSet<String>();
@@ -233,7 +240,14 @@ public final class TextTools {
             String d = hasDigit(w) ? Lexicon.domainOfMeasure(w) : Lexicon.domainOf(w);
             if (d != null) p.domains.add(d);
         }
-        p.ack = words.isEmpty() && p.tokens.size() <= 4 && containsAny(p.tokens, ACK) && allIn(p.tokens, ACK, STOP);
+        // "model ko train karna / isko train karna" means AI model training, not a railway topic.
+        if (joined.contains(" model train ") || joined.contains(" model ko train ")
+                || joined.contains(" isko train ") || joined.contains(" llm train ") || joined.contains(" ai train ")) {
+            p.domains.remove("transport");
+            p.domains.add("ai");
+        }
+        p.ack = !p.correctionCue && words.isEmpty() && p.tokens.size() <= 4
+                && containsAny(p.tokens, ACK) && allIn(p.tokens, ACK, STOP);
         p.intent = detectIntent(p, joined);
         return p;
     }
@@ -294,6 +308,53 @@ public final class TextTools {
         if (a == b) return true;
         if (a == Intent.OTHER || b == Intent.OTHER) return a == Intent.OTHER && b == Intent.OTHER;
         return false;
+    }
+
+    /**
+     * Coarse action contract used to tell a small local model what the user wants done.
+     * This is deliberately explicit for short imperative Hinglish where the subject is carried by context.
+     */
+    public static String actionOf(Parsed p) {
+        if (p == null) return "answer";
+        List<String> t = p.tokens;
+        if (containsAny(t, setOf("code likho code do pura code full code coding code banao implement script likhne"))) return "write_code";
+        if (containsAny(t, setOf("sikhao sikhao teach teaching lesson tutorial"))) return "teach";
+        if (containsAny(t, setOf("compare difference farq versus vs behtar better"))) return "compare";
+        if (containsAny(t, setOf("samjhao explain explanation matlab meaning"))) return "explain";
+        if (containsAny(t, setOf("batao bata tell jawab answer"))) return "answer";
+        if (p.intent == Intent.HOWTO) return "how_to";
+        if (p.intent == Intent.WHY) return "explain_why";
+        if (p.intent == Intent.QUANTITY) return "give_quantity";
+        if (p.intent == Intent.YESNO) return "answer_yes_no";
+        if (p.intent == Intent.COMPARE) return "compare";
+        if (p.intent == Intent.CONTINUE || p.followStart || p.ack || p.correctionCue) return "continue";
+        return "answer";
+    }
+
+    /**
+     * Conservative count of distinct user requests. It catches numbered lists and repeated question marks
+     * without treating normal "aur/or" wording as extra tasks.
+     */
+    public static int requestCount(String raw) {
+        String x = raw == null ? "" : raw.trim();
+        if (x.isEmpty()) return 0;
+        int count = 0;
+        Matcher m = Pattern.compile("(?m)(?:^|\\n)\\s*([0-9]{1,2})[.)]\\s+").matcher(x);
+        int numbered = 0; while (m.find()) numbered++;
+        if (numbered > 1) count = numbered;
+        int q = 0; for (int i = 0; i < x.length(); i++) if (x.charAt(i) == '?') q++;
+        if (q > count) count = q;
+        if (count == 0) {
+            int actionClauses = 0;
+            String[] parts = x.split("\\b(?:aur|or|and)\\b|[;|]");
+            for (String part : parts) {
+                Parsed sub = parse(part);
+                String a = actionOf(sub);
+                if (!sub.contentWords.isEmpty() && !"answer".equals(a)) actionClauses++;
+            }
+            if (actionClauses > 1) count = actionClauses;
+        }
+        return Math.max(1, Math.min(8, count));
     }
 
     // ------------------------------------------------------------------ similarity helpers

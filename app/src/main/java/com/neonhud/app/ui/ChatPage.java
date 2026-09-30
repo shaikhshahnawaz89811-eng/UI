@@ -50,7 +50,7 @@ public final class ChatPage extends FrameLayout {
 
     public ChatPage(Context c) {
         super(c);
-        final int side = NeonUi.dp(c, 6);
+        final int side = NeonUi.dp(c, 12);
 
         LinearLayout column = new LinearLayout(c);
         column.setOrientation(LinearLayout.VERTICAL);
@@ -66,7 +66,7 @@ public final class ChatPage extends FrameLayout {
         list.setCacheColorHint(Color.TRANSPARENT);
         list.setOverScrollMode(View.OVER_SCROLL_NEVER);
         list.setClipToPadding(true);
-        list.setPadding(side, NeonUi.dp(c, 4), side, NeonUi.dp(c, 4));
+        list.setPadding(side, NeonUi.dp(c, 5), side, NeonUi.dp(c, 5));
         list.setAdapter(adapter);
         list.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
         listWrap.addView(list, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -272,13 +272,20 @@ public final class ChatPage extends FrameLayout {
                 tv = (TextView) row.getTag();
             }
             int listW = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
-            int maxW = listW > 0 ? Math.round(listW * (type == USER ? 0.86f : 1f)) : ViewGroup.LayoutParams.WRAP_CONTENT;
+
+            // Keep the conversation visually inside the HUD instead of letting AI text touch both sides.
+            // The frame is fixed; only this inner list scrolls.
+            float widthFraction = type == USER ? 0.78f : (type == AI ? 0.88f : 0.82f);
+            int maxW = listW > 0 ? Math.round(listW * widthFraction) : ViewGroup.LayoutParams.WRAP_CONTENT;
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                    type == AI ? ViewGroup.LayoutParams.MATCH_PARENT : ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.gravity = type == USER ? Gravity.END : (type == NOTICE ? Gravity.CENTER_HORIZONTAL : Gravity.START);
+            lp.topMargin = NeonUi.dp(c, type == NOTICE ? 4 : 7);
+            lp.bottomMargin = NeonUi.dp(c, type == NOTICE ? 4 : 7);
             tv.setLayoutParams(lp);
-            if (type == USER && maxW > 0) tv.setMaxWidth(maxW);
+            if (maxW > 0) tv.setMaxWidth(maxW);
+            tv.setMinWidth(0);
 
             if (type == AI && it.text.isEmpty()) {
                 tv.setText("\u2026");
@@ -294,13 +301,16 @@ public final class ChatPage extends FrameLayout {
                 tv.setTextSize(15f);
                 tv.setBackground(NeonUi.glass(c, 16, 0xAA38D6FF, 0x4A3C9BE6, 0x26205FA8));
                 tv.setPadding(NeonUi.dp(c, 14), NeonUi.dp(c, 8), NeonUi.dp(c, 14), NeonUi.dp(c, 8));
+                tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
             } else if (type == AI) {
                 // plain text, no card - lit like glass with a soft blue glow
                 tv.setTextColor(0xFFF2FBFF);
                 tv.setTextSize(15.5f);
-                tv.setLineSpacing(0f, 1.18f);
+                tv.setLineSpacing(0f, 1.20f);
                 tv.setShadowLayer(NeonUi.dp(c, 7), 0, 0, 0xAA2FA8FF);
-                tv.setPadding(NeonUi.dp(c, 4), NeonUi.dp(c, 6), NeonUi.dp(c, 4), NeonUi.dp(c, 6));
+                // AI remains plain text (no card), but has breathing room on both sides.
+                tv.setPadding(NeonUi.dp(c, 2), NeonUi.dp(c, 2), NeonUi.dp(c, 2), NeonUi.dp(c, 2));
+                tv.setGravity(Gravity.START);
             } else {
                 tv.setTextColor(NeonUi.AMBER);
                 tv.setTextSize(12.5f);

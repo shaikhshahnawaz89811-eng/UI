@@ -45,7 +45,7 @@ public final class ConversationBrain {
     static final double REVIVE_MIN = 0.50;
     static final double RETURN_MIN = 0.30;
     static final double SAME_Q_MIN = 0.85;
-    static final int HISTORY_MESSAGES = 4;
+    static final int HISTORY_MESSAGES = 6;
     static final int MAX_HISTORY_CHARS = 3200;
     static final int MEMORY_LIMIT = 5;
     static final int MAX_TOPIC_MEMORIES = 80;
@@ -62,14 +62,16 @@ public final class ConversationBrain {
           + "all mean \"about\" (NOT \"big\"); \"X ke bade me batao\" means \"tell me about X\". \"suru\" = shuru (start), "
           + "\"sikhao\" = teach, \"samjha nahin\" = I did not understand, \"likho\" = write. "
           + "\"english likho bhasha hindi rakho\" means: keep speaking Hindi but write it in English letters. "
-          + "ANSWER RULE: answer the exact current user request first. Do not invent a different question. Do not "
-          + "ask for clarification when the previous turn gives a reasonable meaning. For a short follow-up such as "
-          + "haan, yes, karo, continue, ok, or 'yahi', use the immediately preceding user+assistant exchange to infer "
-          + "the intended action. If the previous assistant explicitly asked for a missing detail and the user did not "
-          + "provide it, ask only for that exact missing detail. Never answer with a generic 'what do you mean' when "
-          + "the recent conversation contains the meaning. Preserve every important noun, acronym, model name, language, "
-          + "and number from the current message. Never silently substitute one important term, number, model name, or language for another. Stay on the user's topic. "
-          + "STYLE RULE: keep replies short and simple (about 6 to 10 lines) and give more only if asked. "
+          + "ANSWER RULE: execute the user's current request, not merely describe what you could do. Do the action they asked for "
+          + "(for example: 'sikhao' means start teaching; 'code likho' means actually provide code; 'banao' means produce the requested design/code; "
+          + "'samjhao' means explain). Do not answer with 'I can...' when the user asked you to do it. Do not invent a different question. "
+          + "For a correction such as 'nahi tum sikhao' or 'nahi code likho', reject the previous direction and immediately follow the corrected action. "
+          + "For a short follow-up such as haan, yes, karo, continue, ok, or 'yahi', use the immediately preceding user+assistant exchange to infer the intended action. "
+          + "If the previous assistant explicitly asked for a missing detail and the user did not provide it, ask only for that exact missing detail. Never answer with a generic 'what do you mean' when the recent conversation contains the meaning. "
+          + "Preserve every important noun, acronym, model name, language, and number from the current message. Never silently substitute one important term, number, model name, or language for another. "
+          + "If the user asks multiple questions/tasks, answer ALL of them in the same response, in the same order; do not drop the second or third item. "
+          + "Do not repeat a previous overview when the user asks to continue or go deeper; move the task forward from the exact point where the previous answer stopped. Stay on the user's topic. "
+          + "STYLE RULE: keep replies short and simple, but use enough detail to complete every requested task. "
           + "Plain text only: do not use markdown symbols such as ** or ### ; use simple numbered lines. "
           + "Put code inside a triple-backtick block. "
           + "Use the memory and recent conversation below only when they are relevant, "
@@ -174,7 +176,8 @@ public final class ConversationBrain {
         for (MemoryItem m : memories) qa.relatedMemoryIds.add(m.id);
 
         long msgId = store.addMessage(now, ConversationMessage.ROLE_USER, userText, conversationId, target.id);
-        learn(target, p, now);
+        boolean contextOnly = qa.followUpCue || (qa.requiresPreviousContext && !qa.topicChanged) || p.correctionCue;
+        learn(target, p, now, contextOnly);
         if (!p.returnCue) addToIndex(new Indexed(msgId, target.id, p));
 
         if (target.id != currentTopicId) {
@@ -257,7 +260,7 @@ public final class ConversationBrain {
         Topic prev = find(topics, previousTopicId);
         List<String> kws = p.contentWords;
 
-        qa.followUpCue = p.strongAnaphora || p.followStart || (p.weakAnaphora && kws.size() <= 2);
+        qa.followUpCue = p.strongAnaphora || p.followStart || p.correctionCue || (p.weakAnaphora && kws.size() <= 2);
 
         // ---- same / paraphrased question (context-dependent messages like "isme kitna time?" are never "the same")
         Indexed same = (qa.followUpCue || p.returnCue) ? null : findSame(p);
@@ -297,7 +300,11 @@ public final class ConversationBrain {
             }
             returning = !created && target.id != cur.id;
             needsCtx = true;
-        } else if (p.strongAnaphora || (p.weakAnaphora && kws.size() <= 2) || kws.isEmpty() || p.ack) {
+        } else if (p.correctionCue || p.strongAnaphora) {
+            // "Nahi tum sikhao", "Iska code do", "Isme emulator mein test kaise karein" are explicit
+            // references to the current task. A word like "code" or "train" must not steal the topic.
+            target = cur; needsCtx = true;
+        } else if ((p.weakAnaphora && kws.size() <= 2) || kws.isEmpty() || p.ack) {
             if (!kws.isEmpty() && domainConflict && bestDomain != null && bestDomain.id != cur.id && domainScore >= 0.6) {
                 target = bestDomain; returning = true;
             } else if (!kws.isEmpty() && domainConflict && !p.ack && p.domains.size() > 0 && !p.strongAnaphora) {
@@ -409,13 +416,18 @@ public final class ConversationBrain {
         return sb.toString();
     }
 
-    private void learn(Topic t, TextTools.Parsed p, long now) {
-        for (String w : p.contentAll) {
-            boolean pureNum = true;
-            for (int i = 0; i < w.length(); i++) if (!Character.isDigit(w.charAt(i)) && w.charAt(i) != '.') { pureNum = false; break; }
-            if (!pureNum) t.bump(w, 1);
+    private void learn(Topic t, TextTools.Parsed p, long now, boolean contextOnly) {
+        // A correction/follow-up changes or refines the current TASK; it must not silently redefine the SUBJECT.
+        // Otherwise words such as "wiring", "code" or "train" can contaminate an unrelated topic and make the
+        // next standalone question appear to belong to the wrong subject.
+        if (!contextOnly) {
+            for (String w : p.contentAll) {
+                boolean pureNum = true;
+                for (int i = 0; i < w.length(); i++) if (!Character.isDigit(w.charAt(i)) && w.charAt(i) != '.') { pureNum = false; break; }
+                if (!pureNum) t.bump(w, 1);
+            }
+            for (String d : p.domains) t.bumpDomain(d);
         }
-        for (String d : p.domains) t.bumpDomain(d);
         t.trimTerms(60);
         t.lastUsedAt = now;
         store.updateTopic(t);
@@ -463,7 +475,11 @@ public final class ConversationBrain {
     private List<MemoryItem> retrieveMemories(QuestionAnalysis qa, TextTools.Parsed p, Topic target, long now) {
         final List<String> q = p.contentAll;
         List<MemoryItem> cands = new ArrayList<MemoryItem>();
-        if (target.id != 0 && (qa.returningToOldTopic || !qa.topicChanged)) cands.addAll(store.memoriesByTopic(target.id));
+        // Episodic Q&A memory is useful for continuations, repeats and returns, but injecting it into every
+        // standalone question can make a small model anchor on an old answer and produce the wrong response.
+        if (target.id != 0 && (qa.returningToOldTopic || qa.sameQuestion || qa.requiresPreviousContext || qa.relatedQuestion)) {
+            cands.addAll(store.memoriesByTopic(target.id));
+        }
         List<MemoryItem> global = store.memoriesByTopic(0);
         final double floor = qa.returningToOldTopic ? 0.15 : 0.25;
         final List<double[]> scored = new ArrayList<double[]>();
@@ -520,6 +536,27 @@ public final class ConversationBrain {
             sys.append("\n- Subject changed: ignore unrelated earlier topics.");
         }
         TextTools.Parsed currentParsed = TextTools.parse(userText);
+        String action = TextTools.actionOf(currentParsed);
+        int requestCount = TextTools.requestCount(userText);
+        sys.append("\n\nREQUEST CONTRACT (follow exactly):");
+        sys.append("\n- Requested action: ").append(action).append('.');
+        sys.append("\n- Number of distinct tasks/questions detected: ").append(requestCount).append('.');
+        if (requestCount > 1) {
+            sys.append("\n- Answer every detected task in order. Never stop after the first task.");
+        }
+        if (currentParsed.correctionCue) {
+            sys.append("\n- Correction detected: the user rejected the previous direction. Follow the NEW action in the current message immediately.");
+        }
+        if (currentParsed.ack || qa.followUpCue) {
+            sys.append("\n- Resolve the current short/corrective wording from the immediately preceding user+assistant exchange before answering.");
+        }
+        if ("write_code".equals(action)) {
+            sys.append("\n- Code request: provide the actual requested code (not a promise, outline, or description). Preserve the named language/framework.");
+        } else if ("teach".equals(action)) {
+            sys.append("\n- Teaching request: start the lesson now. Do not ask the user to choose a topic already established by the preceding exchange.");
+        } else if ("continue".equals(action)) {
+            sys.append("\n- Continue request: advance the existing task from the previous stopping point; do not restart with a generic introduction.");
+        }
         sys.append("\n\nCURRENT MESSAGE ANCHORS: preserve these exact user terms/numbers where relevant: ");
         int anchorCount = 0;
         for (String token : currentParsed.tokens) {
@@ -531,7 +568,8 @@ public final class ConversationBrain {
         }
         if (anchorCount == 0) sys.append("(none)");
         if (!currentParsed.domains.isEmpty()) sys.append(" | subject domain: ").append(joinSet(currentParsed.domains));
-        sys.append("\n\nCurrent topic: ").append(target.name).append('.');
+        sys.append("\n\nCURRENT USER REQUEST (highest priority): ").append(userText.replace("\n", "\\n"));
+        sys.append("\nCurrent topic: ").append(target.name).append('.');
         if (qa.returningToOldTopic) {
             sys.append("\nThe user is returning to this earlier topic");
             if (qa.previousTopic != null) sys.append(" (they were just talking about: ").append(qa.previousTopic.name).append(')');

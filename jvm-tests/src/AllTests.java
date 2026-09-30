@@ -8,6 +8,7 @@ public final class AllTests {
             ModuleTests.run();
             MemoryTests.run();
             ChatTests.run();
+            AssistantRegression1000Test.run();
         }
         StressTest.run();
         System.out.println("\n================================================");
