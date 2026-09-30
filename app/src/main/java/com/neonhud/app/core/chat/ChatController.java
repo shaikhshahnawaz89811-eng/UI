@@ -1,7 +1,10 @@
 package com.neonhud.app.core.chat;
 
+import com.neonhud.app.core.engine.Attachment;
+import com.neonhud.app.core.engine.AttachmentLoader;
 import com.neonhud.app.core.engine.GenerationCallback;
 import com.neonhud.app.core.engine.ModelEngine;
+import com.neonhud.app.core.engine.PromptPackage;
 import com.neonhud.app.core.memory.ConversationBrain;
 import com.neonhud.app.core.memory.ConversationMessage;
 import com.neonhud.app.core.memory.MemoryStore;
@@ -9,6 +12,7 @@ import com.neonhud.app.core.module.ModuleManager;
 import com.neonhud.app.core.module.ModuleState;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -29,8 +33,14 @@ public final class ChatController {
         public final Kind kind;
         public final String text;
         public final boolean pending;
+        public final List<Attachment> attachments;   // files shown on a USER bubble (empty otherwise)
+        public final long time;                      // send time of a USER bubble, 0 = unknown (old history)
         Item(long key, Kind kind, String text, boolean pending) {
+            this(key, kind, text, pending, Collections.<Attachment>emptyList(), 0L);
+        }
+        Item(long key, Kind kind, String text, boolean pending, List<Attachment> attachments, long time) {
             this.key = key; this.kind = kind; this.text = text; this.pending = pending;
+            this.attachments = attachments; this.time = time;
         }
     }
 
@@ -43,6 +53,9 @@ public final class ChatController {
 
     private static final int SCREEN_HISTORY = 200;
     public static final int MAX_INPUT_CHARS = 4000;
+    public static final int MAX_ATTACHMENTS = 5;
+    /** Used when the user sends files without typing anything. */
+    static final String DEFAULT_FILE_ASK = "Please look at the attached file(s) and tell me what they contain.";
 
     private final ModuleManager modules;
     private final ModelEngine engine;
@@ -54,6 +67,7 @@ public final class ChatController {
     private final List<Item> items = new ArrayList<Item>();
     private long nextKey = 1;
     private volatile boolean generating;
+    private volatile AttachmentLoader loader;
 
     public ChatController(ModuleManager modules, ConversationBrain brain, MemoryStore store) {
         this(modules, brain, store, modules.displayName(), "gemma-chat");
@@ -81,6 +95,8 @@ public final class ChatController {
     public void addListener(Listener l) { listeners.addIfAbsent(l); }
     public void removeListener(Listener l) { listeners.remove(l); }
     public boolean isGenerating() { return generating; }
+    /** The Android side plugs in how attached files are read; without it files are listed by name only. */
+    public void setAttachmentLoader(AttachmentLoader l) { loader = l; }
 
     public synchronized List<Item> items() { return new ArrayList<Item>(items); }
 
@@ -91,8 +107,15 @@ public final class ChatController {
     }
 
     public SendResult send(final String rawText) {
+        return send(rawText, null);
+    }
+
+    public SendResult send(final String rawText, List<Attachment> attached) {
         final String text = rawText == null ? "" : rawText.trim();
-        if (text.isEmpty()) return SendResult.EMPTY;
+        final List<Attachment> files = attached == null
+                ? Collections.<Attachment>emptyList()
+                : new ArrayList<Attachment>(attached.subList(0, Math.min(attached.size(), MAX_ATTACHMENTS)));
+        if (text.isEmpty() && files.isEmpty()) return SendResult.EMPTY;
         if (generating) return SendResult.BUSY;
         if (!modules.tryBeginReply()) {
             if (modules.state() != ModuleState.LOADED) {
@@ -106,24 +129,50 @@ public final class ChatController {
         final long aiKey;
         synchronized (this) {
             dropNotices();
-            items.add(new Item(nextKey++, Kind.USER, clipped, false));
+            items.add(new Item(nextKey++, Kind.USER, clipped, false, files, System.currentTimeMillis()));
             aiKey = nextKey++;
             items.add(new Item(aiKey, Kind.AI, "", true));
         }
         changed();
         worker.execute(new Runnable() {
-            @Override public void run() { runTurn(clipped, aiKey); }
+            @Override public void run() { runTurn(clipped, files, aiKey); }
         });
         return SendResult.ACCEPTED;
     }
 
-    private void runTurn(String text, final long aiKey) {
+    /** The text the memory layer stores: what was typed, plus the names of the files (their content is never stored). */
+    private static String storedText(String typed, List<Attachment> files) {
+        if (files.isEmpty()) return typed;
+        StringBuilder sb = new StringBuilder(typed.isEmpty() ? DEFAULT_FILE_ASK : typed).append("\n[Attached: ");
+        for (int i = 0; i < files.size(); i++) sb.append(i == 0 ? "" : ", ").append(files.get(i).name);
+        return sb.append(']').toString();
+    }
+
+    /** Reads every attached file; one that cannot be read is still passed on, with a note, so the model can say so. */
+    private List<Attachment> loadAll(List<Attachment> files) {
+        List<Attachment> out = new ArrayList<Attachment>();
+        AttachmentLoader l = loader;
+        for (Attachment a : files) {
+            if (l == null) { out.add(a); continue; }
+            try {
+                out.add(l.load(a));
+            } catch (Throwable t) {
+                String m = t.getMessage();
+                out.add(a.loaded("ATTACHED FILE " + a.name + " COULD NOT BE READ"
+                        + (m == null || m.isEmpty() ? "." : " (" + m + ")."), Collections.<byte[]>emptyList()));
+            }
+        }
+        return out;
+    }
+
+    private void runTurn(String text, List<Attachment> files, final long aiKey) {
         final StringBuilder reply = new StringBuilder();
         ConversationBrain.Turn turn = null;
         String error = null;
         try {
-            turn = brain.beginTurn(text);
-            engine.generate(turn.prompt, new GenerationCallback() {
+            turn = brain.beginTurn(storedText(text, files));
+            PromptPackage prompt = files.isEmpty() ? turn.prompt : turn.prompt.withAttachments(loadAll(files));
+            engine.generate(prompt, new GenerationCallback() {
                 @Override public void onToken(String delta) {
                     if (delta == null || delta.isEmpty()) return;
                     synchronized (reply) { reply.append(delta); }

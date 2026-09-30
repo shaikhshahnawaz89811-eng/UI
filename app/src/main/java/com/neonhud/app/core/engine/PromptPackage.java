@@ -25,15 +25,30 @@ public final class PromptPackage {
     public final String relevantMemory;      // may be empty
     public final List<Turn> recentConversation;
     public final String userMessage;
+    /** Files attached to the current message (already loaded); empty for a plain text message. */
+    public final List<Attachment> attachments;
 
     public PromptPackage(String systemContext, String relevantMemory,
                          List<Turn> recentConversation, String userMessage) {
+        this(systemContext, relevantMemory, recentConversation, userMessage, null);
+    }
+
+    public PromptPackage(String systemContext, String relevantMemory,
+                         List<Turn> recentConversation, String userMessage, List<Attachment> attachments) {
+        this.attachments = attachments == null
+                ? Collections.<Attachment>emptyList()
+                : Collections.unmodifiableList(new ArrayList<Attachment>(attachments));
         this.systemContext = systemContext == null ? "" : systemContext;
         this.relevantMemory = relevantMemory == null ? "" : relevantMemory;
         this.recentConversation = recentConversation == null
                 ? Collections.<Turn>emptyList()
                 : Collections.unmodifiableList(new ArrayList<Turn>(recentConversation));
         this.userMessage = userMessage == null ? "" : userMessage;
+    }
+
+    /** Same prompt with the current message's files attached. */
+    public PromptPackage withAttachments(List<Attachment> files) {
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, files);
     }
 
     /** System text for engines that have a dedicated system slot: context + memory. */
@@ -54,6 +69,9 @@ public final class PromptPackage {
                 sb.append(t.fromUser ? "User: " : "Assistant: ").append(t.text).append('\n');
             }
             sb.append('\n');
+        }
+        for (Attachment a : attachments) {
+            if (!a.text.isEmpty()) sb.append(a.text).append("\n\n");
         }
         sb.append("CURRENT USER MESSAGE:\n").append(userMessage);
         return sb.toString();

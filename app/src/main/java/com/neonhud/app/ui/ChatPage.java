@@ -9,6 +9,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Gravity;
+import android.view.inputmethod.InputMethodManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -18,14 +19,19 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.neonhud.app.core.chat.ChatController;
 import com.neonhud.app.core.coder.CoderSpec;
+import com.neonhud.app.core.engine.Attachment;
 import com.neonhud.app.core.module.ModuleState;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * The chat screen: conversation centred with free space on both sides, AI text shown as plain glowing text
@@ -34,7 +40,13 @@ import java.util.List;
  */
 public final class ChatPage extends FrameLayout {
 
-    public interface SendHandler { void onSend(String text); }
+    public interface SendHandler { void onSend(String text, List<Attachment> files); }
+
+    /** The user chose a source in the attachment cart; the Activity opens the camera / a file picker. */
+    public interface AttachHandler { void onPick(int kind); }
+
+    public static final int ATTACH_CAMERA = AttachIcon.CAMERA, ATTACH_IMAGE = AttachIcon.IMAGE,
+            ATTACH_PDF = AttachIcon.PDF, ATTACH_ZIP = AttachIcon.ZIP;
 
     /** Kept for later: the model switch button was removed from the input bar for now. */
     public interface ModeHandler { void onSwitch(); }
@@ -49,6 +61,13 @@ public final class ChatPage extends FrameLayout {
     private final TextView emptyTitle, emptySub;
     private final NeonUi.IconView plus;
     private final Adapter adapter = new Adapter();
+    private final AttachCart cart;
+    private final LinearLayout pendingPanel;
+    private final LinearLayout pendingList;
+    private final AttachIcon clearAll;
+    private final List<Attachment> pending = new ArrayList<Attachment>();
+    private boolean attachEnabled = true;
+    private AttachHandler attachHandler;
 
     private SendHandler handler;
     private ModeHandler modeHandler;
@@ -110,6 +129,44 @@ public final class ChatPage extends FrameLayout {
         emptyBox.addView(emptyHint);
         emptyBox.setPadding(NeonUi.dp(c, 12), 0, NeonUi.dp(c, 12), 0);
         listWrap.addView(emptyBox, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        // ---- attachment cart: opens over the bottom of the chat, just above the input bar
+        cart = new AttachCart(c, new AttachCart.Listener() {
+            @Override public void onPick(int kind) {
+                cart.hide();
+                if (attachHandler != null) attachHandler.onPick(kind);
+            }
+            @Override public void onClose() { cart.hide(); }
+        });
+        LayoutParams cartLp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
+        cartLp.leftMargin = side;
+        cartLp.rightMargin = side;
+        cartLp.bottomMargin = NeonUi.dp(c, 4);
+        listWrap.addView(cart, cartLp);
+
+        // ---- attached files waiting to be sent (between the chat and the input bar; scrolls after ~2 rows)
+        pendingPanel = new LinearLayout(c);
+        pendingPanel.setOrientation(LinearLayout.VERTICAL);
+        pendingPanel.setBackground(NeonUi.glass(c, 14, 0xAA38B6FF, 0x55123C7A, 0x440A2250));
+        pendingPanel.setVisibility(View.GONE);
+        clearAll = new AttachIcon(c, AttachIcon.CLOSE);
+        clearAll.setContentDescription("Remove all files");
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(NeonUi.dp(c, 22), NeonUi.dp(c, 22));
+        clp.gravity = Gravity.END;
+        clp.topMargin = NeonUi.dp(c, 3);
+        clp.rightMargin = NeonUi.dp(c, 6);
+        pendingPanel.addView(clearAll, clp);
+        pendingList = new LinearLayout(c);
+        pendingList.setOrientation(LinearLayout.VERTICAL);
+        MaxHeightScroll pendingScroll = new MaxHeightScroll(c, NeonUi.dp(c, 112));
+        pendingScroll.addView(pendingList, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        pendingPanel.addView(pendingScroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        pendingPanel.setPadding(NeonUi.dp(c, 6), 0, NeonUi.dp(c, 6), NeonUi.dp(c, 5));
+        LinearLayout.LayoutParams ppLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ppLp.leftMargin = side;
+        ppLp.rightMargin = side;
+        ppLp.topMargin = NeonUi.dp(c, 4);
+        column.addView(pendingPanel, ppLp);
 
         // ---- input bar
         LinearLayout bar = new LinearLayout(c);
@@ -175,6 +232,12 @@ public final class ChatPage extends FrameLayout {
         send.setOnClickListener(new OnClickListener() {
             @Override public void onClick(View v) { submit(); }
         });
+        plus.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(View v) { toggleCart(); }
+        });
+        clearAll.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(View v) { pending.clear(); rebuildPending(); refreshSendEnabled(); }
+        });
         list.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override public void onScrollStateChanged(AbsListView v, int state) {
                 scrollState = state;
@@ -194,23 +257,79 @@ public final class ChatPage extends FrameLayout {
 
     public void setSendHandler(SendHandler h) { handler = h; }
     public void setModeHandler(ModeHandler h) { modeHandler = h; }
+    public void setAttachHandler(AttachHandler h) { attachHandler = h; }
 
     private void submit() {
         String text = input.getText().toString().trim();
-        if (text.isEmpty() || generating || handler == null) return;
-        handler.onSend(text);
+        if ((text.isEmpty() && pending.isEmpty()) || generating || handler == null) return;
+        handler.onSend(text, new ArrayList<Attachment>(pending));
     }
 
-    /** Called by the activity after the message was accepted. */
+    /** Called by the activity after the message was accepted: empties the box, the waiting files and the cart. */
     public void clearInput() {
         input.setText("");
+        pending.clear();
+        rebuildPending();
+        cart.hide();
         stick = true;
+    }
+
+    // ------------------------------------------------------------------ attachments
+
+    private void toggleCart() {
+        if (!attachEnabled) return;
+        if (cart.isOpen()) { cart.hide(); return; }
+        input.clearFocus();
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) imm.hideSoftInputFromWindow(input.getWindowToken(), 0);     // the keyboard would cover the cart
+        cart.show();
+    }
+
+    /** Adds files chosen by the Activity. @return how many were added (duplicates and anything over the limit are skipped). */
+    public int addAttachments(List<Attachment> files) {
+        int added = 0;
+        for (Attachment a : files) {
+            if (pending.size() >= ChatController.MAX_ATTACHMENTS) break;
+            boolean dup = false;
+            for (Attachment p : pending) if (p.uri.equals(a.uri)) { dup = true; break; }
+            if (dup) continue;
+            pending.add(a);
+            added++;
+        }
+        rebuildPending();
+        refreshSendEnabled();
+        return added;
+    }
+
+    private void rebuildPending() {
+        Context c = getContext();
+        pendingList.removeAllViews();
+        for (final Attachment a : new ArrayList<Attachment>(pending)) {
+            View card = AttachViews.card(c, a, new OnClickListener() {
+                @Override public void onClick(View v) { pending.remove(a); rebuildPending(); refreshSendEnabled(); }
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.bottomMargin = NeonUi.dp(c, 5);
+            pendingList.addView(card, lp);
+        }
+        pendingPanel.setVisibility(pending.isEmpty() ? View.GONE : View.VISIBLE);
+        clearAll.setVisibility(pending.size() > 1 ? View.VISIBLE : View.GONE);        // one file has its own x
+        pendingPanel.setPadding(NeonUi.dp(c, 6), pending.size() > 1 ? 0 : NeonUi.dp(c, 6), NeonUi.dp(c, 6), NeonUi.dp(c, 1));
+    }
+
+    /** A ScrollView that never grows past maxHeight, so a few files cannot push the chat off the small HUD. */
+    private static final class MaxHeightScroll extends ScrollView {
+        private final int maxHeight;
+        MaxHeightScroll(Context c, int maxHeight) { super(c); this.maxHeight = maxHeight; setOverScrollMode(OVER_SCROLL_NEVER); }
+        @Override protected void onMeasure(int w, int h) {
+            super.onMeasure(w, MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST));
+        }
     }
 
     public void focusInput() { input.requestFocus(); }
 
     private void refreshSendEnabled() {
-        boolean on = !generating && input.getText().toString().trim().length() > 0;
+        boolean on = !generating && (input.getText().toString().trim().length() > 0 || !pending.isEmpty());
         if (send.isEnabled() != on) { send.setEnabled(on); }
         send.invalidate();
     }
@@ -225,6 +344,9 @@ public final class ChatPage extends FrameLayout {
         items = newItems;
         generating = isGenerating;
         boolean coder = mode == MODE_CODER;
+        attachEnabled = !coder;                 // the coding model reads text only
+        plus.setAlpha(attachEnabled ? 1f : 0.35f);
+        if (!attachEnabled) cart.hide();
         emptyTitle.setText(coder ? CoderSpec.DISPLAY_NAME : "Gemma 4 E2B");
         emptyTitle.setTextSize(coder ? 17f : 24f);
         emptySub.setText(coder ? "OFFLINE CODING ASSISTANT" : "OFFLINE AI ASSISTANT");
@@ -296,6 +418,7 @@ public final class ChatPage extends FrameLayout {
             Context c = parent.getContext();
             ChatController.Item it = items.get(position);
             int type = getItemViewType(position);
+            if (type == USER) return userRow(c, it, convert, parent);
             FrameLayout row;
             TextView tv;
             if (convert == null) {
@@ -332,14 +455,35 @@ public final class ChatPage extends FrameLayout {
             return row;
         }
 
+        /** The user's message: text, then its file cards (up to 3 per row), then the send time with two ticks. */
+        private View userRow(Context c, ChatController.Item it, View convert, ViewGroup parent) {
+            FrameLayout row;
+            UserBubble bubble;
+            if (convert == null) {
+                row = new FrameLayout(c);
+                bubble = new UserBubble(c);
+                row.addView(bubble);
+                row.setTag(bubble);
+            } else {
+                row = (FrameLayout) convert;
+                bubble = (UserBubble) row.getTag();
+            }
+            int listW = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
+            int maxW = listW > 0 ? Math.round(listW * 0.78f) : NeonUi.dp(c, 300);
+            int perRow = Math.min(3, it.attachments.size());
+            int width = perRow == 0 ? ViewGroup.LayoutParams.WRAP_CONTENT
+                    : Math.min(maxW, NeonUi.dp(c, 150) * perRow + NeonUi.dp(c, 28));
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.gravity = Gravity.END;
+            lp.topMargin = NeonUi.dp(c, 7);
+            lp.bottomMargin = NeonUi.dp(c, 7);
+            bubble.setLayoutParams(lp);
+            bubble.bind(it, (width > 0 ? width : maxW) - NeonUi.dp(c, 28));
+            return row;
+        }
+
         private void styleFor(Context c, TextView tv, int type) {
-            if (type == USER) {
-                tv.setTextColor(NeonUi.TEXT);
-                tv.setTextSize(15f);
-                tv.setBackground(NeonUi.glass(c, 16, 0xAA38D6FF, 0x4A3C9BE6, 0x26205FA8));
-                tv.setPadding(NeonUi.dp(c, 14), NeonUi.dp(c, 8), NeonUi.dp(c, 14), NeonUi.dp(c, 8));
-                tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-            } else if (type == AI) {
+            if (type == AI) {
                 // plain text, no card - lit like glass with a soft blue glow
                 tv.setTextColor(0xFFF2FBFF);
                 tv.setTextSize(15.5f);
@@ -354,6 +498,75 @@ public final class ChatPage extends FrameLayout {
                 tv.setGravity(Gravity.CENTER);
                 tv.setPadding(NeonUi.dp(c, 10), NeonUi.dp(c, 6), NeonUi.dp(c, 10), NeonUi.dp(c, 6));
             }
+        }
+    }
+
+    // ------------------------------------------------------------------ user message bubble
+
+    private static final class UserBubble extends LinearLayout {
+        private static final SimpleDateFormat CLOCK = new SimpleDateFormat("h:mm a", Locale.getDefault());
+        private final TextView text;
+        private final LinearLayout cards;
+        private final LinearLayout footer;
+        private final TextView time;
+
+        UserBubble(Context c) {
+            super(c);
+            setOrientation(VERTICAL);
+            setBackground(NeonUi.glass(c, 16, 0xAA38D6FF, 0x4A3C9BE6, 0x26205FA8));
+            setPadding(NeonUi.dp(c, 14), NeonUi.dp(c, 8), NeonUi.dp(c, 14), NeonUi.dp(c, 6));
+
+            text = new TextView(c);
+            text.setTextColor(NeonUi.TEXT);
+            text.setTextSize(15f);
+            addView(text, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            cards = new LinearLayout(c);
+            cards.setOrientation(VERTICAL);
+            LayoutParams cp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            cp.topMargin = NeonUi.dp(c, 6);
+            addView(cards, cp);
+
+            footer = new LinearLayout(c);
+            footer.setOrientation(HORIZONTAL);
+            footer.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+            time = new TextView(c);
+            time.setTextColor(NeonUi.DIM);
+            time.setTextSize(10.5f);
+            footer.addView(time);
+            AttachIcon ticks = new AttachIcon(c, AttachIcon.TICKS);
+            LayoutParams tp = new LayoutParams(NeonUi.dp(c, 17), NeonUi.dp(c, 10));
+            tp.leftMargin = NeonUi.dp(c, 4);
+            footer.addView(ticks, tp);
+            LayoutParams fp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            fp.topMargin = NeonUi.dp(c, 2);
+            addView(footer, fp);
+        }
+
+        void bind(ChatController.Item it, int textMaxWidth) {
+            Context c = getContext();
+            text.setVisibility(it.text.isEmpty() ? View.GONE : View.VISIBLE);
+            text.setText(it.text);
+            text.setMaxWidth(Math.max(NeonUi.dp(c, 60), textMaxWidth));
+
+            cards.removeAllViews();
+            List<Attachment> files = it.attachments;
+            cards.setVisibility(files.isEmpty() ? View.GONE : View.VISIBLE);
+            for (int i = 0; i < files.size(); i += 3) {
+                LinearLayout row = new LinearLayout(c);
+                row.setOrientation(HORIZONTAL);
+                for (int j = i; j < Math.min(i + 3, files.size()); j++) {
+                    LayoutParams lp = new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                    lp.rightMargin = NeonUi.dp(c, 5);
+                    row.addView(AttachViews.card(c, files.get(j), null), lp);
+                }
+                LayoutParams rp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                rp.bottomMargin = NeonUi.dp(c, 5);
+                cards.addView(row, rp);
+            }
+
+            footer.setVisibility(it.time > 0 ? View.VISIBLE : View.GONE);      // old history has no send time
+            if (it.time > 0) time.setText(CLOCK.format(new Date(it.time)));
         }
     }
 }

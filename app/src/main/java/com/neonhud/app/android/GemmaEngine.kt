@@ -23,6 +23,7 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
     }
 
     @Volatile private var engine: Engine? = null
+    @Volatile private var visionReady = false      // false when this phone could not start the image input
     @Volatile private var cancelled = false
     @Volatile private var waiting: CountDownLatch? = null
 
@@ -30,19 +31,27 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
     override fun load(modelPath: String) {
         unload()
         cacheDir.mkdirs()
-        val config = EngineConfig(
-            modelPath = modelPath,
-            backend = Backend.CPU(),            // most compatible; Backend.GPU() is faster on phones that support OpenCL
-            cacheDir = cacheDir.path
-        )
-        val e = Engine(config)
-        try {
-            e.initialize()                      // blocking, several seconds: called from the module worker thread
-        } catch (t: Throwable) {
-            try { e.close() } catch (_: Throwable) { }
-            throw t
+        // First try with image input (for attached pictures / PDF pages); if this phone cannot start it, load plain text-only.
+        var failure: Throwable? = null
+        for (vision in listOf<Backend?>(Backend.CPU(), null)) {
+            val config = EngineConfig(
+                modelPath = modelPath,
+                backend = Backend.CPU(),        // most compatible; Backend.GPU() is faster on phones that support OpenCL
+                visionBackend = vision,
+                cacheDir = cacheDir.path
+            )
+            val e = Engine(config)
+            try {
+                e.initialize()                  // blocking, several seconds: called from the module worker thread
+                engine = e
+                visionReady = vision != null
+                return
+            } catch (t: Throwable) {
+                try { e.close() } catch (_: Throwable) { }
+                failure = t
+            }
         }
-        engine = e
+        throw failure ?: IllegalStateException("Gemma 4 E2B could not be loaded")
     }
 
     override fun unload() {
@@ -73,11 +82,23 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
         )
 
         val conversation = e.createConversation(conversationConfig)
+        // Attached pictures / PDF pages go in first, then all the text (file texts + the user's message).
+        val parts = ArrayList<Content>()
+        for (a in prompt.attachments) for (img in a.images) parts.add(Content.ImageBytes(img))
+        val text = StringBuilder()
+        if (parts.isNotEmpty() && !visionReady) {
+            parts.clear()
+            text.append("[NOTE: the user attached a picture or PDF, but image input is not available on this phone. Tell the user you cannot see it.]\n\n")
+        }
+        for (a in prompt.attachments) if (a.text.isNotEmpty()) text.append(a.text).append("\n\n")
+        text.append(prompt.userMessage).append(REPLY_HINT)
+        parts.add(Content.Text(text.toString()))
+
         val latch = CountDownLatch(1)
         waiting = latch
         var failure: Throwable? = null
         try {
-            conversation.sendMessageAsync(prompt.userMessage + REPLY_HINT, object : MessageCallback {
+            conversation.sendMessageAsync(Contents.of(*parts.toTypedArray()), object : MessageCallback {
                 override fun onMessage(message: Message) {
                     if (cancelled) return
                     val piece = message.toString()

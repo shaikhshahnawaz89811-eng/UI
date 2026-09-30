@@ -42,4 +42,7 @@ dependencies {
     // suspend functions, so CoderEngine drives them with runBlocking from the module / chat worker threads.
     implementation 'dev.ffmpegkit-maintained:llama-android:0.1.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+
+    // FileProvider only: the camera button needs it to receive a full-size photo (no other androidx UI is used).
+    implementation 'androidx.core:core:1.13.1'
 }

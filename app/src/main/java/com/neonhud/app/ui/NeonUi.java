@@ -93,9 +93,8 @@ final class NeonUi {
         IconView(Context c, int kind) {
             super(c);
             this.kind = kind;
-            // the "+" is only a look for now (no action yet), so it is not clickable
-            setClickable(kind != PLUS);
-            setFocusable(kind != PLUS);
+            setClickable(true);
+            setFocusable(true);
         }
 
         @Override protected void onDraw(Canvas cv) {

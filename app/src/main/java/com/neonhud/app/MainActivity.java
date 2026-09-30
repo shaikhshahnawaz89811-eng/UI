@@ -2,6 +2,7 @@ package com.neonhud.app;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Insets;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.provider.MediaStore;
 import android.view.DisplayCutout;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -22,10 +24,13 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import androidx.core.content.FileProvider;
+
 import com.neonhud.app.android.App;
 import com.neonhud.app.android.ModelService;
 import com.neonhud.app.android.UriImportSource;
 import com.neonhud.app.core.chat.ChatController;
+import com.neonhud.app.core.engine.Attachment;
 import com.neonhud.app.core.module.ModuleState;
 import com.neonhud.app.core.module.ModuleManager;
 import com.neonhud.app.core.module.ModuleSnapshot;
@@ -35,6 +40,13 @@ import com.neonhud.app.ui.ChatPage;
 import com.neonhud.app.ui.HudLayout;
 import com.neonhud.app.ui.SettingsPage;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -47,6 +59,11 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     private static final int REQ_PICK_GEMMA = 41;
     private static final int REQ_NOTIFICATIONS = 42;
     private static final int REQ_PICK_CODER = 43;
+    private static final int REQ_ATTACH_IMAGE = 51;
+    private static final int REQ_ATTACH_PDF = 52;
+    private static final int REQ_ATTACH_ZIP = 53;
+    private static final int REQ_ATTACH_CAMERA = 54;
+    private static final long MAX_ATTACH_BYTES = 50L * 1024 * 1024;   // per file
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     private final AtomicBoolean refreshQueued = new AtomicBoolean(false);
@@ -64,6 +81,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     private boolean showingSettings;
     private int imeInset;
     private boolean exiting;
+    private File cameraFile;             // the photo the camera app is writing right now
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +117,10 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
         settingsPage.setVisibility(View.GONE);
 
         chatPage.setSendHandler(new ChatPage.SendHandler() {
-            @Override public void onSend(String text) { sendMessage(text); }
+            @Override public void onSend(String text, List<Attachment> files) { sendMessage(text, files); }
+        });
+        chatPage.setAttachHandler(new ChatPage.AttachHandler() {
+            @Override public void onPick(int kind) { pickAttachment(kind); }
         });
         chatPage.setModeHandler(new ChatPage.ModeHandler() {
             @Override public void onSwitch() {
@@ -272,8 +293,8 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
 
     // ------------------------------------------------------------------ chat
 
-    private void sendMessage(String text) {
-        ChatController.SendResult r = currentChat().send(text);
+    private void sendMessage(String text, List<Attachment> files) {
+        ChatController.SendResult r = currentChat().send(text, files);
         switch (r) {
             case ACCEPTED:
                 chatPage.clearInput();
@@ -312,10 +333,100 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
         }
     }
 
+    // ------------------------------------------------------------------ attachments (+ button)
+
+    private void pickAttachment(int kind) {
+        if (kind == ChatPage.ATTACH_CAMERA) { openCamera(); return; }
+        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        int code;
+        if (kind == ChatPage.ATTACH_IMAGE) {
+            i.setType("image/*");
+            code = REQ_ATTACH_IMAGE;
+        } else if (kind == ChatPage.ATTACH_PDF) {
+            i.setType("application/pdf");
+            code = REQ_ATTACH_PDF;
+        } else {
+            i.setType("*/*");
+            i.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip", "application/x-zip-compressed",
+                    "application/x-zip", "application/octet-stream"});
+            code = REQ_ATTACH_ZIP;
+        }
+        try {
+            startActivityForResult(i, code);
+        } catch (RuntimeException e) {
+            Toast.makeText(this, "No file picker available on this phone.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void openCamera() {
+        try {
+            File dir = new File(getCacheDir(), "camera");
+            //noinspection ResultOfMethodCallIgnored
+            dir.mkdirs();
+            cameraFile = new File(dir, "IMG_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + ".jpg");
+            //noinspection ResultOfMethodCallIgnored
+            cameraFile.createNewFile();
+            Uri out = FileProvider.getUriForFile(this, getPackageName() + ".files", cameraFile);
+            Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            i.putExtra(MediaStore.EXTRA_OUTPUT, out);
+            i.setClipData(ClipData.newRawUri("photo", out));
+            i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivityForResult(i, REQ_ATTACH_CAMERA);
+        } catch (IOException | RuntimeException e) {
+            Toast.makeText(this, "Camera is not available.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void handleAttachResult(int requestCode, int resultCode, Intent data) {
+        List<Attachment> picked = new ArrayList<Attachment>();
+        if (requestCode == REQ_ATTACH_CAMERA) {
+            File f = cameraFile;
+            cameraFile = null;
+            if (f == null) return;
+            if (resultCode == RESULT_OK && f.length() > 0) {
+                Uri u = FileProvider.getUriForFile(this, getPackageName() + ".files", f);
+                picked.add(new Attachment(Attachment.Kind.IMAGE, f.getName(), f.length(), u.toString()));
+            } else {
+                //noinspection ResultOfMethodCallIgnored
+                f.delete();                                   // cancelled: no empty file left behind
+            }
+        } else if (resultCode == RESULT_OK && data != null) {
+            Attachment.Kind kind = requestCode == REQ_ATTACH_IMAGE ? Attachment.Kind.IMAGE
+                    : requestCode == REQ_ATTACH_PDF ? Attachment.Kind.PDF : Attachment.Kind.ZIP;
+            List<Uri> uris = new ArrayList<Uri>();
+            ClipData clip = data.getClipData();
+            if (clip != null) {
+                for (int k = 0; k < clip.getItemCount(); k++) uris.add(clip.getItemAt(k).getUri());
+            } else if (data.getData() != null) {
+                uris.add(data.getData());
+            }
+            boolean tooBig = false, notZip = false;
+            for (Uri u : uris) {
+                if (u == null) continue;
+                UriImportSource info = new UriImportSource(this, u);          // only reads the name and size
+                if (info.sizeBytes() > MAX_ATTACH_BYTES) { tooBig = true; continue; }
+                if (kind == Attachment.Kind.ZIP && !info.displayName().toLowerCase(Locale.ROOT).endsWith(".zip")) { notZip = true; continue; }
+                picked.add(new Attachment(kind, info.displayName(), info.sizeBytes(), u.toString()));
+            }
+            if (tooBig) Toast.makeText(this, "File too big (max 50 MB).", Toast.LENGTH_SHORT).show();
+            if (notZip) Toast.makeText(this, "Please choose a .zip file.", Toast.LENGTH_SHORT).show();
+        }
+        if (picked.isEmpty()) return;
+        if (chatPage.addAttachments(picked) < picked.size()) {
+            Toast.makeText(this, "Up to " + ChatController.MAX_ATTACHMENTS + " files per message.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     @SuppressWarnings("deprecation")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode >= REQ_ATTACH_IMAGE && requestCode <= REQ_ATTACH_CAMERA) {
+            handleAttachResult(requestCode, resultCode, data);
+            return;
+        }
         if ((requestCode != REQ_PICK_GEMMA && requestCode != REQ_PICK_CODER) || resultCode != RESULT_OK || data == null) return;
         Uri uri = data.getData();
         if (uri == null) return;
