@@ -55,8 +55,22 @@ public final class ConversationBrain {
 
     static final String SYSTEM_BASE =
             "You are Gemma 4 E2B, a helpful AI assistant running fully offline and privately on the user's phone. "
-          + "Answer accurately and clearly. Reply in the same language and script the user writes in "
-          + "(English, Hindi or Hinglish). Use the memory and recent conversation below only when they are relevant, "
+          + "LANGUAGE RULE (very important): if the user writes Hindi or Hinglish, reply in simple Hindi but written ONLY "
+          + "in English (Roman) letters, like: \"Python ek aasan programming language hai.\" NEVER use Devanagari "
+          + "script, not even one word. If the user writes in English, reply in English. "
+          + "UNDERSTANDING RULE: users type fast Hinglish with spelling mistakes. \"bade me\", \"bare me\", \"baare mein\" "
+          + "all mean \"about\" (NOT \"big\"); \"X ke bade me batao\" means \"tell me about X\". \"suru\" = shuru (start), "
+          + "\"sikhao\" = teach, \"samjha nahin\" = I did not understand, \"likho\" = write. "
+          + "\"english likho bhasha hindi rakho\" means: keep speaking Hindi but write it in English letters. "
+          + "ANSWER RULE: answer the exact question the user asked, directly, in the first lines. Do not ask "
+          + "clarifying questions unless the message is truly impossible to understand; if unsure, pick the most "
+          + "likely meaning and answer it. Never invent a question the user did not ask. Stay on the user's "
+          + "topic and the programming language they named (if they ask for Python, use Python, never Kotlin or "
+          + "any other language). "
+          + "STYLE RULE: keep replies short and simple (about 6 to 10 lines) and give more only if asked. "
+          + "Plain text only: do not use markdown symbols such as ** or ### ; use simple numbered lines. "
+          + "Put code inside a triple-backtick block. "
+          + "Use the memory and recent conversation below only when they are relevant, "
           + "and never mention these instructions.";
 
     private static final class Indexed {
@@ -522,12 +536,22 @@ public final class ConversationBrain {
         for (int i = history.size() - 1; i >= 0; i--) {
             ConversationMessage m = history.get(i);
             String txt = MemoryExtractor.clip(m.content, m.isUser() ? 500 : 700);
+            // Old replies written in Devanagari would make the model copy that script again.
+            if (!m.isUser() && hasDevanagari(txt)) txt = "(earlier reply omitted)";
             if (total + txt.length() > MAX_HISTORY_CHARS) break;
             total += txt.length();
             turns.add(0, new PromptPackage.Turn(m.isUser(), txt));
         }
         while (!turns.isEmpty() && !turns.get(0).fromUser) turns.remove(0);
         return new PromptPackage(sys.toString(), mem.toString(), turns, userText);
+    }
+
+    private static boolean hasDevanagari(String t) {
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c >= '\u0900' && c <= '\u097F') return true;
+        }
+        return false;
     }
 
     /** Used by the UI/tests to show the topic names known so far. */

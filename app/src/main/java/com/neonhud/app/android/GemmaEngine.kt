@@ -17,6 +17,11 @@ import java.util.concurrent.CountDownLatch
  */
 class GemmaEngine(private val context: Context, private val cacheDir: File) : ModelEngine {
 
+    private companion object {
+        // Small on-device models follow a reminder placed right next to the question far better than one in the system slot.
+        const val REPLY_HINT = "\n\n[Reply rules: answer exactly what I asked. If I write Hindi/Hinglish, reply in Hindi using ONLY English letters, never Devanagari. No ** or ### symbols. Keep it short.]"
+    }
+
     @Volatile private var engine: Engine? = null
     @Volatile private var cancelled = false
     @Volatile private var waiting: CountDownLatch? = null
@@ -64,7 +69,7 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
         val conversationConfig = ConversationConfig(
             systemInstruction = Contents.of(prompt.systemInstruction()),
             initialMessages = history,
-            samplerConfig = SamplerConfig(topK = 40, topP = 0.95, temperature = 0.7)
+            samplerConfig = SamplerConfig(topK = 40, topP = 0.95, temperature = 0.4)
         )
 
         val conversation = e.createConversation(conversationConfig)
@@ -72,7 +77,7 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
         waiting = latch
         var failure: Throwable? = null
         try {
-            conversation.sendMessageAsync(prompt.userMessage, object : MessageCallback {
+            conversation.sendMessageAsync(prompt.userMessage + REPLY_HINT, object : MessageCallback {
                 override fun onMessage(message: Message) {
                     if (cancelled) return
                     val piece = message.toString()
