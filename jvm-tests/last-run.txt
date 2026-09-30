@@ -8,7 +8,7 @@
 == protection: 64 threads hit Load at once
 
 == protection: 8 threads x 3000 random actions (invariants checked every step)
-  (engine.load calls: 1, unload calls: 1)
+  (engine.load calls: 3, unload calls: 3)
 
 == failure handling rolls the state back
 
@@ -57,7 +57,7 @@
 == tavily: the full key is never displayed
 
 == assistant contract: 1000 mixed conversation questions
-  1000 messages checked across 200 five-turn conversations; hard cases=10; time=328 ms
+  1000 messages checked across 200 five-turn conversations; hard cases=10; time=425 ms
 
 == STRESS: 1,300 messages, 12 topics, switching back and forth, repeats, coding
 
@@ -76,7 +76,7 @@
   same-question detection: TP=642 FN=55 FP=2 TN=601  (recall 92.1%, false-positive rate 0.33%)
   follow-up needs-context: 285/288
   brain topics created   : 12 (ground truth: 12)
-  avg beginTurn+finish   : 1.039 ms, worst 8.628 ms
+  avg beginTurn+finish   : 1.017 ms, worst 8.818 ms
 
   first misses:
    #19 "What will the weather be like in Bhopal today?"  -> REPEAT_XLANG: expected weather QA{topic=Weather ? bhopal, aaj, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=false, returning=false}
@@ -125,5 +125,5 @@
   prompt chars: 4848, history turns: 8, memory chars: 578
 
 ================================================
-checks: 451   failures: 0   time: 3701 ms
+checks: 451   failures: 0   time: 3924 ms
 RESULT: PASS

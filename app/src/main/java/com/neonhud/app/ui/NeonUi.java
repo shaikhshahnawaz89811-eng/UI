@@ -85,7 +85,7 @@ final class NeonUi {
     // ------------------------------------------------------------------ icons
 
     static final class IconView extends View {
-        static final int BACK = 0, SEND = 1;
+        static final int BACK = 0, SEND = 1, PLUS = 2;
         private final int kind;
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Path path = new Path();
@@ -93,8 +93,9 @@ final class NeonUi {
         IconView(Context c, int kind) {
             super(c);
             this.kind = kind;
-            setClickable(true);
-            setFocusable(true);
+            // the "+" is only a look for now (no action yet), so it is not clickable
+            setClickable(kind != PLUS);
+            setFocusable(kind != PLUS);
         }
 
         @Override protected void onDraw(Canvas cv) {
@@ -115,15 +116,59 @@ final class NeonUi {
                 path.lineTo(cx - r * 0.7f, cy);
                 path.lineTo(cx + r * 0.7f, cy + r * 1.4f);
                 cv.drawPath(path, p);
-            } else {
-                float cx = w / 2f, cy = h / 2f, r = s * 0.28f;
-                // paper plane
-                path.moveTo(cx - r, cy - r * 0.9f);
-                path.lineTo(cx + r * 1.1f, cy);
-                path.lineTo(cx - r, cy + r * 0.9f);
-                path.lineTo(cx - r * 0.45f, cy);
+            } else if (kind == SEND) {
+                // paper plane (outline + fold line), same shape as the reference bar
+                float cx = w / 2f, cy = h / 2f, u = s * 0.58f;          // u = size of the plane
+                float x0 = cx - u / 2f, y0 = cy - u / 2f;
+                path.moveTo(x0 + u * 0.96f, y0 + u * 0.04f);           // tip
+                path.lineTo(x0 + u * 0.04f, y0 + u * 0.42f);           // left wing
+                path.lineTo(x0 + u * 0.40f, y0 + u * 0.60f);           // notch
+                path.lineTo(x0 + u * 0.58f, y0 + u * 0.96f);           // tail
                 path.close();
+                if (on) {
+                    p.setStyle(Paint.Style.FILL);
+                    p.setColor(0x3338D6FF);
+                    p.clearShadowLayer();
+                    cv.drawPath(path, p);
+                    p.setStyle(Paint.Style.STROKE);
+                    p.setColor(color);
+                    p.setShadowLayer(s * 0.18f, 0, 0, 0xAA38B6FF);
+                }
                 cv.drawPath(path, p);
+                path.reset();
+                path.moveTo(x0 + u * 0.40f, y0 + u * 0.60f);           // fold line: notch -> tip
+                path.lineTo(x0 + u * 0.96f, y0 + u * 0.04f);
+                cv.drawPath(path, p);
+            } else {
+                // "+" in a square box with cut corners, like the reference
+                float cx = w / 2f, cy = h / 2f;
+                float half = s * 0.5f - Math.max(2f, s * 0.05f);
+                float k = half * 0.22f;                                 // corner cut
+                path.moveTo(cx - half + k, cy - half);
+                path.lineTo(cx + half - k, cy - half);
+                path.lineTo(cx + half, cy - half + k);
+                path.lineTo(cx + half, cy + half - k);
+                path.lineTo(cx + half - k, cy + half);
+                path.lineTo(cx - half + k, cy + half);
+                path.lineTo(cx - half, cy + half - k);
+                path.lineTo(cx - half, cy - half + k);
+                path.close();
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(0x3338B6FF);
+                p.clearShadowLayer();
+                cv.drawPath(path, p);
+                p.setStyle(Paint.Style.STROKE);
+                p.setColor(CYAN);
+                p.setStrokeWidth(Math.max(1.5f, s * 0.04f));
+                p.setShadowLayer(s * 0.10f, 0, 0, 0xAA38B6FF);
+                cv.drawPath(path, p);
+                // the plus itself: bright, slightly glowing
+                float r = half * 0.40f;
+                p.setColor(TEXT);
+                p.setStrokeWidth(Math.max(2.5f, s * 0.08f));
+                p.setShadowLayer(s * 0.16f, 0, 0, 0xCC38B6FF);
+                cv.drawLine(cx - r, cy, cx + r, cy, p);
+                cv.drawLine(cx, cy - r, cx, cy + r, p);
             }
         }
     }

@@ -36,7 +36,7 @@ public final class ChatPage extends FrameLayout {
 
     public interface SendHandler { void onSend(String text); }
 
-    /** The small model switch next to the input: Gemma <-> Coder. */
+    /** Kept for later: the model switch button was removed from the input bar for now. */
     public interface ModeHandler { void onSwitch(); }
 
     public static final int MODE_GEMMA = 0, MODE_CODER = 1;
@@ -47,7 +47,7 @@ public final class ChatPage extends FrameLayout {
     private final LinearLayout emptyBox;
     private final TextView emptyHint;
     private final TextView emptyTitle, emptySub;
-    private final NeonUi.NeonButton modeButton;
+    private final NeonUi.IconView plus;
     private final Adapter adapter = new Adapter();
 
     private SendHandler handler;
@@ -118,38 +118,43 @@ public final class ChatPage extends FrameLayout {
         bar.setPadding(side, NeonUi.dp(c, 4), side, NeonUi.dp(c, 2));
         column.addView(bar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        // model switch (takes width, not height: the screen is landscape and short)
-        modeButton = new NeonUi.NeonButton(c, "Gemma", NeonUi.CYAN);
-        modeButton.setTextSize(11.5f);
-        modeButton.setPadding(NeonUi.dp(c, 8), NeonUi.dp(c, 8), NeonUi.dp(c, 8), NeonUi.dp(c, 8));
-        modeButton.setContentDescription("Switch between Gemma and Qwen Coder");
-        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, NeonUi.dp(c, 42));
-        mlp.rightMargin = NeonUi.dp(c, 4);
-        mlp.gravity = Gravity.BOTTOM;
-        bar.addView(modeButton, mlp);
+        // one long glass bar like the reference: [ + ] [ Type your message... ] [ send ]
+        LinearLayout pill = new LinearLayout(c);
+        pill.setOrientation(LinearLayout.HORIZONTAL);
+        pill.setGravity(Gravity.BOTTOM);
+        pill.setBackground(NeonUi.glass(c, 11, 0xCC38B6FF, 0x55123C7A, 0x440A2250));
+        pill.setPadding(NeonUi.dp(c, 3), NeonUi.dp(c, 3), NeonUi.dp(c, 3), NeonUi.dp(c, 3));
+        bar.addView(pill, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        plus = new NeonUi.IconView(c, NeonUi.IconView.PLUS);
+        plus.setContentDescription("Add");
+        LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(NeonUi.dp(c, 34), NeonUi.dp(c, 34));
+        plp.rightMargin = NeonUi.dp(c, 5);
+        pill.addView(plus, plp);
 
         input = new EditText(c);
         input.setHint("Type your message...");
-        input.setHintTextColor(NeonUi.DIM);
+        input.setHintTextColor(0xFF8FC4EE);
         input.setTextColor(NeonUi.TEXT);
-        input.setTextSize(15f);
+        input.setTextSize(14.5f);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN);
         input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ChatController.MAX_INPUT_CHARS)});
         input.setMinLines(1);
+        input.setMinHeight(NeonUi.dp(c, 34));       // same height as the + box and the send icon
         input.setMaxLines(4);                       // line limit: grows to 4 lines, then scrolls inside
         input.setHorizontallyScrolling(false);
         input.setVerticalScrollBarEnabled(true);
         input.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-        input.setBackground(NeonUi.glass(c, 20));
-        input.setPadding(NeonUi.dp(c, 16), NeonUi.dp(c, 9), NeonUi.dp(c, 16), NeonUi.dp(c, 9));
+        input.setBackground(NeonUi.glass(c, 9, 0x3338B6FF, 0x99051A40, 0x99041238));   // darker field inside the bar
+        input.setPadding(NeonUi.dp(c, 12), NeonUi.dp(c, 6), NeonUi.dp(c, 12), NeonUi.dp(c, 6));
         LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        bar.addView(input, ilp);
+        pill.addView(input, ilp);
 
         send = new NeonUi.IconView(c, NeonUi.IconView.SEND);
-        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(NeonUi.dp(c, 46), NeonUi.dp(c, 42));
-        slp.leftMargin = NeonUi.dp(c, 4);
-        bar.addView(send, slp);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(NeonUi.dp(c, 48), ViewGroup.LayoutParams.MATCH_PARENT);   // tap area = full bar height
+        slp.leftMargin = NeonUi.dp(c, 2);
+        pill.addView(send, slp);
 
         wire();
         refreshSendEnabled();
@@ -169,9 +174,6 @@ public final class ChatPage extends FrameLayout {
         });
         send.setOnClickListener(new OnClickListener() {
             @Override public void onClick(View v) { submit(); }
-        });
-        modeButton.setOnClickListener(new OnClickListener() {
-            @Override public void onClick(View v) { if (modeHandler != null) modeHandler.onSwitch(); }
         });
         list.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override public void onScrollStateChanged(AbsListView v, int state) {
@@ -226,7 +228,6 @@ public final class ChatPage extends FrameLayout {
         emptyTitle.setText(coder ? CoderSpec.DISPLAY_NAME : "Gemma 4 E2B");
         emptyTitle.setTextSize(coder ? 17f : 24f);
         emptySub.setText(coder ? "OFFLINE CODING ASSISTANT" : "OFFLINE AI ASSISTANT");
-        modeButton.setText(coder ? "Coder" : "Gemma");
         input.setHint(coder ? "Ask a coding question..." : "Type your message...");
         emptyBox.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
         emptyHint.setText(moduleState == ModuleState.LOADED
