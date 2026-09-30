@@ -202,6 +202,15 @@ public final class ConversationBrain {
 
     /** Stores the assistant reply and extracts long-term memories. Returns the stored message id (0 if empty). */
     public synchronized long finishTurn(Turn turn, String reply) {
+        return finishTurn(turn, reply, true);
+    }
+
+    /**
+     * @param learn false = store the reply in the conversation but do not turn it into long-term memories
+     *              (used for answers built from internet results: prices, scores and news go stale, so they must
+     *              not come back later as "facts the user told me").
+     */
+    public synchronized long finishTurn(Turn turn, String reply, boolean learn) {
         if (reply == null || reply.trim().isEmpty()) return 0;
         long now = clock.now();
         long id = store.addMessage(now, ConversationMessage.ROLE_ASSISTANT, reply, turn.conversationId, turn.topicId);
@@ -211,8 +220,9 @@ public final class ConversationBrain {
         TextTools.Parsed q = TextTools.parse(turn.userText);
         String replyHead = reply.length() > 900 ? reply.substring(0, 900) : reply;
         TextTools.Parsed r = TextTools.parse(replyHead);
-        List<MemoryExtractor.Candidate> cands = MemoryExtractor.extract(
-                turn.userText, reply, q, r, turn.topicId, turn.analysis.sameQuestion);
+        List<MemoryExtractor.Candidate> cands = learn
+                ? MemoryExtractor.extract(turn.userText, reply, q, r, turn.topicId, turn.analysis.sameQuestion)
+                : new java.util.ArrayList<MemoryExtractor.Candidate>();
         for (MemoryExtractor.Candidate c : cands) {
             store.addMemory(new MemoryItem(0, c.content, c.topicId, c.importance, now, now, c.terms));
             prune(c.topicId);

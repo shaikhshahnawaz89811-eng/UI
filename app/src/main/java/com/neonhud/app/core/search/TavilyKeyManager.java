@@ -3,6 +3,7 @@ package com.neonhud.app.core.search;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.neonhud.app.core.web.KeyPool;
 
 /**
  * Add / Delete for Tavily API keys.
@@ -11,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * TESTED against the real Tavily API on a worker thread. Only a key Tavily accepted is saved. One test at a time
  * (real guard here, not just a greyed-out button). Delete removes the key from the list and from storage.
  */
-public final class TavilyKeyManager {
+public final class TavilyKeyManager implements com.neonhud.app.core.web.KeySource {
 
     public interface Listener { void onKeysChanged(TavilySnapshot snapshot); }
 
@@ -47,8 +48,15 @@ public final class TavilyKeyManager {
     public void addListener(Listener l) { if (l != null) listeners.addIfAbsent(l); }
     public void removeListener(Listener l) { listeners.remove(l); }
 
-    public TavilySnapshot snapshot() {
-        synchronized (lock) { return build(); }
+    /** The saved keys in order (a copy) - the web search service tries them one by one. */
+    @Override public List<String> keys() {
+        synchronized (lock) { return new ArrayList<String>(keys); }
+    }
+
+    public TavilySnapshot snapshot() { synchronized (lock) { return build(null, System.currentTimeMillis()); } }
+
+    public TavilySnapshot snapshot(KeyPool pool, long now) {
+        synchronized (lock) { return build(pool, now); }
     }
 
     // ------------------------------------------------------------------ helpers
@@ -78,9 +86,14 @@ public final class TavilyKeyManager {
         return head + "\u2022\u2022\u2022\u2022" + tail;
     }
 
-    private TavilySnapshot build() {
+    private TavilySnapshot build() { return build(null, System.currentTimeMillis()); }
+
+    private TavilySnapshot build(KeyPool pool, long now) {
         List<TavilySnapshot.Entry> list = new ArrayList<TavilySnapshot.Entry>();
-        for (String k : keys) list.add(new TavilySnapshot.Entry(k, mask(k)));
+        for (String k : keys) {
+            if (pool == null) list.add(new TavilySnapshot.Entry(k, mask(k)));
+            else list.add(new TavilySnapshot.Entry(k, mask(k), pool.health(k, now), pool.restMs(k, now)));
+        }
         return new TavilySnapshot(list, adding, message, tone);
     }
 

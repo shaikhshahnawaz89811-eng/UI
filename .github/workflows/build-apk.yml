@@ -29,10 +29,10 @@ jobs:
           gradle-version: '8.13'
           cache-provider: basic
 
-      - name: Build debug APK
-        run: gradle assembleDebug --stacktrace
+      - name: Build debug + release APKs
+        run: gradle assembleDebug assembleRelease --stacktrace
 
-      # 1) The raw .apk itself (not zipped) - download it on the phone and tap it to install.
+      # 1) The raw debug .apk itself (not zipped) - download it on the phone and tap it to install.
       #    archive:false uploads exactly one file, so the path must point at that file.
       - name: Upload APK (plain file, no zip)
         uses: actions/upload-artifact@v7
@@ -41,10 +41,18 @@ jobs:
           archive: false
           if-no-files-found: error
 
-      # 2) Same APK inside a zip, as a fallback.
-      - name: Upload APK (zip)
+      # 2) Same debug APK inside a zip, as a fallback.
+      - name: Upload debug APK (zip)
         uses: actions/upload-artifact@v7
         with:
           name: neon-hud-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      # 3) Release variant (unsigned unless signing is configured by the project owner).
+      - name: Upload release APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: neon-hud-release-apk
+          path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error

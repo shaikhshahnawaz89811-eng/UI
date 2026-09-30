@@ -88,9 +88,11 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
         val text = StringBuilder()
         if (parts.isNotEmpty() && !visionReady) {
             parts.clear()
-            text.append("[NOTE: the user attached a picture or PDF, but image input is not available on this phone. Tell the user you cannot see it.]\n\n")
+            text.append("[NOTE: a picture or PDF was meant to be shown to you (attached by the user, or taken from a web link), but image input is not available on this phone. Tell the user you cannot see it.]\n\n")
         }
         for (a in prompt.attachments) if (a.text.isNotEmpty()) text.append(a.text).append("\n\n")
+        // Internet results for THIS message only (cleaned and shortened by the web layer); placed next to the question.
+        if (prompt.webContext.isNotEmpty()) text.append(prompt.webContext).append("\n\n")
         text.append(prompt.userMessage).append(REPLY_HINT)
         parts.add(Content.Text(text.toString()))
 

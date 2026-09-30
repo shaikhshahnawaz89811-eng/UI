@@ -27,14 +27,26 @@ public final class PromptPackage {
     public final String userMessage;
     /** Files attached to the current message (already loaded); empty for a plain text message. */
     public final List<Attachment> attachments;
+    /**
+     * Internet search results for the current message (already cleaned and shortened by the web layer), or "".
+     * Never stored in memory or history: it belongs to this one reply only.
+     */
+    public final String webContext;
 
     public PromptPackage(String systemContext, String relevantMemory,
                          List<Turn> recentConversation, String userMessage) {
-        this(systemContext, relevantMemory, recentConversation, userMessage, null);
+        this(systemContext, relevantMemory, recentConversation, userMessage, null, null);
     }
 
     public PromptPackage(String systemContext, String relevantMemory,
                          List<Turn> recentConversation, String userMessage, List<Attachment> attachments) {
+        this(systemContext, relevantMemory, recentConversation, userMessage, attachments, null);
+    }
+
+    private PromptPackage(String systemContext, String relevantMemory,
+                          List<Turn> recentConversation, String userMessage, List<Attachment> attachments,
+                          String webContext) {
+        this.webContext = webContext == null ? "" : webContext;
         this.attachments = attachments == null
                 ? Collections.<Attachment>emptyList()
                 : Collections.unmodifiableList(new ArrayList<Attachment>(attachments));
@@ -48,7 +60,12 @@ public final class PromptPackage {
 
     /** Same prompt with the current message's files attached. */
     public PromptPackage withAttachments(List<Attachment> files) {
-        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, files);
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, files, webContext);
+    }
+
+    /** Same prompt with the internet search block for the current message ("" = none). */
+    public PromptPackage withWebContext(String web) {
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, attachments, web);
     }
 
     /** System text for engines that have a dedicated system slot: context + memory. */
@@ -73,6 +90,7 @@ public final class PromptPackage {
         for (Attachment a : attachments) {
             if (!a.text.isEmpty()) sb.append(a.text).append("\n\n");
         }
+        if (!webContext.isEmpty()) sb.append(webContext).append("\n\n");
         sb.append("CURRENT USER MESSAGE:\n").append(userMessage);
         return sb.toString();
     }

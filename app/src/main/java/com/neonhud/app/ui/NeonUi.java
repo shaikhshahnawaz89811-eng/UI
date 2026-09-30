@@ -41,7 +41,7 @@ final class NeonUi {
     // ------------------------------------------------------------------ button
 
     static final class NeonButton extends TextView {
-        private final int accent;
+        private int accent;
 
         NeonButton(Context c, String label, int accent) {
             super(c);
@@ -62,6 +62,12 @@ final class NeonUi {
         @Override public void setEnabled(boolean enabled) {
             super.setEnabled(enabled);
             applyLook(enabled);
+        }
+
+        void setAccent(int newAccent) {
+            if (newAccent == accent) return;
+            accent = newAccent;
+            applyLook(isEnabled());
         }
 
         private void applyLook(boolean enabled) {

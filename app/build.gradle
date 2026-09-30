@@ -11,8 +11,8 @@ android {
         applicationId = 'com.neonhud.app'
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = '2.1'
+        versionCode = 4
+        versionName = '2.2'
 
         // Gemma 4 E2B and the Qwen2.5-Coder GGUF (llama.cpp AAR) both run on 64-bit ARM phones; dropping x86/armv7 keeps the APK small.
         ndk { abiFilters 'arm64-v8a' }

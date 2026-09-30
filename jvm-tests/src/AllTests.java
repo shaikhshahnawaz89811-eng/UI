@@ -9,9 +9,15 @@ public final class AllTests {
             MemoryTests.run();
             ChatTests.run();
             AttachmentTests.run();
+            FileSnifferTests.run();
             CoderModuleTests.run();
             TavilyKeyTests.run();
+            WebCoreTests.run();
+            ChatWebTests.run();
+            WebPhase2Tests.run();
+            Phase3QuestionSetTest.run();
             AssistantRegression1000Test.run();
+            Phase4Tests.run();
         }
         StressTest.run();
         System.out.println("\n================================================");

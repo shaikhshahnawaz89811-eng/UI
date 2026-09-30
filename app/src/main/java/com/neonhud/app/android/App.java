@@ -12,6 +12,10 @@ import com.neonhud.app.core.module.FileModelStorage;
 import com.neonhud.app.core.module.ModelStorage;
 import com.neonhud.app.core.module.ModuleManager;
 import com.neonhud.app.core.search.TavilyKeyManager;
+import com.neonhud.app.core.web.HttpFetcher;
+import com.neonhud.app.core.web.HttpWebApi;
+import com.neonhud.app.core.web.MediaReader;
+import com.neonhud.app.core.web.WebSearchService;
 
 import java.io.File;
 
@@ -42,6 +46,8 @@ public final class App extends Application {
     private ChatController coderChat;
 
     private TavilyKeyManager tavily;
+    private PrefsWebSettings webSettings;
+    private WebSearchService webSearch;
 
     private volatile int chatMode = MODE_GEMMA;
 
@@ -77,6 +83,17 @@ public final class App extends Application {
 
         // ------------------------------------------------ Tavily API keys (Settings card: Add tests the key, Delete removes it)
         tavily = new TavilyKeyManager(new HttpTavilyClient(), new PrefsTavilyKeyStore(this));
+
+        // ------------------------------------------------ Web search for the general chat (Settings: Auto / Always / Off).
+        // The coding chat stays fully offline: it is never given a search service.
+        webSettings = new PrefsWebSettings(this);
+        webSearch = new WebSearchService(new HttpWebApi(), tavily, webSettings, new WebSearchService.Clock() {
+            @Override public long now() { return System.currentTimeMillis(); }
+        });
+        // Phase 2: pictures and PDFs behind links (and web pictures the user asked to "read") are downloaded directly and
+        // handed to the vision model; pages are read through Tavily Extract. Both use only public http(s) addresses.
+        webSearch.setMedia(new MediaReader(new HttpFetcher(), new WebMediaDecoder(this)));
+        chat.setWebSearch(webSearch);
     }
 
     public static App get(Context c) { return (App) c.getApplicationContext(); }
@@ -90,6 +107,8 @@ public final class App extends Application {
     public ChatController coderChat() { return coderChat; }
 
     public TavilyKeyManager tavily() { return tavily; }
+    public PrefsWebSettings webSettings() { return webSettings; }
+    public WebSearchService webSearch() { return webSearch; }
 
     /** Which chat the user is looking at (kept here so it survives the Activity being re-created). */
     public int chatMode() { return chatMode; }

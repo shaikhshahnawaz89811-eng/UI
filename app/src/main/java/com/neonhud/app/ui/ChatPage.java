@@ -1,13 +1,18 @@
 package com.neonhud.app.ui;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.net.Uri;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.view.View;
@@ -17,15 +22,20 @@ import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.neonhud.app.android.WebImageLoader;
 import com.neonhud.app.core.chat.ChatController;
 import com.neonhud.app.core.coder.CoderSpec;
 import com.neonhud.app.core.engine.Attachment;
 import com.neonhud.app.core.module.ModuleState;
+import com.neonhud.app.core.web.UrlTools;
+import com.neonhud.app.core.web.WebLink;
+import com.neonhud.app.core.web.WebPic;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -419,6 +429,7 @@ public final class ChatPage extends FrameLayout {
             ChatController.Item it = items.get(position);
             int type = getItemViewType(position);
             if (type == USER) return userRow(c, it, convert, parent);
+            if (type == AI) return aiRow(c, it, convert, parent);
             FrameLayout row;
             TextView tv;
             if (convert == null) {
@@ -435,23 +446,44 @@ public final class ChatPage extends FrameLayout {
 
             // Keep the conversation visually inside the HUD instead of letting AI text touch both sides.
             // The frame is fixed; only this inner list scrolls.
-            float widthFraction = type == USER ? 0.78f : (type == AI ? 0.88f : 0.82f);
+            float widthFraction = 0.82f;
             int maxW = listW > 0 ? Math.round(listW * widthFraction) : ViewGroup.LayoutParams.WRAP_CONTENT;
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.gravity = type == USER ? Gravity.END : (type == NOTICE ? Gravity.CENTER_HORIZONTAL : Gravity.START);
-            lp.topMargin = NeonUi.dp(c, type == NOTICE ? 4 : 7);
-            lp.bottomMargin = NeonUi.dp(c, type == NOTICE ? 4 : 7);
+            lp.gravity = Gravity.CENTER_HORIZONTAL;
+            lp.topMargin = NeonUi.dp(c, 4);
+            lp.bottomMargin = NeonUi.dp(c, 4);
             tv.setLayoutParams(lp);
             if (maxW > 0) tv.setMaxWidth(maxW);
             tv.setMinWidth(0);
 
-            if (type == AI && it.text.isEmpty()) {
-                tv.setText("\u2026");
+            tv.setText(it.text);
+            return row;
+        }
+
+        /** The AI reply: glowing plain text, then (once finished) the pages and pictures of a web answer. */
+        private View aiRow(Context c, ChatController.Item it, View convert, ViewGroup parent) {
+            FrameLayout row;
+            AiBlock block;
+            if (convert == null) {
+                row = new FrameLayout(c);
+                block = new AiBlock(c);
+                row.addView(block);
+                row.setTag(block);
             } else {
-                tv.setText(it.text);
+                row = (FrameLayout) convert;
+                block = (AiBlock) row.getTag();
             }
+            int listW = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
+            int maxW = listW > 0 ? Math.round(listW * 0.88f) : NeonUi.dp(c, 420);
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.gravity = Gravity.START;
+            lp.topMargin = NeonUi.dp(c, 7);
+            lp.bottomMargin = NeonUi.dp(c, 7);
+            block.setLayoutParams(lp);
+            block.bind(it, maxW);
             return row;
         }
 
@@ -483,20 +515,139 @@ public final class ChatPage extends FrameLayout {
         }
 
         private void styleFor(Context c, TextView tv, int type) {
-            if (type == AI) {
-                // plain text, no card - lit like glass with a soft blue glow
-                tv.setTextColor(0xFFF2FBFF);
-                tv.setTextSize(15.5f);
-                tv.setLineSpacing(0f, 1.20f);
-                tv.setShadowLayer(NeonUi.dp(c, 7), 0, 0, 0xAA2FA8FF);
-                // AI remains plain text (no card), but has breathing room on both sides.
-                tv.setPadding(NeonUi.dp(c, 2), NeonUi.dp(c, 2), NeonUi.dp(c, 2), NeonUi.dp(c, 2));
-                tv.setGravity(Gravity.START);
+            tv.setTextColor(NeonUi.AMBER);
+            tv.setTextSize(12.5f);
+            tv.setGravity(Gravity.CENTER);
+            tv.setPadding(NeonUi.dp(c, 10), NeonUi.dp(c, 6), NeonUi.dp(c, 10), NeonUi.dp(c, 6));
+        }
+    }
+
+    // ------------------------------------------------------------------ AI reply block (text + links + pictures)
+
+    private static final class AiBlock extends LinearLayout {
+        private final TextView text;
+        private final LinearLayout linkBox;
+        private final LinearLayout picBox;
+        private List<WebLink> shownLinks;
+        private List<WebPic> shownPics;
+        private int shownWidth = -1;
+
+        AiBlock(Context c) {
+            super(c);
+            setOrientation(VERTICAL);
+            text = new TextView(c);
+            // plain text, no card - lit like glass with a soft blue glow
+            text.setTextSize(15.5f);
+            text.setLineSpacing(0f, 1.20f);
+            text.setShadowLayer(NeonUi.dp(c, 7), 0, 0, 0xAA2FA8FF);
+            text.setPadding(NeonUi.dp(c, 2), NeonUi.dp(c, 2), NeonUi.dp(c, 2), NeonUi.dp(c, 2));
+            text.setGravity(Gravity.START);
+            addView(text, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            picBox = new LinearLayout(c);
+            picBox.setOrientation(HORIZONTAL);
+            picBox.setVisibility(GONE);
+            LayoutParams plp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            plp.topMargin = NeonUi.dp(c, 6);
+            addView(picBox, plp);
+
+            linkBox = new LinearLayout(c);
+            linkBox.setOrientation(VERTICAL);
+            linkBox.setVisibility(GONE);
+            LayoutParams llp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            llp.topMargin = NeonUi.dp(c, 4);
+            addView(linkBox, llp);
+        }
+
+        void bind(ChatController.Item it, int maxW) {
+            Context c = getContext();
+            text.setMaxWidth(maxW);
+            if (it.text.isEmpty()) {
+                // nothing written yet: show what the app is doing (e.g. "Searching the web...") or a plain ellipsis
+                boolean busy = !it.status.isEmpty();
+                text.setText(busy ? it.status : "\u2026");
+                text.setTextColor(busy ? NeonUi.CYAN : 0xFFF2FBFF);
+                text.setTypeface(Typeface.DEFAULT, busy ? Typeface.ITALIC : Typeface.NORMAL);
             } else {
-                tv.setTextColor(NeonUi.AMBER);
-                tv.setTextSize(12.5f);
-                tv.setGravity(Gravity.CENTER);
-                tv.setPadding(NeonUi.dp(c, 10), NeonUi.dp(c, 6), NeonUi.dp(c, 10), NeonUi.dp(c, 6));
+                text.setText(it.text);
+                text.setTextColor(0xFFF2FBFF);
+                text.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
+            }
+            // rebuilt only when the lists (or the width) really changed - not on every streamed word
+            if (it.pics != shownPics || maxW != shownWidth) { shownPics = it.pics; buildPics(c, it.pics, maxW); }
+            if (it.links != shownLinks || maxW != shownWidth) { shownLinks = it.links; buildLinks(c, it.links, maxW); }
+            shownWidth = maxW;
+        }
+
+        private void buildPics(Context c, List<WebPic> pics, int maxW) {
+            picBox.removeAllViews();
+            if (pics.isEmpty()) { picBox.setVisibility(GONE); return; }
+            picBox.setVisibility(VISIBLE);
+            int gap = NeonUi.dp(c, 6);
+            int n = pics.size();
+            int w = Math.min(NeonUi.dp(c, 130), (maxW - gap * (n - 1)) / n);
+            int h = Math.round(w * 0.68f);
+            for (int i = 0; i < n; i++) {
+                final WebPic p = pics.get(i);
+                final ImageView iv = new ImageView(c);
+                iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                iv.setBackground(NeonUi.glass(c, 10));
+                iv.setContentDescription(p.caption);
+                iv.setTag(p.url);
+                iv.setClickable(true);
+                iv.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { open(v.getContext(), p.url); } });
+                LayoutParams lp = new LayoutParams(w, h);
+                if (i > 0) lp.leftMargin = gap;
+                picBox.addView(iv, lp);
+                WebImageLoader.get().load(p.url, Math.max(w, h) * 2, new WebImageLoader.Callback() {
+                    @Override public void onLoaded(Bitmap b) { if (p.url.equals(iv.getTag())) iv.setImageBitmap(b); }
+                    @Override public void onFailed() { if (p.url.equals(iv.getTag())) iv.setVisibility(View.INVISIBLE); }
+                });
+            }
+        }
+
+        private void buildLinks(Context c, List<WebLink> links, int maxW) {
+            linkBox.removeAllViews();
+            if (links.isEmpty()) { linkBox.setVisibility(GONE); return; }
+            linkBox.setVisibility(VISIBLE);
+            for (final WebLink l : links) {
+                LinearLayout chip = new LinearLayout(c);
+                chip.setOrientation(VERTICAL);
+                chip.setBackground(NeonUi.glass(c, 10, 0x8838D6FF, 0x3A3C9BE6, 0x1A205FA8));
+                chip.setPadding(NeonUi.dp(c, 10), NeonUi.dp(c, 6), NeonUi.dp(c, 10), NeonUi.dp(c, 6));
+                chip.setClickable(true);
+                chip.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { open(v.getContext(), l.url); } });
+
+                TextView title = new TextView(c);
+                title.setText(l.title.isEmpty() ? l.domain : l.title);
+                title.setTextColor(NeonUi.CYAN);
+                title.setTextSize(13.5f);
+                title.setTypeface(Typeface.DEFAULT_BOLD);
+                title.setSingleLine(true);
+                title.setEllipsize(TextUtils.TruncateAt.END);
+                chip.addView(title);
+
+                TextView dom = new TextView(c);
+                dom.setText(l.domain + "  \u2197");
+                dom.setTextColor(NeonUi.DIM);
+                dom.setTextSize(11.5f);
+                dom.setSingleLine(true);
+                dom.setEllipsize(TextUtils.TruncateAt.END);
+                chip.addView(dom);
+
+                LayoutParams lp = new LayoutParams(Math.min(maxW, NeonUi.dp(c, 360)), ViewGroup.LayoutParams.WRAP_CONTENT);
+                lp.topMargin = NeonUi.dp(c, 4);
+                linkBox.addView(chip, lp);
+            }
+        }
+
+        /** Opens a page / picture in the browser. Only the addresses the search returned, and only normal public ones. */
+        private static void open(Context c, String url) {
+            if (!UrlTools.isSafe(url)) return;
+            try {
+                c.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            } catch (ActivityNotFoundException ignored) {
+            } catch (SecurityException ignored) {
             }
         }
     }

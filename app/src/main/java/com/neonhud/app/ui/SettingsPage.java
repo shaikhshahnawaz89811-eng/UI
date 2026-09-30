@@ -16,6 +16,7 @@ import com.neonhud.app.core.module.ModuleAction;
 import com.neonhud.app.core.module.ModuleSnapshot;
 import com.neonhud.app.core.module.ModuleState;
 import com.neonhud.app.core.search.TavilySnapshot;
+import com.neonhud.app.core.web.WebMode;
 
 /**
  * Settings: one module card per offline model - Gemma 4 E2B (Offline AI Model) and the Qwen2.5-Coder coding model -
@@ -35,6 +36,7 @@ public final class SettingsPage extends FrameLayout {
         void onDelete(int module);
         void onAddTavilyKey(String key);
         void onDeleteTavilyKey(String key);
+        void onWebMode(WebMode mode);
     }
 
     /** One module card (title, status line, progress, message and the Import / Load / Unload / Delete buttons). */
@@ -165,6 +167,7 @@ public final class SettingsPage extends FrameLayout {
 
     private final Card gemmaCard, coderCard;
     private final TavilyKeysCard tavilyCard;
+    private final WebSearchCard webCard;
 
     public SettingsPage(Context c, final Actions actions) {
         super(c);
@@ -203,7 +206,15 @@ public final class SettingsPage extends FrameLayout {
         addCard(c, cards, gemmaCard);
         addCard(c, cards, coderCard);
 
-        // third card: Tavily API keys (Add tests the key with Tavily, Delete removes it)
+        // web search switch (Auto / Always / Off), then the Tavily keys it uses
+        webCard = new WebSearchCard(c, new WebSearchCard.Handler() {
+            @Override public void onMode(WebMode mode) { actions.onWebMode(mode); }
+        });
+        LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        wlp.setMargins(NeonUi.dp(c, 8), NeonUi.dp(c, 6), NeonUi.dp(c, 8), NeonUi.dp(c, 6));
+        cards.addView(webCard, wlp);
+
+        // Tavily API keys (Add tests the key with Tavily, Delete removes it)
         tavilyCard = new TavilyKeysCard(c, new TavilyKeysCard.Handler() {
             @Override public void onAdd(String key) { actions.onAddTavilyKey(key); }
             @Override public void onDelete(String key) { actions.onDeleteTavilyKey(key); }
@@ -219,9 +230,10 @@ public final class SettingsPage extends FrameLayout {
         parent.addView(card.view, lp);
     }
 
-    public void bind(ModuleSnapshot gemma, ModuleSnapshot coder, TavilySnapshot tavily) {
+    public void bind(ModuleSnapshot gemma, ModuleSnapshot coder, TavilySnapshot tavily, WebMode webMode) {
         gemmaCard.bind(gemma);
         coderCard.bind(coder);
         tavilyCard.bind(tavily);
+        webCard.bind(webMode, tavily.entries.size());
     }
 }

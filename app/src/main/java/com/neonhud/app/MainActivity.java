@@ -31,6 +31,7 @@ import com.neonhud.app.android.ModelService;
 import com.neonhud.app.android.UriImportSource;
 import com.neonhud.app.core.chat.ChatController;
 import com.neonhud.app.core.engine.Attachment;
+import com.neonhud.app.core.engine.FileSniffer;
 import com.neonhud.app.core.module.ModuleState;
 import com.neonhud.app.core.module.ModuleManager;
 import com.neonhud.app.core.module.ModuleSnapshot;
@@ -38,10 +39,12 @@ import com.neonhud.app.core.search.TavilyKeyManager;
 import com.neonhud.app.core.search.TavilySnapshot;
 import com.neonhud.app.ui.ChatPage;
 import com.neonhud.app.ui.HudLayout;
+import com.neonhud.app.core.web.WebMode;
 import com.neonhud.app.ui.SettingsPage;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -110,6 +113,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
             @Override public void onDelete(int module) { doDelete(module); }
             @Override public void onAddTavilyKey(String key) { app.tavily().requestAdd(key); }
             @Override public void onDeleteTavilyKey(String key) { app.tavily().requestDelete(key); }
+            @Override public void onWebMode(WebMode mode) { app.webSettings().set(mode); refresh(); }
         });
         FrameLayout content = hud.content();
         content.addView(chatPage, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
@@ -270,7 +274,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     private void refresh() {
         ModuleSnapshot gemma = app.modules().snapshot();
         ModuleSnapshot coder = app.coderModules().snapshot();
-        settingsPage.bind(gemma, coder, app.tavily().snapshot());
+        settingsPage.bind(gemma, coder, app.tavily().snapshot(app.webSearch().pool(), System.currentTimeMillis()), app.webSettings().mode());
         ChatController chat = currentChat();
         ModuleState shown = coderMode() ? coder.state : gemma.state;
         chatPage.bind(chat.items(), chat.isGenerating(), shown,
@@ -344,14 +348,11 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
         if (kind == ChatPage.ATTACH_IMAGE) {
             i.setType("image/*");
             code = REQ_ATTACH_IMAGE;
-        } else if (kind == ChatPage.ATTACH_PDF) {
-            i.setType("application/pdf");
-            code = REQ_ATTACH_PDF;
         } else {
+            // PDF and Zip: show EVERY file from EVERY source (Downloads, Drive, WhatsApp, ...). Many apps label their
+            // files "octet-stream" or give no extension, so a MIME filter would hide them; the file is checked by its content.
             i.setType("*/*");
-            i.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip", "application/x-zip-compressed",
-                    "application/x-zip", "application/octet-stream"});
-            code = REQ_ATTACH_ZIP;
+            code = kind == ChatPage.ATTACH_PDF ? REQ_ATTACH_PDF : REQ_ATTACH_ZIP;
         }
         try {
             startActivityForResult(i, code);
@@ -402,21 +403,82 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
             } else if (data.getData() != null) {
                 uris.add(data.getData());
             }
-            boolean tooBig = false, notZip = false;
-            for (Uri u : uris) {
-                if (u == null) continue;
-                UriImportSource info = new UriImportSource(this, u);          // only reads the name and size
-                if (info.sizeBytes() > MAX_ATTACH_BYTES) { tooBig = true; continue; }
-                if (kind == Attachment.Kind.ZIP && !info.displayName().toLowerCase(Locale.ROOT).endsWith(".zip")) { notZip = true; continue; }
-                picked.add(new Attachment(kind, info.displayName(), info.sizeBytes(), u.toString()));
+            if (kind == Attachment.Kind.IMAGE) {
+                // unchanged: the image picker already only offers pictures
+                boolean tooBig = false;
+                for (Uri u : uris) {
+                    if (u == null) continue;
+                    UriImportSource info = new UriImportSource(this, u);
+                    if (info.sizeBytes() > MAX_ATTACH_BYTES) { tooBig = true; continue; }
+                    picked.add(new Attachment(kind, info.displayName(), info.sizeBytes(), u.toString()));
+                }
+                if (tooBig) Toast.makeText(this, "File too big (max 50 MB).", Toast.LENGTH_SHORT).show();
+            } else {
+                checkAndAttach(kind, uris);                 // PDF / Zip: checked off the UI thread, then added
+                return;
             }
-            if (tooBig) Toast.makeText(this, "File too big (max 50 MB).", Toast.LENGTH_SHORT).show();
-            if (notZip) Toast.makeText(this, "Please choose a .zip file.", Toast.LENGTH_SHORT).show();
         }
+        addPicked(picked);
+    }
+
+    private void addPicked(List<Attachment> picked) {
         if (picked.isEmpty()) return;
         if (chatPage.addAttachments(picked) < picked.size()) {
             Toast.makeText(this, "Up to " + ChatController.MAX_ATTACHMENTS + " files per message.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * PDF / Zip from any source: every file is opened and its first bytes are checked, so a real PDF or zip is accepted
+     * whatever its name, extension or MIME type says, and a wrong file is refused with a clear message. Done on a
+     * worker thread because a cloud provider (Drive ...) may download the file first.
+     */
+    private void checkAndAttach(final Attachment.Kind expected, final List<Uri> uris) {
+        final String label = expected == Attachment.Kind.PDF ? "PDF" : "zip";
+        new Thread(new Runnable() {
+            @Override public void run() {
+                final List<Attachment> ok = new ArrayList<Attachment>();
+                final List<String> problems = new ArrayList<String>();
+                for (Uri u : uris) {
+                    if (u == null) continue;
+                    UriImportSource info = new UriImportSource(MainActivity.this, u);
+                    String name = info.displayName().isEmpty() ? "This file" : info.displayName();
+                    if (info.sizeBytes() > MAX_ATTACH_BYTES) { problems.add(name + " is too big (max 50 MB)."); continue; }
+                    byte[] head = new byte[FileSniffer.HEAD_BYTES];
+                    int len = 0;
+                    try {
+                        InputStream in = info.open();
+                        try {
+                            int n;
+                            while (len < head.length && (n = in.read(head, len, head.length - len)) > 0) len += n;
+                        } finally {
+                            in.close();
+                        }
+                    } catch (IOException | RuntimeException e) {
+                        problems.add(name + " could not be opened.");
+                        continue;
+                    }
+                    Attachment.Kind real = FileSniffer.detect(head, len);
+                    if (real == expected) {
+                        ok.add(new Attachment(expected, info.displayName(), info.sizeBytes(), u.toString()));
+                    } else if (real != null) {
+                        problems.add(name + " is a " + (real == Attachment.Kind.PDF ? "PDF" : "zip") + ", not a " + label
+                                + ". Use the " + (real == Attachment.Kind.PDF ? "PDF" : "Zip") + " button for it.");
+                    } else {
+                        problems.add(name + " is not a real " + label + " file.");
+                    }
+                }
+                ui.post(new Runnable() {
+                    @Override public void run() {
+                        if (!problems.isEmpty()) {
+                            Toast.makeText(MainActivity.this, problems.get(0) + (problems.size() > 1 ? " (+" + (problems.size() - 1) + " more)" : ""),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        addPicked(ok);
+                    }
+                });
+            }
+        }, "attach-check").start();
     }
 
     @Override
