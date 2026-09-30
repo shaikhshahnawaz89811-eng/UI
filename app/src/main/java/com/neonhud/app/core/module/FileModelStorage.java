@@ -40,9 +40,15 @@ public class FileModelStorage implements ModelStorage {
     @Override public String modelPath() { return finalFile().getAbsolutePath(); }
 
     @Override public void importModel(ImportSource source, ProgressSink progress) throws IOException {
-        String name = source.displayName() == null ? "" : source.displayName().toLowerCase(Locale.ROOT);
-        if (!name.endsWith(requiredExtension)) {
-            throw new IOException("Please choose the Gemma 4 E2B " + requiredExtension + " file.");
+        String shown = source.displayName() == null ? "" : source.displayName();
+        String name = shown.toLowerCase(Locale.ROOT);
+        // Lenient: accept "x.litertlm", "x.litertlm.bin", "x.litertlm (1)", and pickers that give
+        // no real file name (e.g. "msf:1234"). Reject only names that clearly are something else.
+        boolean hasExt = name.contains(requiredExtension);
+        boolean nameless = name.isEmpty() || name.indexOf('.') < 0;
+        if (!hasExt && !nameless) {
+            throw new IOException("Please choose the Gemma 4 E2B " + requiredExtension
+                    + " file (you chose: " + shown + ").");
         }
         long size = source.sizeBytes();
         if (size >= 0 && size < minBytes) {
