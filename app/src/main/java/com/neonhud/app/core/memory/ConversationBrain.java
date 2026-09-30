@@ -45,7 +45,7 @@ public final class ConversationBrain {
     static final double REVIVE_MIN = 0.50;
     static final double RETURN_MIN = 0.30;
     static final double SAME_Q_MIN = 0.85;
-    static final int HISTORY_MESSAGES = 6;
+    static final int HISTORY_MESSAGES = 4;
     static final int MAX_HISTORY_CHARS = 3200;
     static final int MEMORY_LIMIT = 5;
     static final int MAX_TOPIC_MEMORIES = 80;
@@ -62,11 +62,13 @@ public final class ConversationBrain {
           + "all mean \"about\" (NOT \"big\"); \"X ke bade me batao\" means \"tell me about X\". \"suru\" = shuru (start), "
           + "\"sikhao\" = teach, \"samjha nahin\" = I did not understand, \"likho\" = write. "
           + "\"english likho bhasha hindi rakho\" means: keep speaking Hindi but write it in English letters. "
-          + "ANSWER RULE: answer the exact question the user asked, directly, in the first lines. Do not ask "
-          + "clarifying questions unless the message is truly impossible to understand; if unsure, pick the most "
-          + "likely meaning and answer it. Never invent a question the user did not ask. Stay on the user's "
-          + "topic and the programming language they named (if they ask for Python, use Python, never Kotlin or "
-          + "any other language). "
+          + "ANSWER RULE: answer the exact current user request first. Do not invent a different question. Do not "
+          + "ask for clarification when the previous turn gives a reasonable meaning. For a short follow-up such as "
+          + "haan, yes, karo, continue, ok, or 'yahi', use the immediately preceding user+assistant exchange to infer "
+          + "the intended action. If the previous assistant explicitly asked for a missing detail and the user did not "
+          + "provide it, ask only for that exact missing detail. Never answer with a generic 'what do you mean' when "
+          + "the recent conversation contains the meaning. Preserve every important noun, acronym, model name, language, "
+          + "and number from the current message. Never silently substitute one important term, number, model name, or language for another. Stay on the user's topic. "
           + "STYLE RULE: keep replies short and simple (about 6 to 10 lines) and give more only if asked. "
           + "Plain text only: do not use markdown symbols such as ** or ### ; use simple numbered lines. "
           + "Put code inside a triple-backtick block. "
@@ -508,6 +510,27 @@ public final class ConversationBrain {
     private PromptPackage buildPrompt(QuestionAnalysis qa, Topic target, List<ConversationMessage> history,
                                       List<MemoryItem> memories, String userText) {
         StringBuilder sys = new StringBuilder(SYSTEM_BASE);
+        sys.append("\n\nTASK CONTROL (highest priority):");
+        sys.append("\n- Answer CURRENT USER MESSAGE, not an older question.");
+        sys.append("\n- Preserve exact important terms, numbers, model names, and programming languages from CURRENT USER MESSAGE.");
+        if (qa.relatedQuestion || qa.requiresPreviousContext || qa.followUpCue) {
+            sys.append("\n- This is a continuation. Resolve short words such as 'karo', 'haan', 'yahi', 'yes', 'ok', 'continue' from the immediately preceding exchange.");
+        }
+        if (qa.topicChanged) {
+            sys.append("\n- Subject changed: ignore unrelated earlier topics.");
+        }
+        TextTools.Parsed currentParsed = TextTools.parse(userText);
+        sys.append("\n\nCURRENT MESSAGE ANCHORS: preserve these exact user terms/numbers where relevant: ");
+        int anchorCount = 0;
+        for (String token : currentParsed.tokens) {
+            if (token.length() < 2) continue;
+            if (TextTools.isStructuralToken(token)) continue;
+            if (anchorCount++ > 0) sys.append(", ");
+            sys.append(token);
+            if (anchorCount >= 12) break;
+        }
+        if (anchorCount == 0) sys.append("(none)");
+        if (!currentParsed.domains.isEmpty()) sys.append(" | subject domain: ").append(joinSet(currentParsed.domains));
         sys.append("\n\nCurrent topic: ").append(target.name).append('.');
         if (qa.returningToOldTopic) {
             sys.append("\nThe user is returning to this earlier topic");
@@ -544,6 +567,12 @@ public final class ConversationBrain {
         }
         while (!turns.isEmpty() && !turns.get(0).fromUser) turns.remove(0);
         return new PromptPackage(sys.toString(), mem.toString(), turns, userText);
+    }
+
+    private static String joinSet(Set<String> values) {
+        StringBuilder b = new StringBuilder();
+        for (String v : values) { if (b.length() > 0) b.append(", "); b.append(v); }
+        return b.toString();
     }
 
     private static boolean hasDevanagari(String t) {

@@ -19,7 +19,7 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
 
     private companion object {
         // Small on-device models follow a reminder placed right next to the question far better than one in the system slot.
-        const val REPLY_HINT = "\n\n[Reply rules: answer exactly what I asked. If I write Hindi/Hinglish, reply in Hindi using ONLY English letters, never Devanagari. No ** or ### symbols. Keep it short.]"
+        const val REPLY_HINT = "\n\n[FINAL TASK: Answer the CURRENT USER MESSAGE exactly. Use the recent conversation only to resolve follow-ups. Preserve exact names, acronyms, numbers and languages from the current message; never substitute similar terms. If the current message is a short follow-up such as haan/yes/karo/yahi/continue, act on the immediately preceding exchange instead of asking what the user means. If a required detail is genuinely missing, ask only for that detail. If the topic changed, ignore older unrelated topics. If I write Hindi/Hinglish, reply in Hindi using ONLY English letters, never Devanagari. No ** or ### symbols. Keep it short.]"
     }
 
     @Volatile private var engine: Engine? = null
@@ -69,7 +69,7 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
         val conversationConfig = ConversationConfig(
             systemInstruction = Contents.of(prompt.systemInstruction()),
             initialMessages = history,
-            samplerConfig = SamplerConfig(topK = 40, topP = 0.95, temperature = 0.4)
+            samplerConfig = SamplerConfig(topK = 24, topP = 0.90, temperature = 0.25)
         )
 
         val conversation = e.createConversation(conversationConfig)

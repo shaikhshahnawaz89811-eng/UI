@@ -238,6 +238,11 @@ public final class TextTools {
         return p;
     }
 
+    /** True for words that are useful for grammar but usually add no task identity. */
+    public static boolean isStructuralToken(String s) {
+        return STOP.contains(s) || ACK.contains(s) || RETURN_WORDS.contains(s);
+    }
+
     private static boolean isPureNumber(String s) {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
