@@ -8,6 +8,8 @@ public final class AllTests {
             ModuleTests.run();
             MemoryTests.run();
             ChatTests.run();
+            CoderModuleTests.run();
+            TavilyKeyTests.run();
             AssistantRegression1000Test.run();
         }
         StressTest.run();

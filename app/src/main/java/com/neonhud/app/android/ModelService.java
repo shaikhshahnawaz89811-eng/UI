@@ -14,21 +14,24 @@ import android.os.PowerManager;
 
 import com.neonhud.app.MainActivity;
 import com.neonhud.app.R;
+import com.neonhud.app.core.coder.CoderSpec;
 import com.neonhud.app.core.module.ModuleManager;
 import com.neonhud.app.core.module.ModuleSnapshot;
 import com.neonhud.app.core.module.ModuleState;
 
 /**
- * Foreground service that keeps the process (and so the loaded model / running reply) alive while the app is in the
- * background. It stops itself as soon as nothing needs the model: not loaded, nothing importing, no reply running.
+ * Foreground service that keeps the process (and so the loaded models / a running reply) alive while the app is in the
+ * background. It watches BOTH modules (Gemma and the coder) and stops itself as soon as neither needs it:
+ * nothing loaded, nothing importing, no reply running.
  */
 public final class ModelService extends Service implements ModuleManager.Listener {
 
-    private static final String CHANNEL = "gemma_runtime";
+    private static final String CHANNEL = "gemma_runtime";     // id kept so an existing channel is reused
     private static final int NOTIFICATION_ID = 7;
 
     private PowerManager.WakeLock wakeLock;
     private boolean foregroundStarted;
+    private String shownText = "";
 
     /** Call from the UI AFTER an action was accepted (the app is in the foreground then, which Android requires). */
     public static void ensureRunning(Context ctx) {
@@ -44,27 +47,44 @@ public final class ModelService extends Service implements ModuleManager.Listene
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         startAsForeground();
-        App.get(this).modules().addListener(this);
-        evaluate(App.get(this).modules().snapshot());
+        App app = App.get(this);
+        app.modules().addListener(this);
+        app.coderModules().addListener(this);
+        evaluate();
         return START_NOT_STICKY;
+    }
+
+    private String describe() {
+        App app = App.get(this);
+        boolean gemma = app.modules().state() == ModuleState.LOADED;
+        boolean coder = app.coderModules().state() == ModuleState.LOADED;
+        if (gemma && coder) return "Gemma 4 E2B + " + CoderSpec.SHORT_NAME + " are running offline";
+        if (coder) return CoderSpec.SHORT_NAME + " is running offline";
+        if (gemma) return "Gemma 4 E2B is running offline";
+        return "Offline AI is working on this phone";
+    }
+
+    private Notification buildNotification(String text) {
+        Intent open = new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, CHANNEL) : new Notification.Builder(this);
+        return b.setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Neon HUD")
+                .setContentText(text)
+                .setContentIntent(pi)
+                .setOngoing(true)
+                .build();
     }
 
     private void startAsForeground() {
         if (Build.VERSION.SDK_INT >= 26) {
-            NotificationChannel ch = new NotificationChannel(CHANNEL, "Gemma runtime", NotificationManager.IMPORTANCE_LOW);
+            NotificationChannel ch = new NotificationChannel(CHANNEL, "Offline AI runtime", NotificationManager.IMPORTANCE_LOW);
             ch.setShowBadge(false);
             NotificationManager nm = getSystemService(NotificationManager.class);
             if (nm != null) nm.createNotificationChannel(ch);
         }
-        Intent open = new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, CHANNEL) : new Notification.Builder(this);
-        Notification n = b.setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Gemma 4 E2B")
-                .setContentText("Offline AI is running on this phone")
-                .setContentIntent(pi)
-                .setOngoing(true)
-                .build();
+        shownText = describe();
+        Notification n = buildNotification(shownText);
         if (Build.VERSION.SDK_INT >= 34) {
             startForeground(NOTIFICATION_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
         } else {
@@ -73,18 +93,33 @@ public final class ModelService extends Service implements ModuleManager.Listene
         foregroundStarted = true;
     }
 
-    @Override public void onModuleChanged(ModuleSnapshot s) { evaluate(s); }
+    @Override public void onModuleChanged(ModuleSnapshot s) { evaluate(); }
 
-    private synchronized void evaluate(ModuleSnapshot s) {
-        boolean busy = s.inFlight != null || s.replyActive;
-        boolean needed = busy || s.state == ModuleState.LOADED;
+    private synchronized void evaluate() {
+        App app = App.get(this);
+        ModuleSnapshot g = app.modules().snapshot();
+        ModuleSnapshot c = app.coderModules().snapshot();
+        boolean busy = g.inFlight != null || g.replyActive || c.inFlight != null || c.replyActive;
+        boolean needed = busy || g.state == ModuleState.LOADED || c.state == ModuleState.LOADED;
         if (busy) acquireWake(); else releaseWake();
         if (!needed && foregroundStarted) {
             foregroundStarted = false;
-            App.get(this).modules().removeListener(this);
+            app.modules().removeListener(this);
+            app.coderModules().removeListener(this);
             releaseWake();
             if (Build.VERSION.SDK_INT >= 24) stopForeground(STOP_FOREGROUND_REMOVE); else stopForeground(true);
             stopSelf();
+            return;
+        }
+        if (needed && foregroundStarted) {
+            String text = describe();
+            if (!text.equals(shownText)) {          // a module was loaded / unloaded: keep the notification text true
+                shownText = text;
+                NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (nm != null) {
+                    try { nm.notify(NOTIFICATION_ID, buildNotification(text)); } catch (RuntimeException ignored) { }
+                }
+            }
         }
     }
 
@@ -92,7 +127,7 @@ public final class ModelService extends Service implements ModuleManager.Listene
         if (wakeLock == null) {
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             if (pm == null) return;
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "neonhud:gemma");
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "neonhud:ai");
             wakeLock.setReferenceCounted(false);
         }
         if (!wakeLock.isHeld()) wakeLock.acquire(30L * 60 * 1000);   // safety timeout: 30 min
@@ -103,7 +138,9 @@ public final class ModelService extends Service implements ModuleManager.Listene
     }
 
     @Override public void onDestroy() {
-        App.get(this).modules().removeListener(this);
+        App app = App.get(this);
+        app.modules().removeListener(this);
+        app.coderModules().removeListener(this);
         releaseWake();
         super.onDestroy();
     }

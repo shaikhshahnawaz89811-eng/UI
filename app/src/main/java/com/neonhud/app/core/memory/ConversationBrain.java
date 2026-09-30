@@ -86,14 +86,21 @@ public final class ConversationBrain {
 
     private final MemoryStore store;
     private final Clock clock;
+    private final String systemBase;
     private final List<Indexed> index = new ArrayList<Indexed>();
     private final java.util.Map<String, Integer> docFreq = new java.util.HashMap<String, Integer>();
     private boolean indexLoaded;
     private long currentTopicId, previousTopicId, conversationId, lastTs;
 
     public ConversationBrain(MemoryStore store, Clock clock) {
+        this(store, clock, SYSTEM_BASE);
+    }
+
+    /** Same brain, but with the model-specific opening instruction (e.g. the coding assistant's). */
+    public ConversationBrain(MemoryStore store, Clock clock, String systemBase) {
         this.store = store;
         this.clock = clock;
+        this.systemBase = systemBase == null || systemBase.isEmpty() ? SYSTEM_BASE : systemBase;
         currentTopicId = metaLong("cur_topic", 0);
         previousTopicId = metaLong("prev_topic", 0);
         conversationId = metaLong("conv_id", 1);
@@ -525,7 +532,7 @@ public final class ConversationBrain {
 
     private PromptPackage buildPrompt(QuestionAnalysis qa, Topic target, List<ConversationMessage> history,
                                       List<MemoryItem> memories, String userText) {
-        StringBuilder sys = new StringBuilder(SYSTEM_BASE);
+        StringBuilder sys = new StringBuilder(systemBase);
         sys.append("\n\nTASK CONTROL (highest priority):");
         sys.append("\n- Answer CURRENT USER MESSAGE, not an older question.");
         sys.append("\n- Preserve exact important terms, numbers, model names, and programming languages from CURRENT USER MESSAGE.");

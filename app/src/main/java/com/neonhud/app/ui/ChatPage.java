@@ -21,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.neonhud.app.core.chat.ChatController;
+import com.neonhud.app.core.coder.CoderSpec;
 import com.neonhud.app.core.module.ModuleState;
 
 import java.util.ArrayList;
@@ -35,14 +36,23 @@ public final class ChatPage extends FrameLayout {
 
     public interface SendHandler { void onSend(String text); }
 
+    /** The small model switch next to the input: Gemma <-> Coder. */
+    public interface ModeHandler { void onSwitch(); }
+
+    public static final int MODE_GEMMA = 0, MODE_CODER = 1;
+
     private final ListView list;
     private final EditText input;
     private final NeonUi.IconView send;
     private final LinearLayout emptyBox;
     private final TextView emptyHint;
+    private final TextView emptyTitle, emptySub;
+    private final NeonUi.NeonButton modeButton;
     private final Adapter adapter = new Adapter();
 
     private SendHandler handler;
+    private ModeHandler modeHandler;
+    private int mode = MODE_GEMMA;
     private List<ChatController.Item> items = new ArrayList<ChatController.Item>();
     private boolean generating;
     private boolean stick = true;
@@ -76,6 +86,7 @@ public final class ChatPage extends FrameLayout {
         emptyBox.setOrientation(LinearLayout.VERTICAL);
         emptyBox.setGravity(Gravity.CENTER);
         TextView title = new TextView(c);
+        emptyTitle = title;
         title.setText("Gemma 4 E2B");
         title.setTextSize(24f);
         title.setTextColor(NeonUi.TEXT);
@@ -83,6 +94,7 @@ public final class ChatPage extends FrameLayout {
         title.setGravity(Gravity.CENTER);
         title.setShadowLayer(NeonUi.dp(c, 8), 0, 0, 0xCC38B6FF);
         TextView sub = new TextView(c);
+        emptySub = sub;
         sub.setText("OFFLINE AI ASSISTANT");
         sub.setTextSize(11f);
         sub.setLetterSpacing(0.18f);
@@ -105,6 +117,16 @@ public final class ChatPage extends FrameLayout {
         bar.setGravity(Gravity.BOTTOM);
         bar.setPadding(side, NeonUi.dp(c, 4), side, NeonUi.dp(c, 2));
         column.addView(bar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        // model switch (takes width, not height: the screen is landscape and short)
+        modeButton = new NeonUi.NeonButton(c, "Gemma", NeonUi.CYAN);
+        modeButton.setTextSize(11.5f);
+        modeButton.setPadding(NeonUi.dp(c, 8), NeonUi.dp(c, 8), NeonUi.dp(c, 8), NeonUi.dp(c, 8));
+        modeButton.setContentDescription("Switch between Gemma and Qwen Coder");
+        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, NeonUi.dp(c, 42));
+        mlp.rightMargin = NeonUi.dp(c, 4);
+        mlp.gravity = Gravity.BOTTOM;
+        bar.addView(modeButton, mlp);
 
         input = new EditText(c);
         input.setHint("Type your message...");
@@ -148,6 +170,9 @@ public final class ChatPage extends FrameLayout {
         send.setOnClickListener(new OnClickListener() {
             @Override public void onClick(View v) { submit(); }
         });
+        modeButton.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(View v) { if (modeHandler != null) modeHandler.onSwitch(); }
+        });
         list.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override public void onScrollStateChanged(AbsListView v, int state) {
                 scrollState = state;
@@ -166,6 +191,7 @@ public final class ChatPage extends FrameLayout {
     }
 
     public void setSendHandler(SendHandler h) { handler = h; }
+    public void setModeHandler(ModeHandler h) { modeHandler = h; }
 
     private void submit() {
         String text = input.getText().toString().trim();
@@ -189,17 +215,27 @@ public final class ChatPage extends FrameLayout {
 
     // ------------------------------------------------------------------ data
 
-    public void bind(List<ChatController.Item> newItems, boolean isGenerating, ModuleState moduleState) {
+    /** @param newMode MODE_GEMMA or MODE_CODER: which chat (and which model's texts) this page shows. */
+    public void bind(List<ChatController.Item> newItems, boolean isGenerating, ModuleState moduleState, int newMode) {
         boolean wasEmpty = items.isEmpty();
+        boolean modeChanged = newMode != mode;
+        mode = newMode;
         items = newItems;
         generating = isGenerating;
+        boolean coder = mode == MODE_CODER;
+        emptyTitle.setText(coder ? CoderSpec.DISPLAY_NAME : "Gemma 4 E2B");
+        emptyTitle.setTextSize(coder ? 17f : 24f);
+        emptySub.setText(coder ? "OFFLINE CODING ASSISTANT" : "OFFLINE AI ASSISTANT");
+        modeButton.setText(coder ? "Coder" : "Gemma");
+        input.setHint(coder ? "Ask a coding question..." : "Type your message...");
         emptyBox.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
         emptyHint.setText(moduleState == ModuleState.LOADED
                 ? "Type your message below."
-                : "Open Settings \u2699 to import and load Gemma 4 E2B.");
+                : "Open Settings \u2699 to import and load " + (coder ? CoderSpec.DISPLAY_NAME : "Gemma 4 E2B") + ".");
         adapter.notifyDataSetChanged();
         refreshSendEnabled();
-        if (stick || wasEmpty) scrollToBottomSoon();
+        if (modeChanged) { stick = true; list.setSelection(Math.max(0, adapter.getCount() - 1)); }
+        if (stick || wasEmpty || modeChanged) scrollToBottomSoon();
     }
 
     // ------------------------------------------------------------------ scrolling

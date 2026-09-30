@@ -49,19 +49,26 @@ public final class ChatController {
     private final ConversationBrain brain;
     private final MemoryStore store;
     private final ExecutorService worker;
+    private final String displayName;
     private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<Listener>();
     private final List<Item> items = new ArrayList<Item>();
     private long nextKey = 1;
     private volatile boolean generating;
 
     public ChatController(ModuleManager modules, ConversationBrain brain, MemoryStore store) {
+        this(modules, brain, store, modules.displayName(), "gemma-chat");
+    }
+
+    public ChatController(ModuleManager modules, ConversationBrain brain, MemoryStore store,
+                          String displayName, final String threadName) {
+        this.displayName = displayName;
         this.modules = modules;
         this.engine = modules.engine();
         this.brain = brain;
         this.store = store;
         this.worker = Executors.newSingleThreadExecutor(new ThreadFactory() {
             @Override public Thread newThread(Runnable r) {
-                Thread t = new Thread(r, "gemma-chat");
+                Thread t = new Thread(r, threadName);
                 t.setDaemon(true);
                 return t;
             }
@@ -89,7 +96,7 @@ public final class ChatController {
         if (generating) return SendResult.BUSY;
         if (!modules.tryBeginReply()) {
             if (modules.state() != ModuleState.LOADED) {
-                notice("Gemma 4 E2B is not loaded. Open Settings \u2699 and Import / Load the model.");
+                notice(displayName + " is not loaded. Open Settings \u2699 and Import / Load the model.");
                 return SendResult.MODEL_NOT_READY;
             }
             return SendResult.BUSY;

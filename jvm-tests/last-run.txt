@@ -8,7 +8,7 @@
 == protection: 64 threads hit Load at once
 
 == protection: 8 threads x 3000 random actions (invariants checked every step)
-  (engine.load calls: 15, unload calls: 14)
+  (engine.load calls: 1, unload calls: 1)
 
 == failure handling rolls the state back
 
@@ -32,24 +32,51 @@
 
 == chat controller: model gating, streaming, background survival
 
+== coder: spec constants
+
+== coder: independent from Gemma
+
+== coder: same Load / Unload / Delete rules
+
+== coder: GGUF file storage
+
+== coder: separate chat
+
+== coder: prompt builder
+
+== tavily: key format is checked before any network call
+
+== tavily: Add = test with Tavily, then save
+
+== tavily: rejected / untestable keys are NOT saved
+
+== tavily: only one test at a time (real guard)
+
+== tavily: Delete and restart
+
+== tavily: the full key is never displayed
+
+== assistant contract: 1000 mixed conversation questions
+  1000 messages checked across 200 five-turn conversations; hard cases=10; time=328 ms
+
 == STRESS: 1,300 messages, 12 topics, switching back and forth, repeats, coding
 
   behaviour               ok / total     accuracy
   FIRST                    1 / 1       100.0%
   STANDALONE             137 / 137     100.0%
-  FOLLOWUP               277 / 288      96.2%
+  FOLLOWUP               284 / 288      98.6%
   SWITCH                  56 / 58       96.6%
-  RETURN                 118 / 119      99.2%
+  RETURN                 119 / 119     100.0%
   REPEAT_EXACT           607 / 613      99.0%
   REPEAT_PARA             19 / 39       48.7%
   REPEAT_XLANG            11 / 45       24.4%
-  ALL                   1226 / 1300     94.3%
+  ALL                   1234 / 1300     94.9%
 
-  topic-change detection : TP=320 FN=2 FP=11 TN=966  (recall 99.4%, precision 96.7%)
+  topic-change detection : TP=321 FN=1 FP=2 TN=975  (recall 99.7%, precision 99.4%)
   same-question detection: TP=642 FN=55 FP=2 TN=601  (recall 92.1%, false-positive rate 0.33%)
   follow-up needs-context: 285/288
   brain topics created   : 12 (ground truth: 12)
-  avg beginTurn+finish   : 1.034 ms, worst 9.682 ms
+  avg beginTurn+finish   : 1.039 ms, worst 8.628 ms
 
   first misses:
    #19 "What will the weather be like in Bhopal today?"  -> REPEAT_XLANG: expected weather QA{topic=Weather ? bhopal, aaj, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=false, returning=false}
@@ -81,9 +108,7 @@
    #434 "How is a 3 phase motor starter connected?"  -> REPEAT_XLANG: expected electrical QA{topic=Electrical wiring ? microwave, amp, prev=Cricket ? shami, wickets, changed=false, same=false, related=true, needsCtx=false, returning=false}
    #459 "1.5mm vs 2.5mm wire ka farq batao"  -> REPEAT_PARA: expected electrical QA{topic=Electrical wiring ? microwave, amp, prev=Cooking & food ? kheer, recipe, changed=false, same=false, related=true, needsCtx=false, returning=false}
    #469 "What interest does a PPF account give?"  -> REPEAT_XLANG: expected finance QA{topic=Money & finance ? upi, paisa, prev=Electrical wiring ? microwave, amp, changed=false, same=false, related=true, needsCtx=false, returning=false}
-   #482 "Aur isko train kaise karte hain?"  -> FOLLOWUP: expected ai got topic#11 QA{topic=Train & transport ? jaipur, delhi, prev=AI models ? offline, ai, changed=true, same=false, related=false, needsCtx=true, returning=true}
    #490 "Home loan EMI calculate karne ka formula kya hai?"  -> REPEAT_PARA: expected finance QA{topic=Money & finance ? upi, paisa, prev=AI models ? offline, ai, changed=false, same=false, related=true, needsCtx=false, returning=false}
-   #501 "Aur isko train kaise karte hain?"  -> FOLLOWUP: expected ai got topic#11 QA{topic=Train & transport ? jaipur, delhi, prev=AI models ? offline, ai, changed=true, same=false, related=false, needsCtx=true, returning=true}
    #520 "How fast does Bumrah bowl?"  -> REPEAT_XLANG: expected cricket QA{topic=Cricket ? shami, wickets, prev=Weather ? bhopal, aaj, changed=false, same=false, related=true, needsCtx=false, returning=false}
    #594 "Android app mein camera permission kaise lagayein?"  -> REPEAT_PARA: expected android QA{topic=Android app development ? android, file, prev=Health ? vitamin, kami, changed=false, same=false, related=true, needsCtx=false, returning=false}
    #662 "How much GST is charged on Insurance premium?"  -> REPEAT_XLANG: expected finance QA{topic=Money & finance ? upi, paisa, prev=AI models ? offline, ai, changed=false, same=false, related=true, needsCtx=false, returning=false}
@@ -92,11 +117,13 @@
    #688 "What is the best time to visit Goa?"  -> REPEAT_XLANG: expected travel QA{topic=Travel & stays ? shimla, homestay, prev=Android app development ? android, file, changed=false, same=false, related=true, needsCtx=false, returning=false}
    #702 "How to make Kadhi?"  -> REPEAT_XLANG: expected cooking QA{topic=Cooking & food ? kheer, recipe, prev=Programming ? selection, sort, changed=false, same=false, related=true, needsCtx=true, returning=false}
    #707 "Roti phulane ka tarika kya hai?"  -> REPEAT_PARA: expected cooking QA{topic=Cooking & food ? kheer, recipe, prev=Programming ? selection, sort, changed=false, same=false, related=true, needsCtx=true, returning=false}
-  total misses: 74
+   #713 "How much GST is charged on Car?"  -> REPEAT_XLANG: expected finance QA{topic=Money & finance ? upi, paisa, prev=Android app development ? android, file, changed=false, same=false, related=true, needsCtx=false, returning=false}
+   #729 "Weight loss ke liye diet plan kaisa hona chahiye?"  -> REPEAT_EXACT: expected health got topic#5 QA{topic=Money & finance ? upi, paisa, prev=Cricket ? shami, wickets, changed=true, same=true, related=false, needsCtx=true, returning=true}
+  total misses: 66
 
 == prompt size after 1,300 messages
-  prompt chars: 1937, history turns: 8, memory chars: 578
+  prompt chars: 4848, history turns: 8, memory chars: 578
 
 ================================================
-checks: 316   failures: 0   time: 3078 ms
+checks: 451   failures: 0   time: 3701 ms
 RESULT: PASS

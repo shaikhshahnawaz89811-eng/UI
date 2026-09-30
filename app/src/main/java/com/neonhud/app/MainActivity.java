@@ -26,8 +26,11 @@ import com.neonhud.app.android.App;
 import com.neonhud.app.android.ModelService;
 import com.neonhud.app.android.UriImportSource;
 import com.neonhud.app.core.chat.ChatController;
+import com.neonhud.app.core.module.ModuleState;
 import com.neonhud.app.core.module.ModuleManager;
 import com.neonhud.app.core.module.ModuleSnapshot;
+import com.neonhud.app.core.search.TavilyKeyManager;
+import com.neonhud.app.core.search.TavilySnapshot;
 import com.neonhud.app.ui.ChatPage;
 import com.neonhud.app.ui.HudLayout;
 import com.neonhud.app.ui.SettingsPage;
@@ -39,10 +42,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This Activity is ONLY a view: the model, the chat and the memory live in {@link App}, so going to the
  * background and coming back (or the Activity being re-created) never stops a load or a reply.
  */
-public class MainActivity extends Activity implements ModuleManager.Listener, ChatController.Listener {
+public class MainActivity extends Activity implements ModuleManager.Listener, ChatController.Listener, TavilyKeyManager.Listener {
 
-    private static final int REQ_PICK_MODEL = 41;
+    private static final int REQ_PICK_GEMMA = 41;
     private static final int REQ_NOTIFICATIONS = 42;
+    private static final int REQ_PICK_CODER = 43;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     private final AtomicBoolean refreshQueued = new AtomicBoolean(false);
@@ -82,10 +86,12 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
         chatPage = new ChatPage(this);
         settingsPage = new SettingsPage(this, new SettingsPage.Actions() {
             @Override public void onBack() { showSettings(false); }
-            @Override public void onImport() { pickModel(); }
-            @Override public void onLoad() { doLoad(); }
-            @Override public void onUnload() { doUnload(); }
-            @Override public void onDelete() { doDelete(); }
+            @Override public void onImport(int module) { pickModel(module); }
+            @Override public void onLoad(int module) { doLoad(module); }
+            @Override public void onUnload(int module) { doUnload(module); }
+            @Override public void onDelete(int module) { doDelete(module); }
+            @Override public void onAddTavilyKey(String key) { app.tavily().requestAdd(key); }
+            @Override public void onDeleteTavilyKey(String key) { app.tavily().requestDelete(key); }
         });
         FrameLayout content = hud.content();
         content.addView(chatPage, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
@@ -94,6 +100,12 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
 
         chatPage.setSendHandler(new ChatPage.SendHandler() {
             @Override public void onSend(String text) { sendMessage(text); }
+        });
+        chatPage.setModeHandler(new ChatPage.ModeHandler() {
+            @Override public void onSwitch() {
+                app.setChatMode(app.chatMode() == App.MODE_CODER ? App.MODE_GEMMA : App.MODE_CODER);
+                refresh();
+            }
         });
 
         // top-right icons
@@ -191,13 +203,19 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     @Override protected void onStart() {
         super.onStart();
         app.modules().addListener(this);
+        app.coderModules().addListener(this);
         app.chat().addListener(this);
+        app.coderChat().addListener(this);
+        app.tavily().addListener(this);
         refresh();
     }
 
     @Override protected void onStop() {
         app.modules().removeListener(this);
+        app.coderModules().removeListener(this);
         app.chat().removeListener(this);
+        app.coderChat().removeListener(this);
+        app.tavily().removeListener(this);
         ui.removeCallbacks(refreshRunnable);
         refreshQueued.set(false);
         super.onStop();
@@ -218,15 +236,24 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     // listeners fire on worker threads; coalesce into at most one UI refresh every ~33 ms
     @Override public void onModuleChanged(ModuleSnapshot snapshot) { scheduleRefresh(); }
     @Override public void onChatChanged() { scheduleRefresh(); }
+    @Override public void onKeysChanged(TavilySnapshot snapshot) { scheduleRefresh(); }
 
     private void scheduleRefresh() {
         if (refreshQueued.compareAndSet(false, true)) ui.postDelayed(refreshRunnable, 33);
     }
 
+    private boolean coderMode() { return app.chatMode() == App.MODE_CODER; }
+    private ChatController currentChat() { return coderMode() ? app.coderChat() : app.chat(); }
+    private ModuleManager manager(int module) { return module == SettingsPage.CODER ? app.coderModules() : app.modules(); }
+
     private void refresh() {
-        ModuleSnapshot s = app.modules().snapshot();
-        settingsPage.bind(s);
-        chatPage.bind(app.chat().items(), app.chat().isGenerating(), s.state);
+        ModuleSnapshot gemma = app.modules().snapshot();
+        ModuleSnapshot coder = app.coderModules().snapshot();
+        settingsPage.bind(gemma, coder, app.tavily().snapshot());
+        ChatController chat = currentChat();
+        ModuleState shown = coderMode() ? coder.state : gemma.state;
+        chatPage.bind(chat.items(), chat.isGenerating(), shown,
+                coderMode() ? ChatPage.MODE_CODER : ChatPage.MODE_GEMMA);
     }
 
     private void showSettings(boolean show) {
@@ -246,7 +273,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     // ------------------------------------------------------------------ chat
 
     private void sendMessage(String text) {
-        ChatController.SendResult r = app.chat().send(text);
+        ChatController.SendResult r = currentChat().send(text);
         switch (r) {
             case ACCEPTED:
                 chatPage.clearInput();
@@ -272,14 +299,14 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
         }
     }
 
-    private void pickModel() {
-        if (!app.modules().snapshot().canImport) return;
+    private void pickModel(int module) {
+        if (!manager(module).snapshot().canImport) return;
         requestNotificationPermissionOnce();
         Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("*/*");
         try {
-            startActivityForResult(i, REQ_PICK_MODEL);
+            startActivityForResult(i, module == SettingsPage.CODER ? REQ_PICK_CODER : REQ_PICK_GEMMA);
         } catch (RuntimeException e) {
             Toast.makeText(this, "No file picker available on this phone.", Toast.LENGTH_LONG).show();
         }
@@ -289,44 +316,47 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     @SuppressWarnings("deprecation")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode != REQ_PICK_MODEL || resultCode != RESULT_OK || data == null) return;
+        if ((requestCode != REQ_PICK_GEMMA && requestCode != REQ_PICK_CODER) || resultCode != RESULT_OK || data == null) return;
         Uri uri = data.getData();
         if (uri == null) return;
-        ModuleManager.Result r = app.modules().requestImport(new UriImportSource(this, uri));
+        ModuleManager target = requestCode == REQ_PICK_CODER ? app.coderModules() : app.modules();
+        ModuleManager.Result r = target.requestImport(new UriImportSource(this, uri));
         if (r.accepted) ModelService.ensureRunning(this);
         refresh();
     }
 
-    private void doLoad() {
-        ModuleManager.Result r = app.modules().requestLoad();
+    private void doLoad(int module) {
+        ModuleManager.Result r = manager(module).requestLoad();
         if (r.accepted) ModelService.ensureRunning(this);
         refresh();
     }
 
-    private void doUnload() {
-        app.modules().requestUnload();
+    private void doUnload(int module) {
+        manager(module).requestUnload();
         refresh();
     }
 
-    private void doDelete() {
-        app.modules().requestDelete();
+    private void doDelete(int module) {
+        manager(module).requestDelete();
         refresh();
     }
 
     // ------------------------------------------------------------------ exit
 
-    /** The close icon: stop any reply, unload the model, stop the service and end the process. */
+    /** The close icon: stop any reply, unload both models, stop the service and end the process. */
     private void exitApp() {
         if (exiting) return;
         exiting = true;
         app.chat().cancel();
+        app.coderChat().cancel();
         new Thread(new Runnable() {
             @Override public void run() {
                 long end = System.currentTimeMillis() + 4000;
-                while (app.chat().isGenerating() && System.currentTimeMillis() < end) {
+                while ((app.chat().isGenerating() || app.coderChat().isGenerating()) && System.currentTimeMillis() < end) {
                     try { Thread.sleep(30); } catch (InterruptedException ignored) { }
                 }
                 app.modules().shutdownQuietly();
+                app.coderModules().shutdownQuietly();
                 ui.post(new Runnable() {
                     @Override public void run() {
                         stopService(new Intent(MainActivity.this, ModelService.class));

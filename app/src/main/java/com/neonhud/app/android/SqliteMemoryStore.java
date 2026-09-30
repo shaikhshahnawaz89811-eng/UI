@@ -22,7 +22,12 @@ public final class SqliteMemoryStore extends SQLiteOpenHelper implements MemoryS
     private SQLiteDatabase db;
 
     public SqliteMemoryStore(Context ctx) {
-        super(ctx.getApplicationContext(), "conversation_memory.db", null, VERSION);
+        this(ctx, "conversation_memory.db");
+    }
+
+    /** Separate database file per model, so the coding chat and the Gemma chat never share history. */
+    public SqliteMemoryStore(Context ctx, String dbName) {
+        super(ctx.getApplicationContext(), dbName, null, VERSION);
         db = getWritableDatabase();
     }
 

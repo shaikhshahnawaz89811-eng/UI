@@ -8,7 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * Orchestrates import / load / unload / delete of the Gemma 4 E2B module.
+ * Orchestrates import / load / unload / delete of ONE offline model module (Gemma 4 E2B, Qwen Coder, ...).
+ * Each module gets its own ModuleManager, so their states never affect each other.
  * Every public request is validated by {@link ModuleStateMachine} at call time, so a second Load,
  * a Delete while loaded, etc. are refused even when triggered programmatically.
  */
@@ -35,10 +36,17 @@ public final class ModuleManager {
     private final ExecutorService worker;
     private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<Listener>();
 
+    private final String displayName;
     private volatile int importPercent = -1;
     private volatile String message = "";
 
     public ModuleManager(ModelEngine engine, ModelStorage storage, StateStore stateStore) {
+        this(engine, storage, stateStore, "Gemma 4 E2B", "gemma-module");
+    }
+
+    public ModuleManager(ModelEngine engine, ModelStorage storage, StateStore stateStore,
+                         String displayName, final String threadName) {
+        this.displayName = displayName;
         this.engine = engine;
         this.storage = storage;
         this.stateStore = stateStore;
@@ -47,7 +55,7 @@ public final class ModuleManager {
         stateStore.save(machine.state());
         this.worker = Executors.newSingleThreadExecutor(new ThreadFactory() {
             @Override public Thread newThread(Runnable r) {
-                Thread t = new Thread(r, "gemma-module");
+                Thread t = new Thread(r, threadName);
                 t.setDaemon(true);
                 return t;
             }
@@ -91,6 +99,7 @@ public final class ModuleManager {
     }
 
     public ModelEngine engine() { return engine; }
+    public String displayName() { return displayName; }
     public ModuleState state() { return machine.state(); }
 
     // ---------------------------------------------------------------- actions
@@ -166,7 +175,7 @@ public final class ModuleManager {
             @Override public void run() {
                 try {
                     storage.deleteModel();
-                    finish(t, true, "Gemma 4 E2B has been removed.");
+                    finish(t, true, displayName + " has been removed.");
                 } catch (Throwable e) {
                     finish(t, false, "Delete failed: " + describe(e));
                 }

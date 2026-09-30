@@ -1,7 +1,7 @@
 package com.neonhud.app.core.module;
 
 /**
- * The single source of truth for what the Gemma 4 E2B module may do.
+ * The single source of truth for what one model module (Gemma 4 E2B or Qwen Coder) may do.
  *
  * <pre>
  *   NOT_IMPORTED --IMPORT--> IMPORTED --LOAD--> LOADED --UNLOAD--> UNLOADED --DELETE--> NOT_IMPORTED

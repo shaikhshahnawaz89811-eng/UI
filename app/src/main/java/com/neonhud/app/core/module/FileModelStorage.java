@@ -19,13 +19,24 @@ public class FileModelStorage implements ModelStorage {
     private final String requiredExtension;
     private final long minBytes;
     private final File[] extraDeletes;
+    private final String displayName;
+    private final byte[] requiredMagic;     // first bytes every valid file starts with (null = no check)
 
+    /** Original form (Gemma 4 E2B, no header check) - behaviour unchanged. */
     public FileModelStorage(File dir, String fileName, String requiredExtension,
                             long minBytes, File... extraDeletes) {
+        this(dir, fileName, requiredExtension, minBytes, "Gemma 4 E2B", null, extraDeletes);
+    }
+
+    /** Full form: model name shown in messages and an optional file-header check (GGUF starts with "GGUF"). */
+    public FileModelStorage(File dir, String fileName, String requiredExtension, long minBytes,
+                            String displayName, byte[] requiredMagic, File... extraDeletes) {
         this.dir = dir;
         this.fileName = fileName;
         this.requiredExtension = requiredExtension.toLowerCase(Locale.ROOT);
         this.minBytes = minBytes;
+        this.displayName = displayName;
+        this.requiredMagic = requiredMagic;
         this.extraDeletes = extraDeletes == null ? new File[0] : extraDeletes;
     }
 
@@ -47,12 +58,12 @@ public class FileModelStorage implements ModelStorage {
         boolean hasExt = name.contains(requiredExtension);
         boolean nameless = name.isEmpty() || name.indexOf('.') < 0;
         if (!hasExt && !nameless) {
-            throw new IOException("Please choose the Gemma 4 E2B " + requiredExtension
+            throw new IOException("Please choose the " + displayName + " " + requiredExtension
                     + " file (you chose: " + shown + ").");
         }
         long size = source.sizeBytes();
         if (size >= 0 && size < minBytes) {
-            throw new IOException("This file is too small to be the Gemma 4 E2B model.");
+            throw new IOException("This file is too small to be the " + displayName + " model.");
         }
         if (!dir.isDirectory() && !dir.mkdirs()) {
             throw new IOException("Cannot create model folder.");
@@ -82,6 +93,9 @@ public class FileModelStorage implements ModelStorage {
             if (copied < minBytes || (size > 0 && copied != size)) {
                 throw new IOException("Import incomplete - please try again.");
             }
+            if (!hasRequiredMagic(part)) {
+                throw new IOException("This is not a valid " + displayName + " model file.");
+            }
             Files.move(part.toPath(), finalFile().toPath(), StandardCopyOption.REPLACE_EXISTING);
             if (progress != null) progress.onProgress(100);
             ok = true;
@@ -89,6 +103,17 @@ public class FileModelStorage implements ModelStorage {
             if (!ok) //noinspection ResultOfMethodCallIgnored
                 part.delete();
         }
+    }
+
+    private boolean hasRequiredMagic(File f) throws IOException {
+        if (requiredMagic == null || requiredMagic.length == 0) return true;
+        byte[] head = new byte[requiredMagic.length];
+        try (java.io.FileInputStream in = new java.io.FileInputStream(f)) {
+            int got = 0, n;
+            while (got < head.length && (n = in.read(head, got, head.length - got)) > 0) got += n;
+            if (got < head.length) return false;
+        }
+        return java.util.Arrays.equals(head, requiredMagic);
     }
 
     @Override public void deleteModel() throws IOException {
