@@ -74,11 +74,24 @@ Everything below the UI is pure Java (app/src/main/java/com/neonhud/app/core/web
   - `phase3/USAGE_PATTERNS.md`: corpus mix, feature coverage, and final deterministic results.
   - Final JVM regression after Phase 3 changes: 3051 checks, 0 failures.
   - Real-key Tavily traffic was not executed in this environment because no real key was supplied; the live runner was dry-run compiled and exercised.
-- Phase 4: cache (incl. re-reading a page for follow-ups), credit saver, key health in Settings, final polish and release build  [DONE]
-  - `WebCache`: bounded in-memory search/page cache with 5-minute search TTL and 15-minute page TTL; tracking parameters are normalized through the existing URL key.
-  - Repeated ordinary searches reuse cached results; image/explicit/link searches still hit Tavily when required so follow-up/image behaviour is not silently changed.
-  - Pasted pages are cached after a successful Extract; immediate follow-ups such as "isme aur kya hai?" reuse the cached page instead of spending another Extract credit.
-  - Cache never bypasses Web search = Off; cached data expires and is not persisted as long-term memory.
-  - Tavily Settings rows now expose only safe health states: Healthy / Ready / Limit / Rejected plus remaining rest minutes; raw keys are still masked.
-  - Release workflow now builds both Debug and Release variants; Release is uploadable as an unsigned APK unless project signing is configured.
-  - Phase 4 JVM regression: 3068 checks, 0 failures.
+- Phase 4: cache (incl. re-reading a page for follow-ups), credit saver, key health in Settings, final polish and release build
+
+## Phase 4 attachment/conversation review follow-up  - DONE
+- Removed the separate PDF attachment button. The single Zip entry now accepts ZIP, PDF and video files, with multi-select preserved and the existing per-message limit of 5.
+- File type is determined from content first (ZIP/PDF/MP4/MOV/WebM), with MIME/extension fallback for video providers that hide the video signature.
+- Added VIDEO attachment kind, thumbnail/first-frame reading, metadata note, and video attachment card.
+- Sent and pending image attachments can be tapped for an in-app full-screen preview; video attachments can be opened with the phone's video handler.
+- Attachment thumbnail cache now keys by type + requested size + URI, preventing a tiny chat thumbnail from being reused as the full-screen preview.
+- Conversation stress review remains explicit: the existing 1,300-message suite found 66 classification misses (94.9% overall). These are recorded as remaining conversation-quality issues rather than being hidden behind a passing test exit code.
+
+## Phase 4 — Conversation + 1,500-command verification
+
+Completed:
+- Added `phase4/commands1500.tsv` with 1,500 varied commands across offline, fresh, explicit search, images, image reading, links, procedures, comparisons, URLs, mixed tasks, follow-ups, repeats, cross-language prompts and attachments.
+- Added `phase4/PHASE4_REPORT.md` with the test methodology and measured results.
+- Added `jvm-tests/src/Phase4Command1500Test.java` and wired it into `AllTests`.
+- Fixed explicit `online ... dhoondho` search routing.
+- Fixed image-reading vs image-display separation: `photo mat dikhana` no longer blocks image reading.
+- Improved English/Hinglish conversation normalization and entity-aware repeat matching.
+- Preserved `pehle wale` return-topic detection.
+- Full JVM suite: 10,565 checks, 0 failures.

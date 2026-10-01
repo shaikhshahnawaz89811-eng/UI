@@ -56,7 +56,7 @@ public final class ChatPage extends FrameLayout {
     public interface AttachHandler { void onPick(int kind); }
 
     public static final int ATTACH_CAMERA = AttachIcon.CAMERA, ATTACH_IMAGE = AttachIcon.IMAGE,
-            ATTACH_PDF = AttachIcon.PDF, ATTACH_ZIP = AttachIcon.ZIP;
+            ATTACH_ZIP = AttachIcon.ZIP;
 
     /** Kept for later: the model switch button was removed from the input bar for now. */
     public interface ModeHandler { void onSwitch(); }
@@ -318,6 +318,17 @@ public final class ChatPage extends FrameLayout {
             View card = AttachViews.card(c, a, new OnClickListener() {
                 @Override public void onClick(View v) { pending.remove(a); rebuildPending(); refreshSendEnabled(); }
             });
+            if (a.kind == Attachment.Kind.IMAGE) {
+                card.setClickable(true);
+                card.setOnClickListener(new OnClickListener() {
+                    @Override public void onClick(View v) { showImagePreview(getContext(), a); }
+                });
+            } else if (a.kind == Attachment.Kind.VIDEO) {
+                card.setClickable(true);
+                card.setOnClickListener(new OnClickListener() {
+                    @Override public void onClick(View v) { openAttachment(getContext(), a); }
+                });
+            }
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.bottomMargin = NeonUi.dp(c, 5);
             pendingList.addView(card, lp);
@@ -652,6 +663,37 @@ public final class ChatPage extends FrameLayout {
         }
     }
 
+    private static void openAttachment(Context c, Attachment a) {
+        if (!UrlTools.isSafe(a.uri)) {
+            try { c.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(a.uri))); } catch (Throwable ignored) { }
+            return;
+        }
+        try { c.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(a.uri)).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK)); }
+        catch (Throwable ignored) { }
+    }
+
+    private static void showImagePreview(Context c, Attachment a) {
+        final android.app.Dialog d = new android.app.Dialog(c);
+        LinearLayout root = new LinearLayout(c);
+        root.setOrientation(VERTICAL);
+        root.setPadding(NeonUi.dp(c, 10), NeonUi.dp(c, 10), NeonUi.dp(c, 10), NeonUi.dp(c, 10));
+        root.setBackgroundColor(0xFF07111F);
+        ImageView image = new ImageView(c);
+        image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        image.setBackgroundColor(0xFF02070D);
+        root.addView(image, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        TextView name = new TextView(c);
+        name.setText(a.name); name.setTextColor(NeonUi.TEXT); name.setTextSize(12f); name.setGravity(Gravity.CENTER);
+        root.addView(name, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        d.setContentView(root);
+        android.view.Window w = d.getWindow();
+        if (w != null) { w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); w.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT); }
+        d.show();
+        if (d.getWindow() != null) d.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        com.neonhud.app.ui.AttachViews.Thumbs.load(c, a.kind, a.uri, image, NeonUi.dp(c, 900));
+        image.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { d.dismiss(); } });
+    }
+
     // ------------------------------------------------------------------ user message bubble
 
     private static final class UserBubble extends LinearLayout {
@@ -709,7 +751,18 @@ public final class ChatPage extends FrameLayout {
                 for (int j = i; j < Math.min(i + 3, files.size()); j++) {
                     LayoutParams lp = new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
                     lp.rightMargin = NeonUi.dp(c, 5);
-                    row.addView(AttachViews.card(c, files.get(j), null), lp);
+                    final Attachment file = files.get(j);
+                    View card = AttachViews.card(c, file, null);
+                    if (file.kind == Attachment.Kind.IMAGE || file.kind == Attachment.Kind.VIDEO) {
+                        card.setClickable(true);
+                        card.setOnClickListener(new OnClickListener() {
+                            @Override public void onClick(View v) {
+                                if (file.kind == Attachment.Kind.IMAGE) showImagePreview(getContext(), file);
+                                else openAttachment(getContext(), file);
+                            }
+                        });
+                    }
+                    row.addView(card, lp);
                 }
                 LayoutParams rp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 rp.bottomMargin = NeonUi.dp(c, 5);

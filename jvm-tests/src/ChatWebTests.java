@@ -134,6 +134,18 @@ final class ChatWebTests {
         T.check(ro.api.calls.size() >= 1, "read-only: it still searches");
         T.check(ro.lastAi().pics.isEmpty() && ro.lastAi().links.isEmpty(), "read-only: no pictures, no links under the reply");
 
+        // ---------------------------------------------------------------- image read without showing: "photo mat dikhana" is a display constraint, not a vision constraint
+        Rig rir = new Rig(FakeWebApi.ok(), key("tvly-ririririririririr"));
+        rir.send("Taj Mahal ki photo padh ke batao, photo mat dikhana");
+        T.check(rir.api.calls.size() == 1 && rir.api.requests.get(0).includeImages, "image-read + no-show: search still requests image sources");
+        T.check(rir.lastAi().pics.isEmpty(), "image-read + no-show: pictures are not rendered under the reply");
+        T.check(rir.engine.lastPrompt.webContext.contains("picture"), "image-read + no-show: picture context reaches the model");
+
+        // ---------------------------------------------------------------- explicit online search wording variants
+        Rig ex = new Rig(FakeWebApi.ok(), key("tvly-exexexexexexexex"));
+        ex.send("online Mumbai metro update dhoondho");
+        T.check(ex.api.calls.size() == 1, "online+dhoondho: explicit search reaches Tavily");
+
         // ---------------------------------------------------------------- link request
         Rig lk = new Rig(FakeWebApi.ok(), key("tvly-llllllllllllllll"));
         lk.send("Python ki official website ka link do");

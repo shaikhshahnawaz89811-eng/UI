@@ -16,8 +16,8 @@ public final class AllTests {
             ChatWebTests.run();
             WebPhase2Tests.run();
             Phase3QuestionSetTest.run();
+            Phase4Command1500Test.run();
             AssistantRegression1000Test.run();
-            Phase4Tests.run();
         }
         StressTest.run();
         System.out.println("\n================================================");

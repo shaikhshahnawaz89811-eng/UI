@@ -182,19 +182,16 @@ final class TavilyKeysCard extends LinearLayout {
             View rowDot = new View(c);
             GradientDrawable g = new GradientDrawable();
             g.setShape(GradientDrawable.OVAL);
-            g.setColor(e.health.equals("healthy") || e.health.equals("ready") ? NeonUi.GREEN : e.health.equals("limit") ? NeonUi.AMBER : NeonUi.RED);
+            g.setColor(NeonUi.GREEN);
             rowDot.setBackground(g);
             row.addView(rowDot, new LayoutParams(NeonUi.dp(c, 8), NeonUi.dp(c, 8)));
 
             TextView key = new TextView(c);
-            String health = e.health.equals("healthy") ? "Healthy" : e.health.equals("limit") ? "Limit" : e.health.equals("rejected") ? "Rejected" : "Ready";
-            if (e.restMs > 0) health += " • " + Math.max(1, e.restMs / 60000) + "m";
-            key.setText(e.masked + "  ·  " + health);
+            key.setText(e.masked);
             key.setTextSize(13.5f);
             key.setTextColor(NeonUi.TEXT);
             key.setTypeface(Typeface.MONOSPACE);
             key.setSingleLine(true);
-            key.setContentDescription(e.masked + " — " + health);
             key.setPadding(NeonUi.dp(c, 10), 0, NeonUi.dp(c, 6), 0);
             row.addView(key, new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 

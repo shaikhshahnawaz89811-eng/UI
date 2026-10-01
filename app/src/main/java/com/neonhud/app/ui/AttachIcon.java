@@ -14,7 +14,7 @@ import android.view.View;
  * Camera = blue, Image = green, PDF = red, Zip = amber. Also the round "x" remove button and the double tick.
  */
 final class AttachIcon extends View {
-    static final int CAMERA = 0, IMAGE = 1, PDF = 2, ZIP = 3, CLOSE = 4, TICKS = 5;
+    static final int CAMERA = 0, IMAGE = 1, PDF = 2, ZIP = 3, VIDEO = 4, CLOSE = 5, TICKS = 6;
 
     /** {tile top, tile bottom, tile edge} per file type. */
     private static final int[][] TILE = {
@@ -22,6 +22,7 @@ final class AttachIcon extends View {
             {0xFF3CE6A0, 0xFF119A5E, 0xFFA0FFD8},   // image: green
             {0xFFFF6B7D, 0xFFC81E3A, 0xFFFFB0BA},   // pdf: red
             {0xFFFFD166, 0xFFE08A00, 0xFFFFE9A8},   // zip: amber
+            {0xFFB78BFF, 0xFF6B35C8, 0xFFE1C9FF},   // video: purple
     };
 
     private final int kind;
@@ -37,7 +38,7 @@ final class AttachIcon extends View {
     }
 
     @Override protected void onSizeChanged(int w, int h, int ow, int oh) {
-        if (kind < CLOSE) fill = new LinearGradient(0, 0, 0, h, TILE[kind][0], TILE[kind][1], Shader.TileMode.CLAMP);
+        if (kind <= VIDEO) fill = new LinearGradient(0, 0, 0, h, TILE[kind][0], TILE[kind][1], Shader.TileMode.CLAMP);
     }
 
     private float gx(float f) { return ox + f * s; }
@@ -98,15 +99,23 @@ final class AttachIcon extends View {
             cv.drawPath(path, p);
             cv.drawLine(gx(.39f), gy(.54f), gx(.62f), gy(.54f), p);
             cv.drawLine(gx(.39f), gy(.65f), gx(.62f), gy(.65f), p);
-        } else {
+        } else if (kind == ZIP) {
             r.set(gx(.27f), gy(.24f), gx(.73f), gy(.78f));
             cv.drawRoundRect(r, s * .06f, s * .06f, p);
-            for (int i = 0; i < 4; i++) {                       // zipper teeth
+            for (int i = 0; i < 4; i++) {
                 float y = .30f + i * .075f, x0 = i % 2 == 0 ? .44f : .50f;
                 cv.drawLine(gx(x0), gy(y), gx(x0 + .06f), gy(y), p);
             }
-            r.set(gx(.45f), gy(.60f), gx(.55f), gy(.70f));      // zipper pull
+            r.set(gx(.45f), gy(.60f), gx(.55f), gy(.70f));
             cv.drawRoundRect(r, s * .03f, s * .03f, p);
+        } else {
+            r.set(gx(.22f), gy(.27f), gx(.78f), gy(.73f));
+            cv.drawRoundRect(r, s * .08f, s * .08f, p);
+            p.setStyle(Paint.Style.FILL);
+            path.reset();
+            path.moveTo(gx(.44f), gy(.38f)); path.lineTo(gx(.44f), gy(.62f)); path.lineTo(gx(.64f), gy(.50f)); path.close();
+            cv.drawPath(path, p);
+            p.setStyle(Paint.Style.STROKE);
         }
     }
 

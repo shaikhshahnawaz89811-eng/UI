@@ -63,8 +63,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     private static final int REQ_NOTIFICATIONS = 42;
     private static final int REQ_PICK_CODER = 43;
     private static final int REQ_ATTACH_IMAGE = 51;
-    private static final int REQ_ATTACH_PDF = 52;
-    private static final int REQ_ATTACH_ZIP = 53;
+    private static final int REQ_ATTACH_ZIP = 52;
     private static final int REQ_ATTACH_CAMERA = 54;
     private static final long MAX_ATTACH_BYTES = 50L * 1024 * 1024;   // per file
 
@@ -274,7 +273,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     private void refresh() {
         ModuleSnapshot gemma = app.modules().snapshot();
         ModuleSnapshot coder = app.coderModules().snapshot();
-        settingsPage.bind(gemma, coder, app.tavily().snapshot(app.webSearch().pool(), System.currentTimeMillis()), app.webSettings().mode());
+        settingsPage.bind(gemma, coder, app.tavily().snapshot(), app.webSettings().mode());
         ChatController chat = currentChat();
         ModuleState shown = coderMode() ? coder.state : gemma.state;
         chatPage.bind(chat.items(), chat.isGenerating(), shown,
@@ -349,10 +348,13 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
             i.setType("image/*");
             code = REQ_ATTACH_IMAGE;
         } else {
-            // PDF and Zip: show EVERY file from EVERY source (Downloads, Drive, WhatsApp, ...). Many apps label their
-            // files "octet-stream" or give no extension, so a MIME filter would hide them; the file is checked by its content.
+            // The single Zip/Files entry accepts ZIP, PDF and video. Multiple selection remains enabled.
             i.setType("*/*");
-            code = kind == ChatPage.ATTACH_PDF ? REQ_ATTACH_PDF : REQ_ATTACH_ZIP;
+            i.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
+                    "application/zip", "application/x-zip-compressed", "application/pdf",
+                    "video/*"
+            });
+            code = REQ_ATTACH_ZIP;
         }
         try {
             startActivityForResult(i, code);
@@ -394,8 +396,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
                 f.delete();                                   // cancelled: no empty file left behind
             }
         } else if (resultCode == RESULT_OK && data != null) {
-            Attachment.Kind kind = requestCode == REQ_ATTACH_IMAGE ? Attachment.Kind.IMAGE
-                    : requestCode == REQ_ATTACH_PDF ? Attachment.Kind.PDF : Attachment.Kind.ZIP;
+            Attachment.Kind kind = requestCode == REQ_ATTACH_IMAGE ? Attachment.Kind.IMAGE : Attachment.Kind.ZIP;
             List<Uri> uris = new ArrayList<Uri>();
             ClipData clip = data.getClipData();
             if (clip != null) {
@@ -414,7 +415,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
                 }
                 if (tooBig) Toast.makeText(this, "File too big (max 50 MB).", Toast.LENGTH_SHORT).show();
             } else {
-                checkAndAttach(kind, uris);                 // PDF / Zip: checked off the UI thread, then added
+                checkAndAttach(uris);                       // ZIP / PDF / video: checked off the UI thread, then added
                 return;
             }
         }
@@ -433,8 +434,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
      * whatever its name, extension or MIME type says, and a wrong file is refused with a clear message. Done on a
      * worker thread because a cloud provider (Drive ...) may download the file first.
      */
-    private void checkAndAttach(final Attachment.Kind expected, final List<Uri> uris) {
-        final String label = expected == Attachment.Kind.PDF ? "PDF" : "zip";
+    private void checkAndAttach(final List<Uri> uris) {
         new Thread(new Runnable() {
             @Override public void run() {
                 final List<Attachment> ok = new ArrayList<Attachment>();
@@ -459,13 +459,16 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
                         continue;
                     }
                     Attachment.Kind real = FileSniffer.detect(head, len);
-                    if (real == expected) {
-                        ok.add(new Attachment(expected, info.displayName(), info.sizeBytes(), u.toString()));
-                    } else if (real != null) {
-                        problems.add(name + " is a " + (real == Attachment.Kind.PDF ? "PDF" : "zip") + ", not a " + label
-                                + ". Use the " + (real == Attachment.Kind.PDF ? "PDF" : "Zip") + " button for it.");
+                    if (real == null) {
+                        String mime = getContentResolver().getType(u);
+                        String lower = name.toLowerCase(Locale.ROOT);
+                        if (mime != null && mime.startsWith("video/")) real = Attachment.Kind.VIDEO;
+                        else if (lower.endsWith(".mp4") || lower.endsWith(".mkv") || lower.endsWith(".webm") || lower.endsWith(".mov") || lower.endsWith(".3gp") || lower.endsWith(".avi")) real = Attachment.Kind.VIDEO;
+                    }
+                    if (real == Attachment.Kind.PDF || real == Attachment.Kind.ZIP || real == Attachment.Kind.VIDEO) {
+                        ok.add(new Attachment(real, info.displayName(), info.sizeBytes(), u.toString()));
                     } else {
-                        problems.add(name + " is not a real " + label + " file.");
+                        problems.add(name + " is not a supported PDF, ZIP or video file.");
                     }
                 }
                 ui.post(new Runnable() {

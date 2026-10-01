@@ -14,16 +14,10 @@ public final class TavilySnapshot {
         public final String key;
         /** What the screen shows, e.g. "tvly-dev-••••a1b2". */
         public final String masked;
-        /** Phase 4: current web-pool health, never the raw API error. */
-        public final String health;
-        public final long restMs;
 
-        Entry(String key, String masked) { this(key, masked, "ready", 0L); }
-        Entry(String key, String masked, String health, long restMs) {
+        Entry(String key, String masked) {
             this.key = key;
             this.masked = masked;
-            this.health = health == null ? "ready" : health;
-            this.restMs = Math.max(0L, restMs);
         }
     }
 
@@ -45,7 +39,7 @@ public final class TavilySnapshot {
     /** Changes only when the visible rows change - lets the UI skip rebuilding them. */
     public String signature() {
         StringBuilder sb = new StringBuilder();
-        for (Entry e : entries) sb.append(e.masked).append('|').append(e.health).append('|').append(e.restMs / 60000).append('|');
+        for (Entry e : entries) sb.append(e.masked).append('|');
         return sb.toString();
     }
 }

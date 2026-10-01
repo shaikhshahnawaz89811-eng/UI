@@ -67,7 +67,7 @@ public final class App extends Application {
             @Override public long now() { return System.currentTimeMillis(); }
         });
         chat = new ChatController(modules, brain, memory);
-        chat.setAttachmentLoader(new AttachmentReader(this));     // images / PDF / zip the user attaches with "+"
+        chat.setAttachmentLoader(new AttachmentReader(this));     // images / PDF / ZIP / video files the user attaches with "+"
 
         // ------------------------------------------------ Qwen2.5-Coder 1.5B Instruct Q4_K_M (same flow, own everything)
         ModelEngine coderEngine = new CoderEngine();

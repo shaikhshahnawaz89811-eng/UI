@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.media.MediaMetadataRetriever;
 
 import com.neonhud.app.core.engine.Attachment;
 import com.neonhud.app.core.engine.AttachmentLoader;
@@ -33,6 +34,7 @@ import java.util.zip.ZipInputStream;
  * Reads what the user attached, fully offline, with nothing but the Android framework:
  *   image -> one downscaled JPEG the model can look at
  *   pdf   -> its first pages rendered to JPEG (works for scanned PDFs too)
+ *   video -> first video frame + basic metadata
  *   zip   -> file list + the start of each text/code file, within a fixed size budget
  * All limits are constants below; they keep the prompt small enough for a 2B on-device model.
  */
@@ -66,6 +68,7 @@ public final class AttachmentReader implements AttachmentLoader {
             case IMAGE: return readImage(a, uri);
             case PDF:   return readPdf(a, uri);
             case ZIP:   return readZip(a, uri);
+            case VIDEO: return readVideo(a, uri);
             default:    return a;
         }
     }
@@ -135,6 +138,33 @@ public final class AttachmentReader implements AttachmentLoader {
         } finally {
             try { in.close(); } catch (IOException ignored) { }
             out.close();
+        }
+    }
+
+
+    // ------------------------------------------------------------------ video
+
+    private Attachment readVideo(Attachment a, Uri uri) throws IOException {
+        MediaMetadataRetriever r = new MediaMetadataRetriever();
+        Bitmap frame = null;
+        try {
+            r.setDataSource(app, uri);
+            String duration = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            String width = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+            String height = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+            frame = r.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+            String note = "ATTACHED VIDEO: " + a.name;
+            if (duration != null) note += " - " + duration + " ms";
+            if (width != null && height != null) note += " - " + width + "x" + height;
+            if (frame == null) note += ". No preview frame could be decoded.";
+            List<byte[]> images = frame == null ? Collections.<byte[]>emptyList()
+                    : Collections.singletonList(BitmapLoader.toJpeg(frame, JPEG_QUALITY));
+            return a.loaded(note, images);
+        } catch (RuntimeException e) {
+            throw new IOException("video could not be read", e);
+        } finally {
+            if (frame != null) frame.recycle();
+            try { r.release(); } catch (RuntimeException ignored) { }
         }
     }
 

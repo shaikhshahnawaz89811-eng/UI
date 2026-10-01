@@ -11,7 +11,7 @@ import java.util.Locale;
  */
 public final class Attachment {
 
-    public enum Kind { IMAGE, PDF, ZIP }
+    public enum Kind { IMAGE, PDF, ZIP, VIDEO }
 
     public final Kind kind;
     public final String name;

@@ -47,16 +47,6 @@ public final class SearchPlan {
     /** True when this message is about links the user pasted: the pages are read, not searched for. */
     public boolean readsLinks() { return search && kind == Kind.URL && !urls.isEmpty(); }
 
-    /** Follow-up about the page(s) read in the immediately previous turn. It is served from the Phase 4 page cache. */
-    public static SearchPlan cachedPageFollowUp(String question, java.util.List<String> urls) {
-        Builder b = new Builder();
-        b.search = true; b.kind = Kind.URL; b.query = question == null ? "" : question.trim();
-        b.question = b.query; b.reason = "reuse the page already read";
-        if (urls != null) b.urls.addAll(urls);
-        b.links = Links.NONE;
-        return new SearchPlan(b);
-    }
-
     public WebApi.SearchRequest request(boolean advanced) {
         int n = compare || links == Links.MANY ? 6 : 5;
         return new WebApi.SearchRequest(query, n, advanced, wantsImages(), topic, timeRange);

@@ -84,6 +84,12 @@ public final class ConversationBrain {
         }
     }
 
+    private static final class SameMatch {
+        final Indexed item;
+        final double score;
+        SameMatch(Indexed item, double score) { this.item = item; this.score = score; }
+    }
+
     private final MemoryStore store;
     private final Clock clock;
     private final String systemBase;
@@ -280,10 +286,12 @@ public final class ConversationBrain {
         qa.followUpCue = p.strongAnaphora || p.followStart || p.correctionCue || (p.weakAnaphora && kws.size() <= 2);
 
         // ---- same / paraphrased question (context-dependent messages like "isme kitna time?" are never "the same")
-        Indexed same = (qa.followUpCue || p.returnCue) ? null : findSame(p);
-        if (same != null) {
+        SameMatch sameMatch = (qa.followUpCue || p.returnCue || p.strongAnaphora || p.weakAnaphora) ? null : findSame(p);
+        Indexed same = sameMatch == null ? null : sameMatch.item;
+        if (sameMatch != null) {
             qa.sameQuestion = true;
             qa.sameQuestionMessageId = same.id;
+            qa.sameQuestionScore = sameMatch.score;
         }
 
         double curScore = cur == null ? 0 : score(cur, p);
@@ -360,7 +368,35 @@ public final class ConversationBrain {
         return qa;
     }
 
-    private Indexed findSame(TextTools.Parsed p) {
+    /** Rejects a "same question" match when the meaningful subject entity changes (city, product, player, etc.). */
+    private static boolean entityConflict(List<String> a, List<String> b) {
+        List<String> ea = new ArrayList<String>();
+        List<String> eb = new ArrayList<String>();
+        for (String x : a) if (!isGenericQuestionToken(x)) ea.add(x);
+        for (String x : b) if (!isGenericQuestionToken(x)) eb.add(x);
+        if (ea.isEmpty() || eb.isEmpty()) return false;
+        int matched = 0; boolean[] used = new boolean[eb.size()];
+        for (String x : ea) {
+            for (int i = 0; i < eb.size(); i++) {
+                if (!used[i] && TextTools.tokenMatch(x, eb.get(i))) { used[i] = true; matched++; break; }
+            }
+        }
+        return matched < Math.min(ea.size(), eb.size());
+    }
+
+    private static boolean isGenericQuestionToken(String t) {
+        return TextTools.isStructuralToken(t) || java.util.Arrays.asList(
+                "weather", "today", "tomorrow", "now", "fast", "howmuch", "howmany", "make",
+                "time", "cost", "price", "difference", "better", "best", "first", "which",
+                "what", "where", "when", "who", "why", "how", "sign", "install", "use", "create",
+                "check", "tell", "explain", "need", "require", "question", "answer",
+                "mcb", "amp", "wiring", "wire", "wicket", "ipl", "cricket", "train", "rail",
+                "gst", "tax", "loan", "emi", "interest", "scheme", "python", "java", "code",
+                "algorithm", "sort", "android", "apk", "release", "permission", "model", "ai",
+                "weather", "forecast", "temperature", "humidity", "rain", "recipe", "food", "cooking").contains(t);
+    }
+
+    private SameMatch findSame(TextTools.Parsed p) {
         if (p.contentAll.isEmpty()) return null;
         Indexed best = null; double bestScore = 0;
         for (int i = index.size() - 1; i >= 0; i--) {
@@ -368,10 +404,37 @@ public final class ConversationBrain {
             if (q.content.isEmpty()) continue;
             if (!TextTools.intentsCompatible(p.intent, q.intent)) continue;
             if (TextTools.measureConflict(p.contentAll, q.content)) continue;
+            if (entityConflict(p.contentAll, q.content)) continue;
             double sim = weightedSimilarity(p.contentAll, q.content);
+            if (sim < SAME_Q_MIN && p.domainHits != null && !p.domainHits.isEmpty()) {
+                // Translation/paraphrase fallback: the Hindi/English forms may share only the
+                // subject nouns (for example "mausam" -> "weather") after canonicalisation.
+                // Require a domain match plus two actual content-token matches; this avoids
+                // turning every question in a broad domain into the same question.
+                int matched = 0;
+                int meaningfulMatched = 0;
+                boolean[] used = new boolean[q.content.size()];
+                for (String x : p.contentAll) {
+                    for (int j = 0; j < q.content.size(); j++) {
+                        if (!used[j] && TextTools.tokenMatch(x, q.content.get(j))) {
+                            used[j] = true; matched++;
+                            if (!isGenericQuestionToken(x)) meaningfulMatched++;
+                            break;
+                        }
+                    }
+                }
+                boolean sharedDomain = false;
+                for (String d : p.domainHits.keySet()) {
+                    if (q.topicId != 0) {
+                        Topic qt = find(store.topics(), q.topicId);
+                        if (qt != null && qt.domains.containsKey(d)) { sharedDomain = true; break; }
+                    }
+                }
+                if (sharedDomain && meaningfulMatched >= 1 && matched >= 2 && matched * 10 >= Math.max(p.contentAll.size(), q.content.size()) * 6) sim = Math.max(sim, 0.86);
+            }
             if (sim > bestScore + 1e-9) { bestScore = sim; best = q; }
         }
-        return bestScore >= SAME_Q_MIN ? best : null;
+        return bestScore >= SAME_Q_MIN ? new SameMatch(best, bestScore) : null;
     }
 
     /** How well the message fits a topic, 0..1: keyword overlap, boosted when the subject domain matches. */

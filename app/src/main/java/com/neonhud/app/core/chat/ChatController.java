@@ -98,7 +98,6 @@ public final class ChatController {
     private volatile WebSearchService web;
     // only touched on the single worker thread
     private String lastQuery = "", lastUserText = "";
-    private List<String> lastPageUrls = Collections.emptyList();
 
     public ChatController(ModuleManager modules, ConversationBrain brain, MemoryStore store) {
         this(modules, brain, store, modules.displayName(), "gemma-chat");
@@ -268,7 +267,7 @@ public final class ChatController {
         if (w == null) return null;
         try {
             PlanContext ctx = new PlanContext(WebMode.AUTO, !files.isEmpty(), lastQuery, lastUserText,
-                    lastPageUrls, Calendar.getInstance().get(Calendar.YEAR));
+                    Calendar.getInstance().get(Calendar.YEAR));
             SearchPlan plan = w.plan(text, ctx);
             if (plan.search) {
                 setStatus(aiKey, plan.readsLinks() ? STATUS_OPENING : STATUS_SEARCHING);
@@ -276,11 +275,7 @@ public final class ChatController {
             }
             WebTurn t = w.prepare(plan);
             if (!text.isEmpty()) lastUserText = text;
-            if (t.ok()) {
-                if (plan.readsLinks() && !t.issues.isEmpty()) { /* keep prior page cache; issues are shown in the reply context */ }
-                if (plan.readsLinks() && !plan.urls.isEmpty()) lastPageUrls = new ArrayList<String>(plan.urls);
-                setStatus(aiKey, plan.readsLinks() ? STATUS_READING_PAGE : STATUS_READING);
-            }
+            if (t.ok()) setStatus(aiKey, plan.readsLinks() ? STATUS_READING_PAGE : STATUS_READING);
             return t;
         } catch (Throwable e) {
             return null;                                              // the web layer must never break a normal reply

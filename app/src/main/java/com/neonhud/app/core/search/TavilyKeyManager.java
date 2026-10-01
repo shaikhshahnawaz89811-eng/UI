@@ -3,7 +3,6 @@ package com.neonhud.app.core.search;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import com.neonhud.app.core.web.KeyPool;
 
 /**
  * Add / Delete for Tavily API keys.
@@ -53,10 +52,8 @@ public final class TavilyKeyManager implements com.neonhud.app.core.web.KeySourc
         synchronized (lock) { return new ArrayList<String>(keys); }
     }
 
-    public TavilySnapshot snapshot() { synchronized (lock) { return build(null, System.currentTimeMillis()); } }
-
-    public TavilySnapshot snapshot(KeyPool pool, long now) {
-        synchronized (lock) { return build(pool, now); }
+    public TavilySnapshot snapshot() {
+        synchronized (lock) { return build(); }
     }
 
     // ------------------------------------------------------------------ helpers
@@ -86,14 +83,9 @@ public final class TavilyKeyManager implements com.neonhud.app.core.web.KeySourc
         return head + "\u2022\u2022\u2022\u2022" + tail;
     }
 
-    private TavilySnapshot build() { return build(null, System.currentTimeMillis()); }
-
-    private TavilySnapshot build(KeyPool pool, long now) {
+    private TavilySnapshot build() {
         List<TavilySnapshot.Entry> list = new ArrayList<TavilySnapshot.Entry>();
-        for (String k : keys) {
-            if (pool == null) list.add(new TavilySnapshot.Entry(k, mask(k)));
-            else list.add(new TavilySnapshot.Entry(k, mask(k), pool.health(k, now), pool.restMs(k, now)));
-        }
+        for (String k : keys) list.add(new TavilySnapshot.Entry(k, mask(k)));
         return new TavilySnapshot(list, adding, message, tone);
     }
 

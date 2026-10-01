@@ -11,11 +11,11 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-/** The small panel that opens above the input bar when "+" is tapped: Camera / Image / PDF / Zip, each in its own colour. */
+/** The small panel that opens above the input bar when "+" is tapped: Camera / Image / Zip, with Zip opening PDF, ZIP and video files. */
 final class AttachCart extends FrameLayout {
 
     interface Listener {
-        void onPick(int kind);      // AttachIcon.CAMERA / IMAGE / PDF / ZIP
+        void onPick(int kind);      // AttachIcon.CAMERA / IMAGE / ZIP
         void onClose();
     }
 
@@ -31,8 +31,7 @@ final class AttachCart extends FrameLayout {
         row.setGravity(Gravity.CENTER);
         row.addView(item(c, AttachIcon.CAMERA, "Camera", "(Photo)", l), weight());
         row.addView(item(c, AttachIcon.IMAGE, "Image", "(Photo)", l), weight());
-        row.addView(item(c, AttachIcon.PDF, "PDF", "(Document)", l), weight());
-        row.addView(item(c, AttachIcon.ZIP, "Zip", "(File)", l), weight());
+        row.addView(item(c, AttachIcon.ZIP, "Zip", "(PDF / ZIP / Video)", l), weight());
         row.setPadding(NeonUi.dp(c, 10), NeonUi.dp(c, 16), NeonUi.dp(c, 10), NeonUi.dp(c, 8));
         addView(row, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 

@@ -28,6 +28,8 @@ public final class TextTools {
         public List<String> contentAll = new ArrayList<String>();      // distinct content stems (incl. numbers)
         public List<String> contentWords = new ArrayList<String>();    // distinct content stems without pure numbers
         public Set<String> domains = new LinkedHashSet<String>();
+        /** Domain hit counts used to disambiguate mixed words such as "Dal" (food) inside a travel query. */
+        public Map<String, Integer> domainHits = new HashMap<String, Integer>();
         /** stem -> the word as the user typed it (for readable topic names). */
         public Map<String, String> surface = new HashMap<String, String>();
         public List<String> rawTokens = new ArrayList<String>();
@@ -107,7 +109,42 @@ public final class TextTools {
             {"barish", "rain"}, {"baarish", "rain"}, {"garmi", "hot"}, {"thand", "cold"}, {"thandi", "cold"},
             {"dawai", "medicine"}, {"dawa", "medicine"}, {"ilaaj", "treatment"}, {"ilaj", "treatment"},
             {"remedies", "treatment"}, {"remedy", "treatment"}, {"khana", "food"}, {"kaise", "kaise"},
-            {"tarika", "kaise"}, {"tariqa", "kaise"}, {"kitne", "kitna"}
+            {"tarika", "kaise"}, {"tariqa", "kaise"}, {"kitne", "kitna"},
+            // Cross-language semantic folding used by the conversation matcher. These are
+            // deliberately domain words, not generic grammar words, so an English question
+            // and its Hinglish/Hindi equivalent share the same retrieval vocabulary.
+            {"mausam", "weather"}, {"mosam", "weather"}, {"taapman", "temperature"}, {"darja", "temperature"},
+            {"garmi", "hot"}, {"sardi", "cold"}, {"nami", "humidity"}, {"baarish", "rain"},
+            {"barish", "rain"}, {"hawa", "wind"}, {"dhoop", "sun"}, {"badal", "cloud"},
+            {"tatva", "element"}, {"tatvon", "element"}, {"avart", "periodic"}, {"sarni", "table"},
+            {"rasayan", "chemistry"}, {"bhoutik", "physics"}, {"jeev", "biology"}, {"paudhe", "plant"},
+            {"padhai", "study"}, {"pariksha", "exam"}, {"imtihaan", "exam"}, {"pathyakram", "syllabus"},
+            {"anukram", "sort"}, {"kram", "order"}, {"chhant", "filter"}, {"talika", "list"},
+            {"anumati", "permission"}, {"ijazat", "permission"}, {"adhikar", "permission"}, {"soochna", "notification"},
+            {"suchna", "notification"}, {"sankalan", "compile"}, {"truti", "error"}, {"galti", "error"},
+            {"samasy", "problem"}, {"dikkat", "problem"}, {"tarq", "logic"}, {"tark", "logic"},
+            {"model", "model"}, {"prashikshan", "training"}, {"sikhana", "training"}, {"seekhna", "learn"},
+            {"sikhna", "learn"}, {"anuman", "inference"}, {"tarkik", "reasoning"}, {"soch", "reasoning"},
+            {"bijli", "electricity"}, {"bijlee", "electricity"}, {"taar", "wire"}, {"tar", "wire"},
+            {"dhara", "current"}, {"vidyut", "voltage"}, {"pravah", "current"}, {"suraksha", "protection"},
+            {"kiraya", "cost"}, {"bhada", "cost"}, {"mulya", "cost"}, {"dhan", "money"},
+            {"byaj", "interest"}, {"bachat", "savings"}, {"nivesh", "invest"}, {"kar", "tax"},
+            {"bima", "insurance"}, {"jama", "deposit"}, {"nikasi", "withdrawal"},
+            {"rasoi", "cooking"}, {"pakwan", "recipe"}, {"vidhi", "recipe"}, {"samagri", "ingredient"},
+            {"swaad", "taste"}, {"pakana", "cook"}, {"bhunna", "fry"}, {"ubalana", "boil"},
+            {"dawai", "medicine"}, {"ilaaj", "treatment"}, {"bimari", "disease"}, {"lakshan", "symptom"},
+            {"dard", "pain"}, {"bukhar", "fever"}, {"sehat", "health"}, {"vajan", "weight"},
+            {"yatra", "travel"}, {"safar", "trip"}, {"rehna", "stay"}, {"thikana", "hotel"},
+            {"rail", "train"}, {"gaadi", "train"}, {"ticket", "ticket"}, {"manzil", "destination"},
+            {"daud", "run"}, {"gend", "ball"}, {"viket", "wicket"}, {"jeet", "win"}, {"haar", "loss"},
+            {"khiladi", "player"}, {"muqabla", "match"}, {"mukabla", "match"}, {"ank", "score"},
+            {"tasveer", "picture"}, {"chitra", "picture"}, {"dikhana", "show"}, {"drishya", "image"},
+            {"website", "site"}, {"jankari", "info"}, {"jaankari", "info"},
+            {"aj", "today"}, {"aaj", "today"}, {"kal", "tomorrow"}, {"abhi", "now"},
+            {"kaunse", "which"},
+            {"banao", "make"}, {"banaye", "make"}, {"banayein", "make"}, {"banate", "make"}, {"banane", "make"},
+            {"ban", "make"}, {"bana", "make"}, {"mak", "make"}, {"tezi", "fast"}, {"tez", "fast"},
+            {"raftar", "fast"}, {"kitni", "howmany"}, {"kitne", "howmany"}, {"kitna", "howmuch"}
         };
         for (String[] p : v) VARIANTS.put(p[0], p[1]);
     }
@@ -238,7 +275,11 @@ public final class TextTools {
         p.contentWords.addAll(words);
         for (String w : words) {
             String d = hasDigit(w) ? Lexicon.domainOfMeasure(w) : Lexicon.domainOf(w);
-            if (d != null) p.domains.add(d);
+            if (d != null) {
+                p.domains.add(d);
+                Integer c = p.domainHits.get(d);
+                p.domainHits.put(d, c == null ? 1 : c + 1);
+            }
         }
         // "model ko train karna / isko train karna" means AI model training, not a railway topic.
         if (joined.contains(" model train ") || joined.contains(" model ko train ")
@@ -307,6 +348,12 @@ public final class TextTools {
     public static boolean intentsCompatible(Intent a, Intent b) {
         if (a == b) return true;
         if (a == Intent.OTHER || b == Intent.OTHER) return a == Intent.OTHER && b == Intent.OTHER;
+        // English/Hinglish translations can express the same request with a different
+        // surface question word: "How much GST?" vs "GST kitna hai?" or
+        // "How fast?" vs "kitni fast?". Content overlap is checked separately.
+        if ((a == Intent.HOWTO && b == Intent.QUANTITY) || (a == Intent.QUANTITY && b == Intent.HOWTO)) return true;
+        if ((a == Intent.DEFINE && b == Intent.WHO) || (a == Intent.WHO && b == Intent.DEFINE)) return true;
+        if ((a == Intent.DEFINE && b == Intent.WHEN) || (a == Intent.WHEN && b == Intent.DEFINE)) return true;
         return false;
     }
 

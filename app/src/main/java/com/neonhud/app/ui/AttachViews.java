@@ -3,6 +3,7 @@ package com.neonhud.app.ui;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Handler;
@@ -34,6 +35,7 @@ final class AttachViews {
         switch (k) {
             case PDF: return AttachIcon.PDF;
             case ZIP: return AttachIcon.ZIP;
+            case VIDEO: return AttachIcon.VIDEO;
             default:  return AttachIcon.IMAGE;
         }
     }
@@ -49,7 +51,7 @@ final class AttachViews {
         int icon = NeonUi.dp(c, 38);
         FrameLayout iconBox = new FrameLayout(c);
         iconBox.addView(new AttachIcon(c, iconKind(a.kind)), new FrameLayout.LayoutParams(icon, icon));
-        if (a.kind == Attachment.Kind.IMAGE) {
+        if (a.kind == Attachment.Kind.IMAGE || a.kind == Attachment.Kind.VIDEO) {
             final int radius = NeonUi.dp(c, 9);
             ImageView thumb = new ImageView(c);
             thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -61,7 +63,7 @@ final class AttachViews {
             FrameLayout.LayoutParams tp = new FrameLayout.LayoutParams(icon - pad * 2, icon - pad * 2);
             tp.gravity = Gravity.CENTER;
             iconBox.addView(thumb, tp);
-            Thumbs.load(c, a.uri, thumb, icon * 2);
+            Thumbs.load(c, a.kind, a.uri, thumb, icon * 2);
         }
         card.addView(iconBox, new LinearLayout.LayoutParams(icon, icon));
 
@@ -107,19 +109,30 @@ final class AttachViews {
             }
         });
 
-        static void load(Context c, final String uri, final ImageView view, final int px) {
+        static void load(Context c, final Attachment.Kind kind, final String uri, final ImageView view, final int px) {
             final ContentResolver resolver = c.getApplicationContext().getContentResolver();
-            view.setTag(uri);
-            Bitmap hit = CACHE.get(uri);
+            final String cacheKey = kind.name() + ":" + px + ":" + uri;
+            view.setTag(cacheKey);
+            Bitmap hit = CACHE.get(cacheKey);
             if (hit != null) { view.setImageBitmap(hit); return; }
             view.setImageDrawable(null);                      // the coloured tile shows until the picture is ready
             POOL.execute(new Runnable() {
                 @Override public void run() {
                     try {
-                        final Bitmap bm = BitmapLoader.decode(resolver, Uri.parse(uri), px);
-                        CACHE.put(uri, bm);
+                        final Bitmap bm;
+                        if (kind == Attachment.Kind.VIDEO) {
+                            MediaMetadataRetriever r = new MediaMetadataRetriever();
+                            try {
+                                r.setDataSource(c, Uri.parse(uri));
+                                bm = r.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                            } finally { r.release(); }
+                        } else {
+                            bm = BitmapLoader.decode(resolver, Uri.parse(uri), px);
+                        }
+                        if (bm == null) throw new IllegalStateException("no thumbnail");
+                        CACHE.put(cacheKey, bm);
                         MAIN.post(new Runnable() {
-                            @Override public void run() { if (uri.equals(view.getTag())) view.setImageBitmap(bm); }
+                            @Override public void run() { if (cacheKey.equals(view.getTag())) view.setImageBitmap(bm); }
                         });
                     } catch (Throwable ignored) {
                         // unreadable picture: the tile stays

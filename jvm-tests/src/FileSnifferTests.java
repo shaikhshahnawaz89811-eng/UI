@@ -10,12 +10,14 @@ final class FileSnifferTests {
     private static byte[] s(String x) { return x.getBytes(StandardCharsets.ISO_8859_1); }
 
     static void run() {
-        T.section("file check: pdf / zip recognised by content, not by name");
+        T.section("file check: pdf / zip / video recognised by content, not by name");
         T.eq(Attachment.Kind.PDF, d(s("%PDF-1.7\n%....")), "normal pdf");
         T.eq(Attachment.Kind.PDF, d(s("\n\n  junk before header %PDF-1.4 rest")), "pdf with a few bytes before the header");
         T.eq(Attachment.Kind.ZIP, d(new byte[]{'P', 'K', 3, 4, 20, 0}), "normal zip");
         T.eq(Attachment.Kind.ZIP, d(new byte[]{'P', 'K', 5, 6, 0, 0}), "empty zip");
         T.eq(Attachment.Kind.ZIP, d(new byte[]{'P', 'K', 7, 8, 0, 0}), "spanned zip");
+        T.eq(Attachment.Kind.VIDEO, d(new byte[]{0,0,0,20,'f','t','y','p','i','s','o','m'}), "MP4/MOV ftyp video");
+        T.eq(Attachment.Kind.VIDEO, d(new byte[]{0x1A,0x45,(byte)0xDF,(byte)0xA3,0,0}), "WebM/Matroska video");
         T.eq(null, d(s("hello world, plain text")), "text is neither");
         T.eq(null, d(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0}), "jpeg is neither (images keep their own button)");
         T.eq(null, d(new byte[]{(byte) 0x89, 'P', 'N', 'G'}), "png is neither");

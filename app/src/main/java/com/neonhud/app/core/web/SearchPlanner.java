@@ -32,7 +32,8 @@ public final class SearchPlanner {
           + "|\\b(net|internet|inter net|web|online)\\s*(pe|par|se|mein|me|per)\\s+(dekh\\w*|check|search|serch|pata|dhund\\w*|khoj\\w*|padh\\w*|read|find|batao|bata\\w*|kar\\w*)"
           + "|\\b(net|internet|web)\\s*(pe|par|se)\\b"
           + "|\\b(look\\s?up|check\\s+online|find\\s+online|search\\s+online|search\\s+the\\s+web|web\\s+search|net\\s+search|online\\s+search|browse)\\b"
-          + "|\\bnetsearch\\b|\\bpata\\s+kar\\w*\\b.*\\b(net|online|internet)\\b");
+          + "|\\bnetsearch\\b|\\bpata\\s+kar\\w*\\b.*\\b(net|online|internet)\\b"
+          + "|\\bonline\\s+[^.?!]*\\b(dhoond\\w*|dhund\\w*|find|search|check|pata\\s+kar\\w*)\\b");
     private static final Pattern NOT_A_SEARCH_REQUEST = Pattern.compile("\\b(binary|linear|depth first|breadth first|dfs|bfs|interpolation)\\s+search\\b|\\bsearch\\s+(engine|algorithm|bar|box|tree)\\b");
 
     private static final Pattern LINK_WORD = Pattern.compile("\\b(links?|lnk|urls?|website|websites|site|sites|webpage|web page|portal|official page|kahan\\s+milega|kaha\\s+milega|kahan\\s+se\\s+(le|kar|download|mil)\\w*|kaha\\s+se\\s+(le|kar|download|mil)\\w*|where\\s+can\\s+i\\s+(get|find|buy|download|apply|book|register)|download\\s+(link|page)|sources?|reference|references|refrence)\\b");
@@ -206,7 +207,8 @@ public final class SearchPlanner {
         b.steps = steps; b.compare = compare;
         b.readOnly = readOnly;
         b.showImages = showImages && !readOnly && !noImg;
-        b.readImages = readImages && !noImg;
+        // "photo mat dikhana" blocks rendering only; explicit image-reading must still reach vision.
+        b.readImages = readImages;
 
         // links: asked -> one or many; procedures hand out the right official page by themselves; never when the user said no
         SearchPlan.Links links = SearchPlan.Links.NONE;

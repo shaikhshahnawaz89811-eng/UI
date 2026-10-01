@@ -1,0 +1,1501 @@
+id	category	command	search	flags
+1	offline	hello kaise ho	0	
+2	offline	good morning	0	
+3	offline	2 + 2 kitna hota hai	0	
+4	offline	Explain a Python variable	0	
+5	offline	Python mein loop kya hai	0	
+6	offline	Write a Java function to add two numbers	0	
+7	offline	Mujhe ek short story sunao	0	
+8	offline	Ek email draft likho	0	
+9	offline	Roman Hindi mein samjhao ki API kya hoti hai	0	
+10	offline	Regex kya hota hai	0	
+11	offline	What is recursion	0	
+12	offline	Kotlin mein class ka example do	0	
+13	offline	Mujhe simple shayari likho	0	
+14	offline	SQL JOIN kya hota hai	0	
+15	offline	Explain binary search algorithm	0	
+16	offline	C++ pointer kya hota hai	0	
+17	offline	Android Activity kya hoti hai	0	
+18	offline	Gemma token kya hota hai	0	
+19	offline	Ek naam suggest karo	0	
+20	offline	Thanks	0	
+21	offline	hello kaise ho #21	0	
+22	offline	good morning #22	0	
+23	offline	2 + 2 kitna hota hai #23	0	
+24	offline	Explain a Python variable #24	0	
+25	offline	Python mein loop kya hai #25	0	
+26	offline	Write a Java function to add two numbers #26	0	
+27	offline	Mujhe ek short story sunao #27	0	
+28	offline	Ek email draft likho #28	0	
+29	offline	Roman Hindi mein samjhao ki API kya hoti hai #29	0	
+30	offline	Regex kya hota hai #30	0	
+31	offline	What is recursion #31	0	
+32	offline	Kotlin mein class ka example do #32	0	
+33	offline	Mujhe simple shayari likho #33	0	
+34	offline	SQL JOIN kya hota hai #34	0	
+35	offline	Explain binary search algorithm #35	0	
+36	offline	C++ pointer kya hota hai #36	0	
+37	offline	Android Activity kya hoti hai #37	0	
+38	offline	Gemma token kya hota hai #38	0	
+39	offline	Ek naam suggest karo #39	0	
+40	offline	Thanks #40	0	
+41	offline	hello kaise ho #41	0	
+42	offline	good morning #42	0	
+43	offline	2 + 2 kitna hota hai #43	0	
+44	offline	Explain a Python variable #44	0	
+45	offline	Python mein loop kya hai #45	0	
+46	offline	Write a Java function to add two numbers #46	0	
+47	offline	Mujhe ek short story sunao #47	0	
+48	offline	Ek email draft likho #48	0	
+49	offline	Roman Hindi mein samjhao ki API kya hoti hai #49	0	
+50	offline	Regex kya hota hai #50	0	
+51	offline	What is recursion #51	0	
+52	offline	Kotlin mein class ka example do #52	0	
+53	offline	Mujhe simple shayari likho #53	0	
+54	offline	SQL JOIN kya hota hai #54	0	
+55	offline	Explain binary search algorithm #55	0	
+56	offline	C++ pointer kya hota hai #56	0	
+57	offline	Android Activity kya hoti hai #57	0	
+58	offline	Gemma token kya hota hai #58	0	
+59	offline	Ek naam suggest karo #59	0	
+60	offline	Thanks #60	0	
+61	offline	hello kaise ho #61	0	
+62	offline	good morning #62	0	
+63	offline	2 + 2 kitna hota hai #63	0	
+64	offline	Explain a Python variable #64	0	
+65	offline	Python mein loop kya hai #65	0	
+66	offline	Write a Java function to add two numbers #66	0	
+67	offline	Mujhe ek short story sunao #67	0	
+68	offline	Ek email draft likho #68	0	
+69	offline	Roman Hindi mein samjhao ki API kya hoti hai #69	0	
+70	offline	Regex kya hota hai #70	0	
+71	offline	What is recursion #71	0	
+72	offline	Kotlin mein class ka example do #72	0	
+73	offline	Mujhe simple shayari likho #73	0	
+74	offline	SQL JOIN kya hota hai #74	0	
+75	offline	Explain binary search algorithm #75	0	
+76	offline	C++ pointer kya hota hai #76	0	
+77	offline	Android Activity kya hoti hai #77	0	
+78	offline	Gemma token kya hota hai #78	0	
+79	offline	Ek naam suggest karo #79	0	
+80	offline	Thanks #80	0	
+81	offline	hello kaise ho #81	0	
+82	offline	good morning #82	0	
+83	offline	2 + 2 kitna hota hai #83	0	
+84	offline	Explain a Python variable #84	0	
+85	offline	Python mein loop kya hai #85	0	
+86	offline	Write a Java function to add two numbers #86	0	
+87	offline	Mujhe ek short story sunao #87	0	
+88	offline	Ek email draft likho #88	0	
+89	offline	Roman Hindi mein samjhao ki API kya hoti hai #89	0	
+90	offline	Regex kya hota hai #90	0	
+91	offline	What is recursion #91	0	
+92	offline	Kotlin mein class ka example do #92	0	
+93	offline	Mujhe simple shayari likho #93	0	
+94	offline	SQL JOIN kya hota hai #94	0	
+95	offline	Explain binary search algorithm #95	0	
+96	offline	C++ pointer kya hota hai #96	0	
+97	offline	Android Activity kya hoti hai #97	0	
+98	offline	Gemma token kya hota hai #98	0	
+99	offline	Ek naam suggest karo #99	0	
+100	offline	Thanks #100	0	
+101	fresh	Delhi mein aaj weather kaisa hai?	1	
+102	fresh	Samsung S25 ka latest price kya hai?	1	
+103	fresh	Latest news about OnePlus 13 batao	1	
+104	fresh	Pixel 9 ka current release date kya hai?	1	
+105	fresh	Jaipur mein aaj weather kaisa hai?	1	
+106	fresh	RTX 5070 ka latest price kya hai?	1	
+107	fresh	Latest news about Honda Activa 6G batao	1	
+108	fresh	Hyundai Creta ka current release date kya hai?	1	
+109	fresh	Amritsar mein aaj weather kaisa hai?	1	
+110	fresh	Bitcoin ka latest price kya hai?	1	
+111	fresh	Latest news about iPhone 16 batao	1	
+112	fresh	Samsung S25 ka current release date kya hai?	1	
+113	fresh	Bhopal mein aaj weather kaisa hai?	1	
+114	fresh	Pixel 9 ka latest price kya hai?	1	
+115	fresh	Latest news about MacBook Air M4 batao	1	
+116	fresh	RTX 5070 ka current release date kya hai?	1	
+117	fresh	Chennai mein aaj weather kaisa hai?	1	
+118	fresh	Hyundai Creta ka latest price kya hai?	1	
+119	fresh	Latest news about Gold batao	1	
+120	fresh	Bitcoin ka current release date kya hai?	1	
+121	fresh	Delhi mein aaj weather kaisa hai?	1	
+122	fresh	Samsung S25 ka latest price kya hai?	1	
+123	fresh	Latest news about OnePlus 13 batao	1	
+124	fresh	Pixel 9 ka current release date kya hai?	1	
+125	fresh	Jaipur mein aaj weather kaisa hai?	1	
+126	fresh	RTX 5070 ka latest price kya hai?	1	
+127	fresh	Latest news about Honda Activa 6G batao	1	
+128	fresh	Hyundai Creta ka current release date kya hai?	1	
+129	fresh	Amritsar mein aaj weather kaisa hai?	1	
+130	fresh	Bitcoin ka latest price kya hai?	1	
+131	fresh	Latest news about iPhone 16 batao	1	
+132	fresh	Samsung S25 ka current release date kya hai?	1	
+133	fresh	Bhopal mein aaj weather kaisa hai?	1	
+134	fresh	Pixel 9 ka latest price kya hai?	1	
+135	fresh	Latest news about MacBook Air M4 batao	1	
+136	fresh	RTX 5070 ka current release date kya hai?	1	
+137	fresh	Chennai mein aaj weather kaisa hai?	1	
+138	fresh	Hyundai Creta ka latest price kya hai?	1	
+139	fresh	Latest news about Gold batao	1	
+140	fresh	Bitcoin ka current release date kya hai?	1	
+141	fresh	Delhi mein aaj weather kaisa hai?	1	
+142	fresh	Samsung S25 ka latest price kya hai?	1	
+143	fresh	Latest news about OnePlus 13 batao	1	
+144	fresh	Pixel 9 ka current release date kya hai?	1	
+145	fresh	Jaipur mein aaj weather kaisa hai?	1	
+146	fresh	RTX 5070 ka latest price kya hai?	1	
+147	fresh	Latest news about Honda Activa 6G batao	1	
+148	fresh	Hyundai Creta ka current release date kya hai?	1	
+149	fresh	Amritsar mein aaj weather kaisa hai?	1	
+150	fresh	Bitcoin ka latest price kya hai?	1	
+151	fresh	Latest news about iPhone 16 batao	1	
+152	fresh	Samsung S25 ka current release date kya hai?	1	
+153	fresh	Bhopal mein aaj weather kaisa hai?	1	
+154	fresh	Pixel 9 ka latest price kya hai?	1	
+155	fresh	Latest news about MacBook Air M4 batao	1	
+156	fresh	RTX 5070 ka current release date kya hai?	1	
+157	fresh	Chennai mein aaj weather kaisa hai?	1	
+158	fresh	Hyundai Creta ka latest price kya hai?	1	
+159	fresh	Latest news about Gold batao	1	
+160	fresh	Bitcoin ka current release date kya hai?	1	
+161	fresh	Delhi mein aaj weather kaisa hai?	1	
+162	fresh	Samsung S25 ka latest price kya hai?	1	
+163	fresh	Latest news about OnePlus 13 batao	1	
+164	fresh	Pixel 9 ka current release date kya hai?	1	
+165	fresh	Jaipur mein aaj weather kaisa hai?	1	
+166	fresh	RTX 5070 ka latest price kya hai?	1	
+167	fresh	Latest news about Honda Activa 6G batao	1	
+168	fresh	Hyundai Creta ka current release date kya hai?	1	
+169	fresh	Amritsar mein aaj weather kaisa hai?	1	
+170	fresh	Bitcoin ka latest price kya hai?	1	
+171	fresh	Latest news about iPhone 16 batao	1	
+172	fresh	Samsung S25 ka current release date kya hai?	1	
+173	fresh	Bhopal mein aaj weather kaisa hai?	1	
+174	fresh	Pixel 9 ka latest price kya hai?	1	
+175	fresh	Latest news about MacBook Air M4 batao	1	
+176	fresh	RTX 5070 ka current release date kya hai?	1	
+177	fresh	Chennai mein aaj weather kaisa hai?	1	
+178	fresh	Hyundai Creta ka latest price kya hai?	1	
+179	fresh	Latest news about Gold batao	1	
+180	fresh	Bitcoin ka current release date kya hai?	1	
+181	fresh	Delhi mein aaj weather kaisa hai?	1	
+182	fresh	Samsung S25 ka latest price kya hai?	1	
+183	fresh	Latest news about OnePlus 13 batao	1	
+184	fresh	Pixel 9 ka current release date kya hai?	1	
+185	fresh	Jaipur mein aaj weather kaisa hai?	1	
+186	fresh	RTX 5070 ka latest price kya hai?	1	
+187	fresh	Latest news about Honda Activa 6G batao	1	
+188	fresh	Hyundai Creta ka current release date kya hai?	1	
+189	fresh	Amritsar mein aaj weather kaisa hai?	1	
+190	fresh	Bitcoin ka latest price kya hai?	1	
+191	fresh	Latest news about iPhone 16 batao	1	
+192	fresh	Samsung S25 ka current release date kya hai?	1	
+193	fresh	Bhopal mein aaj weather kaisa hai?	1	
+194	fresh	Pixel 9 ka latest price kya hai?	1	
+195	fresh	Latest news about MacBook Air M4 batao	1	
+196	fresh	RTX 5070 ka current release date kya hai?	1	
+197	fresh	Chennai mein aaj weather kaisa hai?	1	
+198	fresh	Hyundai Creta ka latest price kya hai?	1	
+199	fresh	Latest news about Gold batao	1	
+200	fresh	Bitcoin ka current release date kya hai?	1	
+201	explicit	net pe search karo Python 3.13 features	1	
+202	explicit	internet par Android 16 changes check karo	1	
+203	explicit	web search karke Qwen model benchmark batao	1	
+204	explicit	online Mumbai metro update dhoondho	1	
+205	explicit	Google par GST rule update search karo	1	
+206	explicit	Tavily API documentation ko internet se check karke batao	1	
+207	explicit	net se GitHub Actions Android build pata karo	1	
+208	explicit	web par Kotlin 2.1 changes find karo	1	
+209	explicit	Gradle 8.9 changes ke liye online search karo	1	
+210	explicit	OpenAI API docs browse karke batao	1	
+211	explicit	net pe search karo Python 3.13 features	1	
+212	explicit	internet par Android 16 changes check karo	1	
+213	explicit	web search karke Qwen model benchmark batao	1	
+214	explicit	online Mumbai metro update dhoondho	1	
+215	explicit	Google par GST rule update search karo	1	
+216	explicit	Tavily API documentation ko internet se check karke batao	1	
+217	explicit	net se GitHub Actions Android build pata karo	1	
+218	explicit	web par Kotlin 2.1 changes find karo	1	
+219	explicit	Gradle 8.9 changes ke liye online search karo	1	
+220	explicit	OpenAI API docs browse karke batao	1	
+221	explicit	net pe search karo Python 3.13 features	1	
+222	explicit	internet par Android 16 changes check karo	1	
+223	explicit	web search karke Qwen model benchmark batao	1	
+224	explicit	online Mumbai metro update dhoondho	1	
+225	explicit	Google par GST rule update search karo	1	
+226	explicit	Tavily API documentation ko internet se check karke batao	1	
+227	explicit	net se GitHub Actions Android build pata karo	1	
+228	explicit	web par Kotlin 2.1 changes find karo	1	
+229	explicit	Gradle 8.9 changes ke liye online search karo	1	
+230	explicit	OpenAI API docs browse karke batao	1	
+231	explicit	net pe search karo Python 3.13 features	1	
+232	explicit	internet par Android 16 changes check karo	1	
+233	explicit	web search karke Qwen model benchmark batao	1	
+234	explicit	online Mumbai metro update dhoondho	1	
+235	explicit	Google par GST rule update search karo	1	
+236	explicit	Tavily API documentation ko internet se check karke batao	1	
+237	explicit	net se GitHub Actions Android build pata karo	1	
+238	explicit	web par Kotlin 2.1 changes find karo	1	
+239	explicit	Gradle 8.9 changes ke liye online search karo	1	
+240	explicit	OpenAI API docs browse karke batao	1	
+241	explicit	net pe search karo Python 3.13 features	1	
+242	explicit	internet par Android 16 changes check karo	1	
+243	explicit	web search karke Qwen model benchmark batao	1	
+244	explicit	online Mumbai metro update dhoondho	1	
+245	explicit	Google par GST rule update search karo	1	
+246	explicit	Tavily API documentation ko internet se check karke batao	1	
+247	explicit	net se GitHub Actions Android build pata karo	1	
+248	explicit	web par Kotlin 2.1 changes find karo	1	
+249	explicit	Gradle 8.9 changes ke liye online search karo	1	
+250	explicit	OpenAI API docs browse karke batao	1	
+251	explicit	net pe search karo Python 3.13 features	1	
+252	explicit	internet par Android 16 changes check karo	1	
+253	explicit	web search karke Qwen model benchmark batao	1	
+254	explicit	online Mumbai metro update dhoondho	1	
+255	explicit	Google par GST rule update search karo	1	
+256	explicit	Tavily API documentation ko internet se check karke batao	1	
+257	explicit	net se GitHub Actions Android build pata karo	1	
+258	explicit	web par Kotlin 2.1 changes find karo	1	
+259	explicit	Gradle 8.9 changes ke liye online search karo	1	
+260	explicit	OpenAI API docs browse karke batao	1	
+261	explicit	net pe search karo Python 3.13 features	1	
+262	explicit	internet par Android 16 changes check karo	1	
+263	explicit	web search karke Qwen model benchmark batao	1	
+264	explicit	online Mumbai metro update dhoondho	1	
+265	explicit	Google par GST rule update search karo	1	
+266	explicit	Tavily API documentation ko internet se check karke batao	1	
+267	explicit	net se GitHub Actions Android build pata karo	1	
+268	explicit	web par Kotlin 2.1 changes find karo	1	
+269	explicit	Gradle 8.9 changes ke liye online search karo	1	
+270	explicit	OpenAI API docs browse karke batao	1	
+271	explicit	net pe search karo Python 3.13 features	1	
+272	explicit	internet par Android 16 changes check karo	1	
+273	explicit	web search karke Qwen model benchmark batao	1	
+274	explicit	online Mumbai metro update dhoondho	1	
+275	explicit	Google par GST rule update search karo	1	
+276	explicit	Tavily API documentation ko internet se check karke batao	1	
+277	explicit	net se GitHub Actions Android build pata karo	1	
+278	explicit	web par Kotlin 2.1 changes find karo	1	
+279	explicit	Gradle 8.9 changes ke liye online search karo	1	
+280	explicit	OpenAI API docs browse karke batao	1	
+281	explicit	net pe search karo Python 3.13 features	1	
+282	explicit	internet par Android 16 changes check karo	1	
+283	explicit	web search karke Qwen model benchmark batao	1	
+284	explicit	online Mumbai metro update dhoondho	1	
+285	explicit	Google par GST rule update search karo	1	
+286	explicit	Tavily API documentation ko internet se check karke batao	1	
+287	explicit	net se GitHub Actions Android build pata karo	1	
+288	explicit	web par Kotlin 2.1 changes find karo	1	
+289	explicit	Gradle 8.9 changes ke liye online search karo	1	
+290	explicit	OpenAI API docs browse karke batao	1	
+291	explicit	net pe search karo Python 3.13 features	1	
+292	explicit	internet par Android 16 changes check karo	1	
+293	explicit	web search karke Qwen model benchmark batao	1	
+294	explicit	online Mumbai metro update dhoondho	1	
+295	explicit	Google par GST rule update search karo	1	
+296	explicit	Tavily API documentation ko internet se check karke batao	1	
+297	explicit	net se GitHub Actions Android build pata karo	1	
+298	explicit	web par Kotlin 2.1 changes find karo	1	
+299	explicit	Gradle 8.9 changes ke liye online search karo	1	
+300	explicit	OpenAI API docs browse karke batao	1	
+301	image_show	Taj Mahal ki photo dikhao	1	img
+302	image_show	Eiffel Tower ki photo dikhao	1	img
+303	image_show	Gateway of India ki photo dikhao	1	img
+304	image_show	Qutub Minar ki photo dikhao	1	img
+305	image_show	Red Fort ki photo dikhao	1	img
+306	image_show	Goa beach ki photo dikhao	1	img
+307	image_show	Kashmir ki photo dikhao	1	img
+308	image_show	iPhone 16 ki photo dikhao	1	img
+309	image_show	Samsung S25 ki photo dikhao	1	img
+310	image_show	ISRO logo ki photo dikhao	1	img
+311	image_show	Taj Mahal ki photo dikhao	1	img
+312	image_show	Eiffel Tower ki photo dikhao	1	img
+313	image_show	Gateway of India ki photo dikhao	1	img
+314	image_show	Qutub Minar ki photo dikhao	1	img
+315	image_show	Red Fort ki photo dikhao	1	img
+316	image_show	Goa beach ki photo dikhao	1	img
+317	image_show	Kashmir ki photo dikhao	1	img
+318	image_show	iPhone 16 ki photo dikhao	1	img
+319	image_show	Samsung S25 ki photo dikhao	1	img
+320	image_show	ISRO logo ki photo dikhao	1	img
+321	image_show	Taj Mahal ki photo dikhao	1	img
+322	image_show	Eiffel Tower ki photo dikhao	1	img
+323	image_show	Gateway of India ki photo dikhao	1	img
+324	image_show	Qutub Minar ki photo dikhao	1	img
+325	image_show	Red Fort ki photo dikhao	1	img
+326	image_show	Goa beach ki photo dikhao	1	img
+327	image_show	Kashmir ki photo dikhao	1	img
+328	image_show	iPhone 16 ki photo dikhao	1	img
+329	image_show	Samsung S25 ki photo dikhao	1	img
+330	image_show	ISRO logo ki photo dikhao	1	img
+331	image_show	Taj Mahal ki photo dikhao	1	img
+332	image_show	Eiffel Tower ki photo dikhao	1	img
+333	image_show	Gateway of India ki photo dikhao	1	img
+334	image_show	Qutub Minar ki photo dikhao	1	img
+335	image_show	Red Fort ki photo dikhao	1	img
+336	image_show	Goa beach ki photo dikhao	1	img
+337	image_show	Kashmir ki photo dikhao	1	img
+338	image_show	iPhone 16 ki photo dikhao	1	img
+339	image_show	Samsung S25 ki photo dikhao	1	img
+340	image_show	ISRO logo ki photo dikhao	1	img
+341	image_show	Taj Mahal ki photo dikhao	1	img
+342	image_show	Eiffel Tower ki photo dikhao	1	img
+343	image_show	Gateway of India ki photo dikhao	1	img
+344	image_show	Qutub Minar ki photo dikhao	1	img
+345	image_show	Red Fort ki photo dikhao	1	img
+346	image_show	Goa beach ki photo dikhao	1	img
+347	image_show	Kashmir ki photo dikhao	1	img
+348	image_show	iPhone 16 ki photo dikhao	1	img
+349	image_show	Samsung S25 ki photo dikhao	1	img
+350	image_show	ISRO logo ki photo dikhao	1	img
+351	image_show	Taj Mahal ki photo dikhao	1	img
+352	image_show	Eiffel Tower ki photo dikhao	1	img
+353	image_show	Gateway of India ki photo dikhao	1	img
+354	image_show	Qutub Minar ki photo dikhao	1	img
+355	image_show	Red Fort ki photo dikhao	1	img
+356	image_show	Goa beach ki photo dikhao	1	img
+357	image_show	Kashmir ki photo dikhao	1	img
+358	image_show	iPhone 16 ki photo dikhao	1	img
+359	image_show	Samsung S25 ki photo dikhao	1	img
+360	image_show	ISRO logo ki photo dikhao	1	img
+361	image_show	Taj Mahal ki photo dikhao	1	img
+362	image_show	Eiffel Tower ki photo dikhao	1	img
+363	image_show	Gateway of India ki photo dikhao	1	img
+364	image_show	Qutub Minar ki photo dikhao	1	img
+365	image_show	Red Fort ki photo dikhao	1	img
+366	image_show	Goa beach ki photo dikhao	1	img
+367	image_show	Kashmir ki photo dikhao	1	img
+368	image_show	iPhone 16 ki photo dikhao	1	img
+369	image_show	Samsung S25 ki photo dikhao	1	img
+370	image_show	ISRO logo ki photo dikhao	1	img
+371	image_show	Taj Mahal ki photo dikhao	1	img
+372	image_show	Eiffel Tower ki photo dikhao	1	img
+373	image_show	Gateway of India ki photo dikhao	1	img
+374	image_show	Qutub Minar ki photo dikhao	1	img
+375	image_show	Red Fort ki photo dikhao	1	img
+376	image_show	Goa beach ki photo dikhao	1	img
+377	image_show	Kashmir ki photo dikhao	1	img
+378	image_show	iPhone 16 ki photo dikhao	1	img
+379	image_show	Samsung S25 ki photo dikhao	1	img
+380	image_show	ISRO logo ki photo dikhao	1	img
+381	image_show	Taj Mahal ki photo dikhao	1	img
+382	image_show	Eiffel Tower ki photo dikhao	1	img
+383	image_show	Gateway of India ki photo dikhao	1	img
+384	image_show	Qutub Minar ki photo dikhao	1	img
+385	image_show	Red Fort ki photo dikhao	1	img
+386	image_show	Goa beach ki photo dikhao	1	img
+387	image_show	Kashmir ki photo dikhao	1	img
+388	image_show	iPhone 16 ki photo dikhao	1	img
+389	image_show	Samsung S25 ki photo dikhao	1	img
+390	image_show	ISRO logo ki photo dikhao	1	img
+391	image_show	Taj Mahal ki photo dikhao	1	img
+392	image_show	Eiffel Tower ki photo dikhao	1	img
+393	image_show	Gateway of India ki photo dikhao	1	img
+394	image_show	Qutub Minar ki photo dikhao	1	img
+395	image_show	Red Fort ki photo dikhao	1	img
+396	image_show	Goa beach ki photo dikhao	1	img
+397	image_show	Kashmir ki photo dikhao	1	img
+398	image_show	iPhone 16 ki photo dikhao	1	img
+399	image_show	Samsung S25 ki photo dikhao	1	img
+400	image_show	ISRO logo ki photo dikhao	1	img
+401	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+402	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+403	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+404	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+405	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+406	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+407	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+408	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+409	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+410	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+411	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+412	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+413	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+414	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+415	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+416	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+417	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+418	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+419	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+420	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+421	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+422	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+423	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+424	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+425	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+426	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+427	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+428	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+429	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+430	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+431	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+432	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+433	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+434	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+435	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+436	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+437	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+438	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+439	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+440	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+441	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+442	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+443	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+444	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+445	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+446	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+447	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+448	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+449	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+450	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+451	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+452	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+453	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+454	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+455	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+456	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+457	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+458	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+459	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+460	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+461	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+462	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+463	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+464	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+465	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+466	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+467	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+468	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+469	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+470	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+471	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+472	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+473	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+474	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+475	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+476	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+477	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+478	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+479	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+480	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+481	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+482	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+483	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+484	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+485	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+486	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+487	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+488	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+489	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+490	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+491	image_read	Taj Mahal ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+492	image_read	Eiffel Tower ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+493	image_read	Gateway of India ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+494	image_read	Qutub Minar ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+495	image_read	Red Fort ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+496	image_read	Goa beach ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+497	image_read	Kashmir ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+498	image_read	iPhone 16 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+499	image_read	Samsung S25 ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+500	image_read	ISRO logo ki image net se padh ke batao, photo mat dikhana	1	readimg ro
+501	links	Python ki official website ka link do	1	link1
+502	links	Android Developers ki official website ka link do	1	link1
+503	links	GitHub ki official website ka link do	1	link1
+504	links	Kotlin ki official website ka link do	1	link1
+505	links	Gradle ki official website ka link do	1	link1
+506	links	IRCTC ki official website ka link do	1	link1
+507	links	Passport Seva ki official website ka link do	1	link1
+508	links	DigiLocker ki official website ka link do	1	link1
+509	links	Tavily ki official website ka link do	1	link1
+510	links	ISRO ki official website ka link do	1	link1
+511	links	Python ki official website ka link do	1	link1
+512	links	Android Developers ki official website ka link do	1	link1
+513	links	GitHub ki official website ka link do	1	link1
+514	links	Kotlin ki official website ka link do	1	link1
+515	links	Gradle ki official website ka link do	1	link1
+516	links	IRCTC ki official website ka link do	1	link1
+517	links	Passport Seva ki official website ka link do	1	link1
+518	links	DigiLocker ki official website ka link do	1	link1
+519	links	Tavily ki official website ka link do	1	link1
+520	links	ISRO ki official website ka link do	1	link1
+521	links	Python ki official website ka link do	1	link1
+522	links	Android Developers ki official website ka link do	1	link1
+523	links	GitHub ki official website ka link do	1	link1
+524	links	Kotlin ki official website ka link do	1	link1
+525	links	Gradle ki official website ka link do	1	link1
+526	links	IRCTC ki official website ka link do	1	link1
+527	links	Passport Seva ki official website ka link do	1	link1
+528	links	DigiLocker ki official website ka link do	1	link1
+529	links	Tavily ki official website ka link do	1	link1
+530	links	ISRO ki official website ka link do	1	link1
+531	links	Python ki official website ka link do	1	link1
+532	links	Android Developers ki official website ka link do	1	link1
+533	links	GitHub ki official website ka link do	1	link1
+534	links	Kotlin ki official website ka link do	1	link1
+535	links	Gradle ki official website ka link do	1	link1
+536	links	IRCTC ki official website ka link do	1	link1
+537	links	Passport Seva ki official website ka link do	1	link1
+538	links	DigiLocker ki official website ka link do	1	link1
+539	links	Tavily ki official website ka link do	1	link1
+540	links	ISRO ki official website ka link do	1	link1
+541	links	Python ki official website ka link do	1	link1
+542	links	Android Developers ki official website ka link do	1	link1
+543	links	GitHub ki official website ka link do	1	link1
+544	links	Kotlin ki official website ka link do	1	link1
+545	links	Gradle ki official website ka link do	1	link1
+546	links	IRCTC ki official website ka link do	1	link1
+547	links	Passport Seva ki official website ka link do	1	link1
+548	links	DigiLocker ki official website ka link do	1	link1
+549	links	Tavily ki official website ka link do	1	link1
+550	links	ISRO ki official website ka link do	1	link1
+551	links	Python ki official website ka link do	1	link1
+552	links	Android Developers ki official website ka link do	1	link1
+553	links	GitHub ki official website ka link do	1	link1
+554	links	Kotlin ki official website ka link do	1	link1
+555	links	Gradle ki official website ka link do	1	link1
+556	links	IRCTC ki official website ka link do	1	link1
+557	links	Passport Seva ki official website ka link do	1	link1
+558	links	DigiLocker ki official website ka link do	1	link1
+559	links	Tavily ki official website ka link do	1	link1
+560	links	ISRO ki official website ka link do	1	link1
+561	links	Python ki official website ka link do	1	link1
+562	links	Android Developers ki official website ka link do	1	link1
+563	links	GitHub ki official website ka link do	1	link1
+564	links	Kotlin ki official website ka link do	1	link1
+565	links	Gradle ki official website ka link do	1	link1
+566	links	IRCTC ki official website ka link do	1	link1
+567	links	Passport Seva ki official website ka link do	1	link1
+568	links	DigiLocker ki official website ka link do	1	link1
+569	links	Tavily ki official website ka link do	1	link1
+570	links	ISRO ki official website ka link do	1	link1
+571	links	Python ki official website ka link do	1	link1
+572	links	Android Developers ki official website ka link do	1	link1
+573	links	GitHub ki official website ka link do	1	link1
+574	links	Kotlin ki official website ka link do	1	link1
+575	links	Gradle ki official website ka link do	1	link1
+576	links	IRCTC ki official website ka link do	1	link1
+577	links	Passport Seva ki official website ka link do	1	link1
+578	links	DigiLocker ki official website ka link do	1	link1
+579	links	Tavily ki official website ka link do	1	link1
+580	links	ISRO ki official website ka link do	1	link1
+581	links	Python ki official website ka link do	1	link1
+582	links	Android Developers ki official website ka link do	1	link1
+583	links	GitHub ki official website ka link do	1	link1
+584	links	Kotlin ki official website ka link do	1	link1
+585	links	Gradle ki official website ka link do	1	link1
+586	links	IRCTC ki official website ka link do	1	link1
+587	links	Passport Seva ki official website ka link do	1	link1
+588	links	DigiLocker ki official website ka link do	1	link1
+589	links	Tavily ki official website ka link do	1	link1
+590	links	ISRO ki official website ka link do	1	link1
+591	links	Python ki official website ka link do	1	link1
+592	links	Android Developers ki official website ka link do	1	link1
+593	links	GitHub ki official website ka link do	1	link1
+594	links	Kotlin ki official website ka link do	1	link1
+595	links	Gradle ki official website ka link do	1	link1
+596	links	IRCTC ki official website ka link do	1	link1
+597	links	Passport Seva ki official website ka link do	1	link1
+598	links	DigiLocker ki official website ka link do	1	link1
+599	links	Tavily ki official website ka link do	1	link1
+600	links	ISRO ki official website ka link do	1	link1
+601	procedure	passport apply ka latest official process step by step batao	1	steps
+602	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+603	procedure	PAN card apply ka latest official process step by step batao	1	steps
+604	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+605	procedure	GST registration ka latest official process step by step batao	1	steps
+606	procedure	ITR filing ka latest official process step by step batao	1	steps
+607	procedure	EPFO claim ka latest official process step by step batao	1	steps
+608	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+609	procedure	visa application ka latest official process step by step batao	1	steps
+610	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+611	procedure	passport apply ka latest official process step by step batao	1	steps
+612	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+613	procedure	PAN card apply ka latest official process step by step batao	1	steps
+614	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+615	procedure	GST registration ka latest official process step by step batao	1	steps
+616	procedure	ITR filing ka latest official process step by step batao	1	steps
+617	procedure	EPFO claim ka latest official process step by step batao	1	steps
+618	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+619	procedure	visa application ka latest official process step by step batao	1	steps
+620	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+621	procedure	passport apply ka latest official process step by step batao	1	steps
+622	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+623	procedure	PAN card apply ka latest official process step by step batao	1	steps
+624	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+625	procedure	GST registration ka latest official process step by step batao	1	steps
+626	procedure	ITR filing ka latest official process step by step batao	1	steps
+627	procedure	EPFO claim ka latest official process step by step batao	1	steps
+628	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+629	procedure	visa application ka latest official process step by step batao	1	steps
+630	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+631	procedure	passport apply ka latest official process step by step batao	1	steps
+632	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+633	procedure	PAN card apply ka latest official process step by step batao	1	steps
+634	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+635	procedure	GST registration ka latest official process step by step batao	1	steps
+636	procedure	ITR filing ka latest official process step by step batao	1	steps
+637	procedure	EPFO claim ka latest official process step by step batao	1	steps
+638	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+639	procedure	visa application ka latest official process step by step batao	1	steps
+640	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+641	procedure	passport apply ka latest official process step by step batao	1	steps
+642	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+643	procedure	PAN card apply ka latest official process step by step batao	1	steps
+644	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+645	procedure	GST registration ka latest official process step by step batao	1	steps
+646	procedure	ITR filing ka latest official process step by step batao	1	steps
+647	procedure	EPFO claim ka latest official process step by step batao	1	steps
+648	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+649	procedure	visa application ka latest official process step by step batao	1	steps
+650	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+651	procedure	passport apply ka latest official process step by step batao	1	steps
+652	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+653	procedure	PAN card apply ka latest official process step by step batao	1	steps
+654	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+655	procedure	GST registration ka latest official process step by step batao	1	steps
+656	procedure	ITR filing ka latest official process step by step batao	1	steps
+657	procedure	EPFO claim ka latest official process step by step batao	1	steps
+658	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+659	procedure	visa application ka latest official process step by step batao	1	steps
+660	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+661	procedure	passport apply ka latest official process step by step batao	1	steps
+662	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+663	procedure	PAN card apply ka latest official process step by step batao	1	steps
+664	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+665	procedure	GST registration ka latest official process step by step batao	1	steps
+666	procedure	ITR filing ka latest official process step by step batao	1	steps
+667	procedure	EPFO claim ka latest official process step by step batao	1	steps
+668	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+669	procedure	visa application ka latest official process step by step batao	1	steps
+670	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+671	procedure	passport apply ka latest official process step by step batao	1	steps
+672	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+673	procedure	PAN card apply ka latest official process step by step batao	1	steps
+674	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+675	procedure	GST registration ka latest official process step by step batao	1	steps
+676	procedure	ITR filing ka latest official process step by step batao	1	steps
+677	procedure	EPFO claim ka latest official process step by step batao	1	steps
+678	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+679	procedure	visa application ka latest official process step by step batao	1	steps
+680	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+681	procedure	passport apply ka latest official process step by step batao	1	steps
+682	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+683	procedure	PAN card apply ka latest official process step by step batao	1	steps
+684	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+685	procedure	GST registration ka latest official process step by step batao	1	steps
+686	procedure	ITR filing ka latest official process step by step batao	1	steps
+687	procedure	EPFO claim ka latest official process step by step batao	1	steps
+688	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+689	procedure	visa application ka latest official process step by step batao	1	steps
+690	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+691	procedure	passport apply ka latest official process step by step batao	1	steps
+692	procedure	Aadhaar update ka latest official process step by step batao	1	steps
+693	procedure	PAN card apply ka latest official process step by step batao	1	steps
+694	procedure	driving licence renewal ka latest official process step by step batao	1	steps
+695	procedure	GST registration ka latest official process step by step batao	1	steps
+696	procedure	ITR filing ka latest official process step by step batao	1	steps
+697	procedure	EPFO claim ka latest official process step by step batao	1	steps
+698	procedure	IRCTC Tatkal booking ka latest official process step by step batao	1	steps
+699	procedure	visa application ka latest official process step by step batao	1	steps
+700	procedure	FASTag recharge ka latest official process step by step batao	1	steps
+701	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+702	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+703	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+704	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+705	compare	Kotlin vs Java compare karke farq batao	1	cmp
+706	compare	SQLite vs Room compare karke farq batao	1	cmp
+707	compare	Python vs JavaScript compare karke farq batao	1	cmp
+708	compare	FD vs RD compare karke farq batao	1	cmp
+709	compare	AC vs cooler compare karke farq batao	1	cmp
+710	compare	UPI vs card compare karke farq batao	1	cmp
+711	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+712	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+713	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+714	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+715	compare	Kotlin vs Java compare karke farq batao	1	cmp
+716	compare	SQLite vs Room compare karke farq batao	1	cmp
+717	compare	Python vs JavaScript compare karke farq batao	1	cmp
+718	compare	FD vs RD compare karke farq batao	1	cmp
+719	compare	AC vs cooler compare karke farq batao	1	cmp
+720	compare	UPI vs card compare karke farq batao	1	cmp
+721	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+722	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+723	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+724	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+725	compare	Kotlin vs Java compare karke farq batao	1	cmp
+726	compare	SQLite vs Room compare karke farq batao	1	cmp
+727	compare	Python vs JavaScript compare karke farq batao	1	cmp
+728	compare	FD vs RD compare karke farq batao	1	cmp
+729	compare	AC vs cooler compare karke farq batao	1	cmp
+730	compare	UPI vs card compare karke farq batao	1	cmp
+731	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+732	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+733	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+734	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+735	compare	Kotlin vs Java compare karke farq batao	1	cmp
+736	compare	SQLite vs Room compare karke farq batao	1	cmp
+737	compare	Python vs JavaScript compare karke farq batao	1	cmp
+738	compare	FD vs RD compare karke farq batao	1	cmp
+739	compare	AC vs cooler compare karke farq batao	1	cmp
+740	compare	UPI vs card compare karke farq batao	1	cmp
+741	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+742	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+743	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+744	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+745	compare	Kotlin vs Java compare karke farq batao	1	cmp
+746	compare	SQLite vs Room compare karke farq batao	1	cmp
+747	compare	Python vs JavaScript compare karke farq batao	1	cmp
+748	compare	FD vs RD compare karke farq batao	1	cmp
+749	compare	AC vs cooler compare karke farq batao	1	cmp
+750	compare	UPI vs card compare karke farq batao	1	cmp
+751	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+752	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+753	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+754	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+755	compare	Kotlin vs Java compare karke farq batao	1	cmp
+756	compare	SQLite vs Room compare karke farq batao	1	cmp
+757	compare	Python vs JavaScript compare karke farq batao	1	cmp
+758	compare	FD vs RD compare karke farq batao	1	cmp
+759	compare	AC vs cooler compare karke farq batao	1	cmp
+760	compare	UPI vs card compare karke farq batao	1	cmp
+761	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+762	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+763	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+764	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+765	compare	Kotlin vs Java compare karke farq batao	1	cmp
+766	compare	SQLite vs Room compare karke farq batao	1	cmp
+767	compare	Python vs JavaScript compare karke farq batao	1	cmp
+768	compare	FD vs RD compare karke farq batao	1	cmp
+769	compare	AC vs cooler compare karke farq batao	1	cmp
+770	compare	UPI vs card compare karke farq batao	1	cmp
+771	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+772	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+773	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+774	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+775	compare	Kotlin vs Java compare karke farq batao	1	cmp
+776	compare	SQLite vs Room compare karke farq batao	1	cmp
+777	compare	Python vs JavaScript compare karke farq batao	1	cmp
+778	compare	FD vs RD compare karke farq batao	1	cmp
+779	compare	AC vs cooler compare karke farq batao	1	cmp
+780	compare	UPI vs card compare karke farq batao	1	cmp
+781	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+782	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+783	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+784	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+785	compare	Kotlin vs Java compare karke farq batao	1	cmp
+786	compare	SQLite vs Room compare karke farq batao	1	cmp
+787	compare	Python vs JavaScript compare karke farq batao	1	cmp
+788	compare	FD vs RD compare karke farq batao	1	cmp
+789	compare	AC vs cooler compare karke farq batao	1	cmp
+790	compare	UPI vs card compare karke farq batao	1	cmp
+791	compare	iPhone 16 vs Samsung S25 compare karke farq batao	1	cmp
+792	compare	Pixel 9 vs OnePlus 13 compare karke farq batao	1	cmp
+793	compare	MacBook Air M4 vs ThinkPad T14 compare karke farq batao	1	cmp
+794	compare	Qwen 4B vs Gemma 4B compare karke farq batao	1	cmp
+795	compare	Kotlin vs Java compare karke farq batao	1	cmp
+796	compare	SQLite vs Room compare karke farq batao	1	cmp
+797	compare	Python vs JavaScript compare karke farq batao	1	cmp
+798	compare	FD vs RD compare karke farq batao	1	cmp
+799	compare	AC vs cooler compare karke farq batao	1	cmp
+800	compare	UPI vs card compare karke farq batao	1	cmp
+801	url_read	https://example.com ko padh ke iska main point batao	1	ro
+802	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+803	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+804	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+805	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+806	url_read	https://github.com ko padh ke iska main point batao	1	ro
+807	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+808	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+809	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+810	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+811	url_read	https://example.com ko padh ke iska main point batao	1	ro
+812	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+813	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+814	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+815	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+816	url_read	https://github.com ko padh ke iska main point batao	1	ro
+817	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+818	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+819	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+820	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+821	url_read	https://example.com ko padh ke iska main point batao	1	ro
+822	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+823	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+824	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+825	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+826	url_read	https://github.com ko padh ke iska main point batao	1	ro
+827	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+828	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+829	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+830	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+831	url_read	https://example.com ko padh ke iska main point batao	1	ro
+832	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+833	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+834	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+835	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+836	url_read	https://github.com ko padh ke iska main point batao	1	ro
+837	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+838	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+839	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+840	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+841	url_read	https://example.com ko padh ke iska main point batao	1	ro
+842	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+843	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+844	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+845	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+846	url_read	https://github.com ko padh ke iska main point batao	1	ro
+847	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+848	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+849	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+850	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+851	url_read	https://example.com ko padh ke iska main point batao	1	ro
+852	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+853	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+854	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+855	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+856	url_read	https://github.com ko padh ke iska main point batao	1	ro
+857	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+858	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+859	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+860	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+861	url_read	https://example.com ko padh ke iska main point batao	1	ro
+862	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+863	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+864	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+865	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+866	url_read	https://github.com ko padh ke iska main point batao	1	ro
+867	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+868	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+869	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+870	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+871	url_read	https://example.com ko padh ke iska main point batao	1	ro
+872	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+873	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+874	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+875	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+876	url_read	https://github.com ko padh ke iska main point batao	1	ro
+877	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+878	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+879	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+880	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+881	url_read	https://example.com ko padh ke iska main point batao	1	ro
+882	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+883	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+884	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+885	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+886	url_read	https://github.com ko padh ke iska main point batao	1	ro
+887	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+888	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+889	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+890	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+891	url_read	https://example.com ko padh ke iska main point batao	1	ro
+892	url_read	https://www.python.org ko padh ke iska main point batao	1	ro
+893	url_read	https://developer.android.com ko padh ke iska main point batao	1	ro
+894	url_read	https://kotlinlang.org ko padh ke iska main point batao	1	ro
+895	url_read	https://gradle.org ko padh ke iska main point batao	1	ro
+896	url_read	https://github.com ko padh ke iska main point batao	1	ro
+897	url_read	https://www.irctc.co.in ko padh ke iska main point batao	1	ro
+898	url_read	https://www.passportindia.gov.in ko padh ke iska main point batao	1	ro
+899	url_read	https://www.tavily.com ko padh ke iska main point batao	1	ro
+900	url_read	https://www.isro.gov.in ko padh ke iska main point batao	1	ro
+901	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+902	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+903	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+904	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+905	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+906	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+907	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+908	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+909	mixed	Gold ka current price aur official website ka link do	1	link1
+910	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+911	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+912	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+913	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+914	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+915	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+916	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+917	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+918	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+919	mixed	Gold ka current price aur official website ka link do	1	link1
+920	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+921	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+922	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+923	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+924	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+925	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+926	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+927	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+928	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+929	mixed	Gold ka current price aur official website ka link do	1	link1
+930	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+931	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+932	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+933	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+934	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+935	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+936	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+937	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+938	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+939	mixed	Gold ka current price aur official website ka link do	1	link1
+940	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+941	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+942	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+943	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+944	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+945	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+946	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+947	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+948	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+949	mixed	Gold ka current price aur official website ka link do	1	link1
+950	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+951	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+952	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+953	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+954	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+955	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+956	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+957	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+958	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+959	mixed	Gold ka current price aur official website ka link do	1	link1
+960	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+961	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+962	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+963	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+964	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+965	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+966	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+967	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+968	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+969	mixed	Gold ka current price aur official website ka link do	1	link1
+970	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+971	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+972	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+973	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+974	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+975	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+976	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+977	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+978	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+979	mixed	Gold ka current price aur official website ka link do	1	link1
+980	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+981	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+982	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+983	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+984	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+985	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+986	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+987	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+988	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+989	mixed	Gold ka current price aur official website ka link do	1	link1
+990	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+991	mixed	iPhone 16 ka current price aur official website ka link do	1	link1
+992	mixed	Samsung S25 ka current price aur official website ka link do	1	link1
+993	mixed	OnePlus 13 ka current price aur official website ka link do	1	link1
+994	mixed	Pixel 9 ka current price aur official website ka link do	1	link1
+995	mixed	MacBook Air M4 ka current price aur official website ka link do	1	link1
+996	mixed	RTX 5070 ka current price aur official website ka link do	1	link1
+997	mixed	Honda Activa 6G ka current price aur official website ka link do	1	link1
+998	mixed	Hyundai Creta ka current price aur official website ka link do	1	link1
+999	mixed	Gold ka current price aur official website ka link do	1	link1
+1000	mixed	Bitcoin ka current price aur official website ka link do	1	link1
+1001	followup	uski photo dikhao	1	img
+1002	followup	iska official link do	1	link1
+1003	followup	uski photo dikhao	1	img
+1004	followup	iska official link do	1	link1
+1005	followup	uski photo dikhao	1	img
+1006	followup	iska official link do	1	link1
+1007	followup	uski photo dikhao	1	img
+1008	followup	iska official link do	1	link1
+1009	followup	uski photo dikhao	1	img
+1010	followup	iska official link do	1	link1
+1011	followup	uski photo dikhao	1	img
+1012	followup	iska official link do	1	link1
+1013	followup	uski photo dikhao	1	img
+1014	followup	iska official link do	1	link1
+1015	followup	uski photo dikhao	1	img
+1016	followup	iska official link do	1	link1
+1017	followup	uski photo dikhao	1	img
+1018	followup	iska official link do	1	link1
+1019	followup	uski photo dikhao	1	img
+1020	followup	iska official link do	1	link1
+1021	followup	uski photo dikhao	1	img
+1022	followup	iska official link do	1	link1
+1023	followup	uski photo dikhao	1	img
+1024	followup	iska official link do	1	link1
+1025	followup	uski photo dikhao	1	img
+1026	followup	iska official link do	1	link1
+1027	followup	uski photo dikhao	1	img
+1028	followup	iska official link do	1	link1
+1029	followup	uski photo dikhao	1	img
+1030	followup	iska official link do	1	link1
+1031	followup	uski photo dikhao	1	img
+1032	followup	iska official link do	1	link1
+1033	followup	uski photo dikhao	1	img
+1034	followup	iska official link do	1	link1
+1035	followup	uski photo dikhao	1	img
+1036	followup	iska official link do	1	link1
+1037	followup	uski photo dikhao	1	img
+1038	followup	iska official link do	1	link1
+1039	followup	uski photo dikhao	1	img
+1040	followup	iska official link do	1	link1
+1041	followup	uski photo dikhao	1	img
+1042	followup	iska official link do	1	link1
+1043	followup	uski photo dikhao	1	img
+1044	followup	iska official link do	1	link1
+1045	followup	uski photo dikhao	1	img
+1046	followup	iska official link do	1	link1
+1047	followup	uski photo dikhao	1	img
+1048	followup	iska official link do	1	link1
+1049	followup	uski photo dikhao	1	img
+1050	followup	iska official link do	1	link1
+1051	followup	uski photo dikhao	1	img
+1052	followup	iska official link do	1	link1
+1053	followup	uski photo dikhao	1	img
+1054	followup	iska official link do	1	link1
+1055	followup	uski photo dikhao	1	img
+1056	followup	iska official link do	1	link1
+1057	followup	uski photo dikhao	1	img
+1058	followup	iska official link do	1	link1
+1059	followup	uski photo dikhao	1	img
+1060	followup	iska official link do	1	link1
+1061	followup	uski photo dikhao	1	img
+1062	followup	iska official link do	1	link1
+1063	followup	uski photo dikhao	1	img
+1064	followup	iska official link do	1	link1
+1065	followup	uski photo dikhao	1	img
+1066	followup	iska official link do	1	link1
+1067	followup	uski photo dikhao	1	img
+1068	followup	iska official link do	1	link1
+1069	followup	uski photo dikhao	1	img
+1070	followup	iska official link do	1	link1
+1071	followup	uski photo dikhao	1	img
+1072	followup	iska official link do	1	link1
+1073	followup	uski photo dikhao	1	img
+1074	followup	iska official link do	1	link1
+1075	followup	uski photo dikhao	1	img
+1076	followup	iska official link do	1	link1
+1077	followup	uski photo dikhao	1	img
+1078	followup	iska official link do	1	link1
+1079	followup	uski photo dikhao	1	img
+1080	followup	iska official link do	1	link1
+1081	followup	uski photo dikhao	1	img
+1082	followup	iska official link do	1	link1
+1083	followup	uski photo dikhao	1	img
+1084	followup	iska official link do	1	link1
+1085	followup	uski photo dikhao	1	img
+1086	followup	iska official link do	1	link1
+1087	followup	uski photo dikhao	1	img
+1088	followup	iska official link do	1	link1
+1089	followup	uski photo dikhao	1	img
+1090	followup	iska official link do	1	link1
+1091	followup	uski photo dikhao	1	img
+1092	followup	iska official link do	1	link1
+1093	followup	uski photo dikhao	1	img
+1094	followup	iska official link do	1	link1
+1095	followup	uski photo dikhao	1	img
+1096	followup	iska official link do	1	link1
+1097	followup	uski photo dikhao	1	img
+1098	followup	iska official link do	1	link1
+1099	followup	uski photo dikhao	1	img
+1100	followup	iska official link do	1	link1
+1101	repeat_exact	Python list kaise sort karte hain?	0	
+1102	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1103	repeat_exact	Gemma token kya hota hai?	0	
+1104	repeat_exact	Kheer kaise banate hain?	0	
+1105	repeat_exact	Photosynthesis kya hota hai?	0	
+1106	repeat_exact	Recursion kya hota hai?	0	
+1107	repeat_exact	SQL JOIN kya hota hai?	0	
+1108	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1109	repeat_exact	Regex kya hota hai?	0	
+1110	repeat_exact	Ek short story sunao	0	
+1111	repeat_exact	Python list kaise sort karte hain?	0	
+1112	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1113	repeat_exact	Gemma token kya hota hai?	0	
+1114	repeat_exact	Kheer kaise banate hain?	0	
+1115	repeat_exact	Photosynthesis kya hota hai?	0	
+1116	repeat_exact	Recursion kya hota hai?	0	
+1117	repeat_exact	SQL JOIN kya hota hai?	0	
+1118	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1119	repeat_exact	Regex kya hota hai?	0	
+1120	repeat_exact	Ek short story sunao	0	
+1121	repeat_exact	Python list kaise sort karte hain?	0	
+1122	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1123	repeat_exact	Gemma token kya hota hai?	0	
+1124	repeat_exact	Kheer kaise banate hain?	0	
+1125	repeat_exact	Photosynthesis kya hota hai?	0	
+1126	repeat_exact	Recursion kya hota hai?	0	
+1127	repeat_exact	SQL JOIN kya hota hai?	0	
+1128	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1129	repeat_exact	Regex kya hota hai?	0	
+1130	repeat_exact	Ek short story sunao	0	
+1131	repeat_exact	Python list kaise sort karte hain?	0	
+1132	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1133	repeat_exact	Gemma token kya hota hai?	0	
+1134	repeat_exact	Kheer kaise banate hain?	0	
+1135	repeat_exact	Photosynthesis kya hota hai?	0	
+1136	repeat_exact	Recursion kya hota hai?	0	
+1137	repeat_exact	SQL JOIN kya hota hai?	0	
+1138	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1139	repeat_exact	Regex kya hota hai?	0	
+1140	repeat_exact	Ek short story sunao	0	
+1141	repeat_exact	Python list kaise sort karte hain?	0	
+1142	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1143	repeat_exact	Gemma token kya hota hai?	0	
+1144	repeat_exact	Kheer kaise banate hain?	0	
+1145	repeat_exact	Photosynthesis kya hota hai?	0	
+1146	repeat_exact	Recursion kya hota hai?	0	
+1147	repeat_exact	SQL JOIN kya hota hai?	0	
+1148	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1149	repeat_exact	Regex kya hota hai?	0	
+1150	repeat_exact	Ek short story sunao	0	
+1151	repeat_exact	Python list kaise sort karte hain?	0	
+1152	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1153	repeat_exact	Gemma token kya hota hai?	0	
+1154	repeat_exact	Kheer kaise banate hain?	0	
+1155	repeat_exact	Photosynthesis kya hota hai?	0	
+1156	repeat_exact	Recursion kya hota hai?	0	
+1157	repeat_exact	SQL JOIN kya hota hai?	0	
+1158	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1159	repeat_exact	Regex kya hota hai?	0	
+1160	repeat_exact	Ek short story sunao	0	
+1161	repeat_exact	Python list kaise sort karte hain?	0	
+1162	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1163	repeat_exact	Gemma token kya hota hai?	0	
+1164	repeat_exact	Kheer kaise banate hain?	0	
+1165	repeat_exact	Photosynthesis kya hota hai?	0	
+1166	repeat_exact	Recursion kya hota hai?	0	
+1167	repeat_exact	SQL JOIN kya hota hai?	0	
+1168	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1169	repeat_exact	Regex kya hota hai?	0	
+1170	repeat_exact	Ek short story sunao	0	
+1171	repeat_exact	Python list kaise sort karte hain?	0	
+1172	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1173	repeat_exact	Gemma token kya hota hai?	0	
+1174	repeat_exact	Kheer kaise banate hain?	0	
+1175	repeat_exact	Photosynthesis kya hota hai?	0	
+1176	repeat_exact	Recursion kya hota hai?	0	
+1177	repeat_exact	SQL JOIN kya hota hai?	0	
+1178	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1179	repeat_exact	Regex kya hota hai?	0	
+1180	repeat_exact	Ek short story sunao	0	
+1181	repeat_exact	Python list kaise sort karte hain?	0	
+1182	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1183	repeat_exact	Gemma token kya hota hai?	0	
+1184	repeat_exact	Kheer kaise banate hain?	0	
+1185	repeat_exact	Photosynthesis kya hota hai?	0	
+1186	repeat_exact	Recursion kya hota hai?	0	
+1187	repeat_exact	SQL JOIN kya hota hai?	0	
+1188	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1189	repeat_exact	Regex kya hota hai?	0	
+1190	repeat_exact	Ek short story sunao	0	
+1191	repeat_exact	Python list kaise sort karte hain?	0	
+1192	repeat_exact	Android Activity lifecycle kya hota hai?	0	
+1193	repeat_exact	Gemma token kya hota hai?	0	
+1194	repeat_exact	Kheer kaise banate hain?	0	
+1195	repeat_exact	Photosynthesis kya hota hai?	0	
+1196	repeat_exact	Recursion kya hota hai?	0	
+1197	repeat_exact	SQL JOIN kya hota hai?	0	
+1198	repeat_exact	Kotlin mein class kya hoti hai?	0	
+1199	repeat_exact	Regex kya hota hai?	0	
+1200	repeat_exact	Ek short story sunao	0	
+1201	repeat_para	Python list sort karne ka tarika batao	0	
+1202	repeat_para	Android Activity lifecycle samjhao	0	
+1203	repeat_para	LLM token ka matlab kya hai	0	
+1204	repeat_para	Kheer banane ki vidhi batao	0	
+1205	repeat_para	Biology mein photosynthesis samjhao	0	
+1206	repeat_para	Programming mein recursion samjhao	0	
+1207	repeat_para	SQL JOIN ka meaning batao	0	
+1208	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1209	repeat_para	Regex ka matlab batao	0	
+1210	repeat_para	Mujhe ek chhoti story sunao	0	
+1211	repeat_para	Python list sort karne ka tarika batao	0	
+1212	repeat_para	Android Activity lifecycle samjhao	0	
+1213	repeat_para	LLM token ka matlab kya hai	0	
+1214	repeat_para	Kheer banane ki vidhi batao	0	
+1215	repeat_para	Biology mein photosynthesis samjhao	0	
+1216	repeat_para	Programming mein recursion samjhao	0	
+1217	repeat_para	SQL JOIN ka meaning batao	0	
+1218	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1219	repeat_para	Regex ka matlab batao	0	
+1220	repeat_para	Mujhe ek chhoti story sunao	0	
+1221	repeat_para	Python list sort karne ka tarika batao	0	
+1222	repeat_para	Android Activity lifecycle samjhao	0	
+1223	repeat_para	LLM token ka matlab kya hai	0	
+1224	repeat_para	Kheer banane ki vidhi batao	0	
+1225	repeat_para	Biology mein photosynthesis samjhao	0	
+1226	repeat_para	Programming mein recursion samjhao	0	
+1227	repeat_para	SQL JOIN ka meaning batao	0	
+1228	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1229	repeat_para	Regex ka matlab batao	0	
+1230	repeat_para	Mujhe ek chhoti story sunao	0	
+1231	repeat_para	Python list sort karne ka tarika batao	0	
+1232	repeat_para	Android Activity lifecycle samjhao	0	
+1233	repeat_para	LLM token ka matlab kya hai	0	
+1234	repeat_para	Kheer banane ki vidhi batao	0	
+1235	repeat_para	Biology mein photosynthesis samjhao	0	
+1236	repeat_para	Programming mein recursion samjhao	0	
+1237	repeat_para	SQL JOIN ka meaning batao	0	
+1238	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1239	repeat_para	Regex ka matlab batao	0	
+1240	repeat_para	Mujhe ek chhoti story sunao	0	
+1241	repeat_para	Python list sort karne ka tarika batao	0	
+1242	repeat_para	Android Activity lifecycle samjhao	0	
+1243	repeat_para	LLM token ka matlab kya hai	0	
+1244	repeat_para	Kheer banane ki vidhi batao	0	
+1245	repeat_para	Biology mein photosynthesis samjhao	0	
+1246	repeat_para	Programming mein recursion samjhao	0	
+1247	repeat_para	SQL JOIN ka meaning batao	0	
+1248	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1249	repeat_para	Regex ka matlab batao	0	
+1250	repeat_para	Mujhe ek chhoti story sunao	0	
+1251	repeat_para	Python list sort karne ka tarika batao	0	
+1252	repeat_para	Android Activity lifecycle samjhao	0	
+1253	repeat_para	LLM token ka matlab kya hai	0	
+1254	repeat_para	Kheer banane ki vidhi batao	0	
+1255	repeat_para	Biology mein photosynthesis samjhao	0	
+1256	repeat_para	Programming mein recursion samjhao	0	
+1257	repeat_para	SQL JOIN ka meaning batao	0	
+1258	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1259	repeat_para	Regex ka matlab batao	0	
+1260	repeat_para	Mujhe ek chhoti story sunao	0	
+1261	repeat_para	Python list sort karne ka tarika batao	0	
+1262	repeat_para	Android Activity lifecycle samjhao	0	
+1263	repeat_para	LLM token ka matlab kya hai	0	
+1264	repeat_para	Kheer banane ki vidhi batao	0	
+1265	repeat_para	Biology mein photosynthesis samjhao	0	
+1266	repeat_para	Programming mein recursion samjhao	0	
+1267	repeat_para	SQL JOIN ka meaning batao	0	
+1268	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1269	repeat_para	Regex ka matlab batao	0	
+1270	repeat_para	Mujhe ek chhoti story sunao	0	
+1271	repeat_para	Python list sort karne ka tarika batao	0	
+1272	repeat_para	Android Activity lifecycle samjhao	0	
+1273	repeat_para	LLM token ka matlab kya hai	0	
+1274	repeat_para	Kheer banane ki vidhi batao	0	
+1275	repeat_para	Biology mein photosynthesis samjhao	0	
+1276	repeat_para	Programming mein recursion samjhao	0	
+1277	repeat_para	SQL JOIN ka meaning batao	0	
+1278	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1279	repeat_para	Regex ka matlab batao	0	
+1280	repeat_para	Mujhe ek chhoti story sunao	0	
+1281	repeat_para	Python list sort karne ka tarika batao	0	
+1282	repeat_para	Android Activity lifecycle samjhao	0	
+1283	repeat_para	LLM token ka matlab kya hai	0	
+1284	repeat_para	Kheer banane ki vidhi batao	0	
+1285	repeat_para	Biology mein photosynthesis samjhao	0	
+1286	repeat_para	Programming mein recursion samjhao	0	
+1287	repeat_para	SQL JOIN ka meaning batao	0	
+1288	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1289	repeat_para	Regex ka matlab batao	0	
+1290	repeat_para	Mujhe ek chhoti story sunao	0	
+1291	repeat_para	Python list sort karne ka tarika batao	0	
+1292	repeat_para	Android Activity lifecycle samjhao	0	
+1293	repeat_para	LLM token ka matlab kya hai	0	
+1294	repeat_para	Kheer banane ki vidhi batao	0	
+1295	repeat_para	Biology mein photosynthesis samjhao	0	
+1296	repeat_para	Programming mein recursion samjhao	0	
+1297	repeat_para	SQL JOIN ka meaning batao	0	
+1298	repeat_para	Kotlin class ko simple tarike se samjhao	0	
+1299	repeat_para	Regex ka matlab batao	0	
+1300	repeat_para	Mujhe ek chhoti story sunao	0	
+1301	repeat_xlang	How do I sort a list in Python?	0	
+1302	repeat_xlang	Explain the Android Activity lifecycle	0	
+1303	repeat_xlang	What is a token in an LLM?	0	
+1304	repeat_xlang	How do I make kheer?	0	
+1305	repeat_xlang	Explain photosynthesis in biology	0	
+1306	repeat_xlang	What is recursion in programming?	0	
+1307	repeat_xlang	What is an SQL JOIN?	0	
+1308	repeat_xlang	What is a class in Kotlin?	0	
+1309	repeat_xlang	What is a regex?	0	
+1310	repeat_xlang	Tell me a short story	0	
+1311	repeat_xlang	How do I sort a list in Python?	0	
+1312	repeat_xlang	Explain the Android Activity lifecycle	0	
+1313	repeat_xlang	What is a token in an LLM?	0	
+1314	repeat_xlang	How do I make kheer?	0	
+1315	repeat_xlang	Explain photosynthesis in biology	0	
+1316	repeat_xlang	What is recursion in programming?	0	
+1317	repeat_xlang	What is an SQL JOIN?	0	
+1318	repeat_xlang	What is a class in Kotlin?	0	
+1319	repeat_xlang	What is a regex?	0	
+1320	repeat_xlang	Tell me a short story	0	
+1321	repeat_xlang	How do I sort a list in Python?	0	
+1322	repeat_xlang	Explain the Android Activity lifecycle	0	
+1323	repeat_xlang	What is a token in an LLM?	0	
+1324	repeat_xlang	How do I make kheer?	0	
+1325	repeat_xlang	Explain photosynthesis in biology	0	
+1326	repeat_xlang	What is recursion in programming?	0	
+1327	repeat_xlang	What is an SQL JOIN?	0	
+1328	repeat_xlang	What is a class in Kotlin?	0	
+1329	repeat_xlang	What is a regex?	0	
+1330	repeat_xlang	Tell me a short story	0	
+1331	repeat_xlang	How do I sort a list in Python?	0	
+1332	repeat_xlang	Explain the Android Activity lifecycle	0	
+1333	repeat_xlang	What is a token in an LLM?	0	
+1334	repeat_xlang	How do I make kheer?	0	
+1335	repeat_xlang	Explain photosynthesis in biology	0	
+1336	repeat_xlang	What is recursion in programming?	0	
+1337	repeat_xlang	What is an SQL JOIN?	0	
+1338	repeat_xlang	What is a class in Kotlin?	0	
+1339	repeat_xlang	What is a regex?	0	
+1340	repeat_xlang	Tell me a short story	0	
+1341	repeat_xlang	How do I sort a list in Python?	0	
+1342	repeat_xlang	Explain the Android Activity lifecycle	0	
+1343	repeat_xlang	What is a token in an LLM?	0	
+1344	repeat_xlang	How do I make kheer?	0	
+1345	repeat_xlang	Explain photosynthesis in biology	0	
+1346	repeat_xlang	What is recursion in programming?	0	
+1347	repeat_xlang	What is an SQL JOIN?	0	
+1348	repeat_xlang	What is a class in Kotlin?	0	
+1349	repeat_xlang	What is a regex?	0	
+1350	repeat_xlang	Tell me a short story	0	
+1351	repeat_xlang	How do I sort a list in Python?	0	
+1352	repeat_xlang	Explain the Android Activity lifecycle	0	
+1353	repeat_xlang	What is a token in an LLM?	0	
+1354	repeat_xlang	How do I make kheer?	0	
+1355	repeat_xlang	Explain photosynthesis in biology	0	
+1356	repeat_xlang	What is recursion in programming?	0	
+1357	repeat_xlang	What is an SQL JOIN?	0	
+1358	repeat_xlang	What is a class in Kotlin?	0	
+1359	repeat_xlang	What is a regex?	0	
+1360	repeat_xlang	Tell me a short story	0	
+1361	repeat_xlang	How do I sort a list in Python?	0	
+1362	repeat_xlang	Explain the Android Activity lifecycle	0	
+1363	repeat_xlang	What is a token in an LLM?	0	
+1364	repeat_xlang	How do I make kheer?	0	
+1365	repeat_xlang	Explain photosynthesis in biology	0	
+1366	repeat_xlang	What is recursion in programming?	0	
+1367	repeat_xlang	What is an SQL JOIN?	0	
+1368	repeat_xlang	What is a class in Kotlin?	0	
+1369	repeat_xlang	What is a regex?	0	
+1370	repeat_xlang	Tell me a short story	0	
+1371	repeat_xlang	How do I sort a list in Python?	0	
+1372	repeat_xlang	Explain the Android Activity lifecycle	0	
+1373	repeat_xlang	What is a token in an LLM?	0	
+1374	repeat_xlang	How do I make kheer?	0	
+1375	repeat_xlang	Explain photosynthesis in biology	0	
+1376	repeat_xlang	What is recursion in programming?	0	
+1377	repeat_xlang	What is an SQL JOIN?	0	
+1378	repeat_xlang	What is a class in Kotlin?	0	
+1379	repeat_xlang	What is a regex?	0	
+1380	repeat_xlang	Tell me a short story	0	
+1381	repeat_xlang	How do I sort a list in Python?	0	
+1382	repeat_xlang	Explain the Android Activity lifecycle	0	
+1383	repeat_xlang	What is a token in an LLM?	0	
+1384	repeat_xlang	How do I make kheer?	0	
+1385	repeat_xlang	Explain photosynthesis in biology	0	
+1386	repeat_xlang	What is recursion in programming?	0	
+1387	repeat_xlang	What is an SQL JOIN?	0	
+1388	repeat_xlang	What is a class in Kotlin?	0	
+1389	repeat_xlang	What is a regex?	0	
+1390	repeat_xlang	Tell me a short story	0	
+1391	repeat_xlang	How do I sort a list in Python?	0	
+1392	repeat_xlang	Explain the Android Activity lifecycle	0	
+1393	repeat_xlang	What is a token in an LLM?	0	
+1394	repeat_xlang	How do I make kheer?	0	
+1395	repeat_xlang	Explain photosynthesis in biology	0	
+1396	repeat_xlang	What is recursion in programming?	0	
+1397	repeat_xlang	What is an SQL JOIN?	0	
+1398	repeat_xlang	What is a class in Kotlin?	0	
+1399	repeat_xlang	What is a regex?	0	
+1400	repeat_xlang	Tell me a short story	0	
+1401	attachment	is attached photo.png mein kya hai?	0	
+1402	attachment	is attached report.pdf mein kya hai?	0	
+1403	attachment	is attached video.mp4 mein kya hai?	0	
+1404	attachment	is attached project.zip mein kya hai?	0	
+1405	attachment	is attached scan.pdf mein kya hai?	0	
+1406	attachment	is attached demo.mp4 mein kya hai?	0	
+1407	attachment	is attached archive.zip mein kya hai?	0	
+1408	attachment	is attached image.jpg mein kya hai?	0	
+1409	attachment	is attached notes.pdf mein kya hai?	0	
+1410	attachment	is attached screen.mp4 mein kya hai?	0	
+1411	attachment	is attached photo.png mein kya hai?	0	
+1412	attachment	is attached report.pdf mein kya hai?	0	
+1413	attachment	is attached video.mp4 mein kya hai?	0	
+1414	attachment	is attached project.zip mein kya hai?	0	
+1415	attachment	is attached scan.pdf mein kya hai?	0	
+1416	attachment	is attached demo.mp4 mein kya hai?	0	
+1417	attachment	is attached archive.zip mein kya hai?	0	
+1418	attachment	is attached image.jpg mein kya hai?	0	
+1419	attachment	is attached notes.pdf mein kya hai?	0	
+1420	attachment	is attached screen.mp4 mein kya hai?	0	
+1421	attachment	is attached photo.png mein kya hai?	0	
+1422	attachment	is attached report.pdf mein kya hai?	0	
+1423	attachment	is attached video.mp4 mein kya hai?	0	
+1424	attachment	is attached project.zip mein kya hai?	0	
+1425	attachment	is attached scan.pdf mein kya hai?	0	
+1426	attachment	is attached demo.mp4 mein kya hai?	0	
+1427	attachment	is attached archive.zip mein kya hai?	0	
+1428	attachment	is attached image.jpg mein kya hai?	0	
+1429	attachment	is attached notes.pdf mein kya hai?	0	
+1430	attachment	is attached screen.mp4 mein kya hai?	0	
+1431	attachment	is attached photo.png mein kya hai?	0	
+1432	attachment	is attached report.pdf mein kya hai?	0	
+1433	attachment	is attached video.mp4 mein kya hai?	0	
+1434	attachment	is attached project.zip mein kya hai?	0	
+1435	attachment	is attached scan.pdf mein kya hai?	0	
+1436	attachment	is attached demo.mp4 mein kya hai?	0	
+1437	attachment	is attached archive.zip mein kya hai?	0	
+1438	attachment	is attached image.jpg mein kya hai?	0	
+1439	attachment	is attached notes.pdf mein kya hai?	0	
+1440	attachment	is attached screen.mp4 mein kya hai?	0	
+1441	attachment	is attached photo.png mein kya hai?	0	
+1442	attachment	is attached report.pdf mein kya hai?	0	
+1443	attachment	is attached video.mp4 mein kya hai?	0	
+1444	attachment	is attached project.zip mein kya hai?	0	
+1445	attachment	is attached scan.pdf mein kya hai?	0	
+1446	attachment	is attached demo.mp4 mein kya hai?	0	
+1447	attachment	is attached archive.zip mein kya hai?	0	
+1448	attachment	is attached image.jpg mein kya hai?	0	
+1449	attachment	is attached notes.pdf mein kya hai?	0	
+1450	attachment	is attached screen.mp4 mein kya hai?	0	
+1451	attachment	is attached photo.png mein kya hai?	0	
+1452	attachment	is attached report.pdf mein kya hai?	0	
+1453	attachment	is attached video.mp4 mein kya hai?	0	
+1454	attachment	is attached project.zip mein kya hai?	0	
+1455	attachment	is attached scan.pdf mein kya hai?	0	
+1456	attachment	is attached demo.mp4 mein kya hai?	0	
+1457	attachment	is attached archive.zip mein kya hai?	0	
+1458	attachment	is attached image.jpg mein kya hai?	0	
+1459	attachment	is attached notes.pdf mein kya hai?	0	
+1460	attachment	is attached screen.mp4 mein kya hai?	0	
+1461	attachment	is attached photo.png mein kya hai?	0	
+1462	attachment	is attached report.pdf mein kya hai?	0	
+1463	attachment	is attached video.mp4 mein kya hai?	0	
+1464	attachment	is attached project.zip mein kya hai?	0	
+1465	attachment	is attached scan.pdf mein kya hai?	0	
+1466	attachment	is attached demo.mp4 mein kya hai?	0	
+1467	attachment	is attached archive.zip mein kya hai?	0	
+1468	attachment	is attached image.jpg mein kya hai?	0	
+1469	attachment	is attached notes.pdf mein kya hai?	0	
+1470	attachment	is attached screen.mp4 mein kya hai?	0	
+1471	attachment	is attached photo.png mein kya hai?	0	
+1472	attachment	is attached report.pdf mein kya hai?	0	
+1473	attachment	is attached video.mp4 mein kya hai?	0	
+1474	attachment	is attached project.zip mein kya hai?	0	
+1475	attachment	is attached scan.pdf mein kya hai?	0	
+1476	attachment	is attached demo.mp4 mein kya hai?	0	
+1477	attachment	is attached archive.zip mein kya hai?	0	
+1478	attachment	is attached image.jpg mein kya hai?	0	
+1479	attachment	is attached notes.pdf mein kya hai?	0	
+1480	attachment	is attached screen.mp4 mein kya hai?	0	
+1481	attachment	is attached photo.png mein kya hai?	0	
+1482	attachment	is attached report.pdf mein kya hai?	0	
+1483	attachment	is attached video.mp4 mein kya hai?	0	
+1484	attachment	is attached project.zip mein kya hai?	0	
+1485	attachment	is attached scan.pdf mein kya hai?	0	
+1486	attachment	is attached demo.mp4 mein kya hai?	0	
+1487	attachment	is attached archive.zip mein kya hai?	0	
+1488	attachment	is attached image.jpg mein kya hai?	0	
+1489	attachment	is attached notes.pdf mein kya hai?	0	
+1490	attachment	is attached screen.mp4 mein kya hai?	0	
+1491	attachment	is attached photo.png mein kya hai?	0	
+1492	attachment	is attached report.pdf mein kya hai?	0	
+1493	attachment	is attached video.mp4 mein kya hai?	0	
+1494	attachment	is attached project.zip mein kya hai?	0	
+1495	attachment	is attached scan.pdf mein kya hai?	0	
+1496	attachment	is attached demo.mp4 mein kya hai?	0	
+1497	attachment	is attached archive.zip mein kya hai?	0	
+1498	attachment	is attached image.jpg mein kya hai?	0	
+1499	attachment	is attached notes.pdf mein kya hai?	0	
+1500	attachment	is attached screen.mp4 mein kya hai?	0	

@@ -26,7 +26,6 @@ public final class WebSearchService {
     private final Settings settings;
     /** Phase 2: downloads pictures / PDFs for the vision model. Without it links to pictures / PDFs and "read the picture" are not read. */
     private volatile MediaReader media;
-    private final WebCache cache = new WebCache();
 
     /** Links read per message; more are ignored (each page costs a credit share and phone-model room). */
     public static final int MAX_LINKS = 3;
@@ -40,7 +39,6 @@ public final class WebSearchService {
     }
 
     public KeyPool pool() { return pool; }
-    public WebCache cache() { return cache; }
 
     /** Plugs in picture / PDF downloading (the Android app does this once at start). */
     public void setMedia(MediaReader m) { this.media = m; }
@@ -49,12 +47,7 @@ public final class WebSearchService {
     public SearchPlan plan(String userText, PlanContext ctx) {
         WebMode m;
         try { m = settings.mode(); } catch (RuntimeException e) { m = WebMode.AUTO; }
-        SearchPlan p = SearchPlanner.plan(userText, ctx.withMode(m));
-        // Phase 4: short, obvious follow-ups about the immediately previous pasted page use cached page text.
-        if (m != WebMode.OFF && !p.search && !ctx.prevUrls.isEmpty() && looksLikeCachedPageFollowUp(userText)) {
-            return SearchPlan.cachedPageFollowUp(userText, ctx.prevUrls);
-        }
-        return p;
+        return SearchPlanner.plan(userText, ctx.withMode(m));
     }
 
     /** Plans with the current Settings mode; see {@link #prepare(SearchPlan)}. */
@@ -80,24 +73,11 @@ public final class WebSearchService {
 
         long start = clock.now();
         WebApi.SearchRequest req = plan.request(false);
-        WebCache.SearchValue cached = (!plan.wantsImages() && plan.links == SearchPlan.Links.NONE && !plan.explicit)
-                ? cache.getSearch(req, clock.now()) : null;
-        Outcome<WebApi.SearchResponse> o;
-        if (cached != null) {
-            o = new Outcome<WebApi.SearchResponse>(WebTurn.Problem.NONE, cached.response, 0);
-        } else {
-            o = run(all, searchOp(req), start);
-            if (o.problem == WebTurn.Problem.NONE && !plan.wantsImages() && plan.links == SearchPlan.Links.NONE && !plan.explicit)
-                cache.putSearch(req, o.response, clock.now());
-        }
+        Outcome<WebApi.SearchResponse> o = run(all, searchOp(req), start);
         if (o.problem == WebTurn.Problem.NONE && o.response.hits.isEmpty()) {
             // one wider try: fewer words, advanced depth, no topic / time filter
             WebApi.SearchRequest wider = req.plain().withQuery(simplify(req.query)).withAdvanced();
-            WebCache.SearchValue wc = !plan.wantsImages() && !plan.explicit ? cache.getSearch(wider, clock.now()) : null;
-            Outcome<WebApi.SearchResponse> w = wc != null
-                    ? new Outcome<WebApi.SearchResponse>(WebTurn.Problem.NONE, wc.response, 0)
-                    : run(all, searchOp(wider), start);
-            if (w.problem == WebTurn.Problem.NONE && w.response != null && !plan.wantsImages() && !plan.explicit) cache.putSearch(wider, w.response, clock.now());
+            Outcome<WebApi.SearchResponse> w = run(all, searchOp(wider), start);
             if (w.problem == WebTurn.Problem.NONE && !w.response.hits.isEmpty()) o = w;
             else if (w.problem == WebTurn.Problem.NONE) o = new Outcome<WebApi.SearchResponse>(WebTurn.Problem.EMPTY, null, o.tried + w.tried);
             else o = new Outcome<WebApi.SearchResponse>(w.problem, null, o.tried + w.tried);
@@ -155,14 +135,7 @@ public final class WebSearchService {
         List<String> forExtract = new ArrayList<String>();
         for (String u : urls) {
             if (UrlTools.mediaKind(u) == UrlTools.Media.IMAGE) readPicture(u, media, issues);
-            else {
-                WebCache.PageValue cv = cache.getPage(u, clock.now());
-                if (cv != null) {
-                    PageReader.Digest d = PageReader.digest(cv.url, cv.text, plan.question, ContextBuilder.pageBudget(1));
-                    if (!d.empty()) digests.add(d);
-                    else issues.add(new LinkIssue(cv.url, ReadIssue.EMPTY));
-                } else forExtract.add(u);
-            }
+            else forExtract.add(u);
         }
 
         int tried = 0;
@@ -178,15 +151,12 @@ public final class WebSearchService {
                 tried += o.tried;
                 if (o.problem != WebTurn.Problem.NONE) extractProblem = o.problem;
                 else collect(o.response, forExtract, got, why);
-                for (Map.Entry<String, String> e : got.entrySet()) cache.putPage(e.getKey(), e.getValue(), clock.now());
                 List<String> missing = missingOf(forExtract, got);
                 if (extractProblem == WebTurn.Problem.NONE && !missing.isEmpty() && clock.now() - start < BUDGET_MS) {
                     Outcome<WebApi.ExtractResponse> d = run(all, extractOp(missing, true), start);     // one deeper try, only for those
                     tried += d.tried;
-                    if (d.problem == WebTurn.Problem.NONE) {
-                        collect(d.response, missing, got, why);
-                        for (Map.Entry<String, String> e : got.entrySet()) cache.putPage(e.getKey(), e.getValue(), clock.now());
-                    } else for (String u : missing) why.put(u, ReadIssue.of(d.problem));
+                    if (d.problem == WebTurn.Problem.NONE) collect(d.response, missing, got, why);
+                    else for (String u : missing) why.put(u, ReadIssue.of(d.problem));
                 }
             }
         }
@@ -412,13 +382,6 @@ public final class WebSearchService {
             case EMPTY: return "Net par is sawal ka jawab nahi mila.";
             default: return "";
         }
-    }
-
-    private static boolean looksLikeCachedPageFollowUp(String text) {
-        if (text == null) return false;
-        String s = text.toLowerCase(java.util.Locale.ROOT).trim();
-        if (s.isEmpty()) return false;
-        return s.matches(".*\\b(is(me|s|mein|par)|iss? page|this page|that page|upar wale page|previous page|aur (kya|kuch)|what else|more (about|details)|details (batao|do)|isme aur|is mein aur|aur batao|aur detail|summary.*aur|explain.*more).*\\b.*");
     }
 
     /** First few content words, without the helper words the planner added. */
