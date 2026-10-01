@@ -107,6 +107,7 @@ public final class AttachmentReader implements SelectableAttachmentLoader {
         File tmp = new File(dir, "read.pdf");
         copy(app.getContentResolver(), uri, tmp);
         List<byte[]> pages = new ArrayList<byte[]>();
+        List<String> labels = new ArrayList<String>();
         int total;
         ParcelFileDescriptor pfd = ParcelFileDescriptor.open(tmp, ParcelFileDescriptor.MODE_READ_ONLY);
         try {
@@ -119,7 +120,6 @@ public final class AttachmentReader implements SelectableAttachmentLoader {
                 if (requestedEnd < requestedStart) throw new IOException("invalid PDF page range");
                 requestedEnd = Math.min(requestedEnd, total);
                 int end = Math.min(requestedEnd, requestedStart + PDF_MAX_PAGES - 1);
-                List<String> labels = new ArrayList<String>();
                 for (int pageNo = requestedStart; pageNo <= end; pageNo++) {
                     PdfRenderer.Page page = renderer.openPage(pageNo - 1);
                     try {
