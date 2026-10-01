@@ -41,7 +41,9 @@ public final class WebCache {
         if (v == null || now - v.at >= SEARCH_TTL_MS) { if (v != null) searches.remove(searchKey(r)); return null; }
         return v;
     }
-    public synchronized void putSearch(WebApi.SearchRequest r, WebApi.SearchResponse response, long now) { searches.put(searchKey(r), new SearchValue(response, now)); }
+    public synchronized void putSearch(WebApi.SearchRequest r, WebApi.SearchResponse response, long now) {
+        if (r != null && response != null) searches.put(searchKey(r), new SearchValue(response, now));
+    }
 
     public synchronized PageValue getPage(String url, long now) {
         PageValue v = pages.get(pageKey(url));
@@ -49,7 +51,7 @@ public final class WebCache {
         return v;
     }
     public synchronized void putPage(String url, String text, long now) {
-        if (text != null && !text.trim().isEmpty()) pages.put(pageKey(url), new PageValue(url, text, now));
+        if (url != null && text != null && !text.trim().isEmpty()) pages.put(pageKey(url), new PageValue(url, text, now));
     }
     public synchronized List<PageValue> getPages(List<String> urls, long now) {
         List<PageValue> out = new ArrayList<PageValue>();

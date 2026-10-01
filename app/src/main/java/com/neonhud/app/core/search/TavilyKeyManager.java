@@ -2,6 +2,8 @@ package com.neonhud.app.core.search;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.neonhud.app.core.web.KeyPool;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -53,7 +55,12 @@ public final class TavilyKeyManager implements com.neonhud.app.core.web.KeySourc
     }
 
     public TavilySnapshot snapshot() {
-        synchronized (lock) { return build(); }
+        synchronized (lock) { return build(null, 0L); }
+    }
+
+    /** Phase 4: include the current retry-pool health without exposing the pool itself to the UI. */
+    public TavilySnapshot snapshot(KeyPool pool, long now) {
+        synchronized (lock) { return build(pool, now); }
     }
 
     // ------------------------------------------------------------------ helpers
@@ -83,9 +90,12 @@ public final class TavilyKeyManager implements com.neonhud.app.core.web.KeySourc
         return head + "\u2022\u2022\u2022\u2022" + tail;
     }
 
-    private TavilySnapshot build() {
+    private TavilySnapshot build(KeyPool pool, long now) {
         List<TavilySnapshot.Entry> list = new ArrayList<TavilySnapshot.Entry>();
-        for (String k : keys) list.add(new TavilySnapshot.Entry(k, mask(k)));
+        for (String k : keys) {
+            String health = pool == null ? "healthy" : pool.health(k, now);
+            list.add(new TavilySnapshot.Entry(k, mask(k), health));
+        }
         return new TavilySnapshot(list, adding, message, tone);
     }
 
@@ -127,7 +137,7 @@ public final class TavilyKeyManager implements com.neonhud.app.core.web.KeySourc
     private Result rejectLocked(String why) {
         message = why;
         tone = TavilySnapshot.Tone.ERROR;
-        final TavilySnapshot s = build();
+        final TavilySnapshot s = build(null, 0L);
         for (Listener l : listeners) {
             try { l.onKeysChanged(s); } catch (RuntimeException ignored) { }
         }

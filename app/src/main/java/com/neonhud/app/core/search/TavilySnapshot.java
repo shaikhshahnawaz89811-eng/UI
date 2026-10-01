@@ -1,5 +1,7 @@
 package com.neonhud.app.core.search;
 
+import com.neonhud.app.core.web.KeyPool;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,10 +16,14 @@ public final class TavilySnapshot {
         public final String key;
         /** What the screen shows, e.g. "tvly-dev-••••a1b2". */
         public final String masked;
+        /** Current pool health: healthy, limit, or rejected. */
+        public final String health;
 
-        Entry(String key, String masked) {
+        Entry(String key, String masked) { this(key, masked, "healthy"); }
+        Entry(String key, String masked, String health) {
             this.key = key;
             this.masked = masked;
+            this.health = health == null || health.isEmpty() ? "healthy" : health;
         }
     }
 

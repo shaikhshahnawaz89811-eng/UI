@@ -35,6 +35,23 @@ public final class KeyPool {
     public synchronized void limited(String k, long now) { limitedUntil.put(k, now + LIMIT_REST_MS); }
     public synchronized void invalid(String k, long now) { invalidUntil.put(k, now + INVALID_REST_MS); }
 
+    /** Remaining cooldown for this key in milliseconds; zero means it can be tried now. */
+    public synchronized long restMs(String k, long now) {
+        Long a = limitedUntil.get(k), b = invalidUntil.get(k);
+        long leftLimit = a == null ? 0L : Math.max(0L, a - now);
+        long leftInvalid = b == null ? 0L : Math.max(0L, b - now);
+        return Math.max(leftLimit, leftInvalid);
+    }
+
+    /** Visible state used by Settings: healthy, limit, or rejected. */
+    public synchronized String health(String k, long now) {
+        Long b = invalidUntil.get(k);
+        if (b != null && b > now) return "rejected";
+        Long a = limitedUntil.get(k);
+        if (a != null && a > now) return "limit";
+        return "healthy";
+    }
+
     /** How many of these keys are resting because of a limit / because Tavily rejected them. */
     public synchronized int[] resting(List<String> keys, long now) {
         int lim = 0, inv = 0;

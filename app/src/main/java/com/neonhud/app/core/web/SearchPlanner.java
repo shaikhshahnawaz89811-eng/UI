@@ -116,6 +116,8 @@ public final class SearchPlanner {
         // "photo mat dikhao, bas price batao" means text-only output, preserving the existing read-only contract.
         if (!readOnly && noImg && hasAny(p, " bas ", " sirf ", " only ", " just ")) readOnly = true;
         boolean explicit = EXPLICIT_SEARCH.matcher(p).find() && !NOT_A_SEARCH_REQUEST.matcher(p).find();
+        boolean cachedPageFollowUp = !urls.isEmpty() ? false : hasCachedPageFollowUp(p, ctx);
+        if (cachedPageFollowUp) urls.addAll(ctx.prevUrls);
 
         boolean imageNoun = IMAGE_NOUN.matcher(p).find();
         boolean looksLike = LOOKS_LIKE.matcher(p).find();
@@ -170,7 +172,10 @@ public final class SearchPlanner {
                     steps, compare, readOnly, wantShowImages, readImages, wantsLink, linkIntent, noLink, noImg, price, news, weather, sport, timeWord, latestWord(p));
         }
 
-        if (!urls.isEmpty()) { search = true; kind = SearchPlan.Kind.URL; reason = "user pasted a link"; }
+        if (!urls.isEmpty()) {
+            search = true; kind = SearchPlan.Kind.URL;
+            reason = cachedPageFollowUp ? "follow-up to a recently read page" : "user pasted a link";
+        }
         else if (explicit) { search = true; kind = SearchPlan.Kind.EXPLICIT; reason = "user asked to search the net"; }
         else if (wantShowImages) { search = true; kind = SearchPlan.Kind.IMAGE; reason = "user wants to see pictures"; }
         else if (readImages) { search = true; kind = SearchPlan.Kind.IMAGE; reason = "user wants to read pictures"; }
@@ -187,6 +192,15 @@ public final class SearchPlanner {
         // "uski photo dikhao" right after a chat answer: searching is needed only when a follow-up wants pictures / links
         return finish(search, kind, raw, n, ctx, urls, reason, explicit, steps, compare, readOnly, wantShowImages, readImages, wantsLink,
                 linkIntent, noLink, noImg, price, news, weather, sport, timeWord, latestWord(p));
+    }
+
+    private static boolean hasCachedPageFollowUp(String padded, PlanContext ctx) {
+        if (ctx == null || ctx.prevUrls.isEmpty()) return false;
+        // Keep this conservative: only clear references back to the page can reuse previous page content.
+        return hasAny(padded,
+                " isme ", " is page ", " iss page ", " iske bare ", " iske baare ", " iske baare mein ",
+                " isme aur ", " isme kya ", " aur kya hai ", " aur batao ", " aur bata ",
+                " page ke bare ", " page ke baare ", " page par ", " issme ", " isme ");
     }
 
     private static boolean latestWord(String p) { return LATEST_WORD.matcher(p).find(); }

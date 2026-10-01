@@ -120,6 +120,7 @@ public final class ChatController {
     private final AttachmentReadCache readCache = new AttachmentReadCache();
     // only touched on the single worker thread
     private String lastQuery = "", lastUserText = "";
+    private List<String> lastWebUrls = Collections.emptyList();
     private Attachment lastOutput;
 
     public ChatController(ModuleManager modules, ConversationBrain brain, MemoryStore store) {
@@ -430,7 +431,7 @@ public final class ChatController {
         WebSearchService w = web;
         if (w == null) return null;
         try {
-            PlanContext ctx = new PlanContext(WebMode.AUTO, !files.isEmpty(), lastQuery, lastUserText,
+            PlanContext ctx = new PlanContext(WebMode.AUTO, !files.isEmpty(), lastQuery, lastUserText, lastWebUrls,
                     Calendar.getInstance().get(Calendar.YEAR));
             SearchPlan plan = w.plan(text, ctx);
             if (plan.search) {
@@ -438,6 +439,8 @@ public final class ChatController {
                 if (!plan.query.isEmpty()) lastQuery = plan.query;
             }
             WebTurn t = w.prepare(plan);
+            if (plan.readsLinks() && !plan.urls.isEmpty()) lastWebUrls = new ArrayList<String>(plan.urls);
+            else if (!text.isEmpty() && !plan.search) lastWebUrls = Collections.emptyList();
             if (!text.isEmpty()) lastUserText = text;
             if (t.ok()) setStatus(aiKey, plan.readsLinks() ? STATUS_READING_PAGE : STATUS_READING);
             return t;

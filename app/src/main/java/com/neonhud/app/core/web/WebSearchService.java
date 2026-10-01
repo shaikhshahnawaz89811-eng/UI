@@ -24,6 +24,8 @@ public final class WebSearchService {
     private final KeyPool pool = new KeyPool();
     private final Clock clock;
     private final Settings settings;
+    /** Phase 4: short-lived in-memory cache to avoid repeat Tavily calls and enable page follow-ups. */
+    private final WebCache cache = new WebCache();
     /** Phase 2: downloads pictures / PDFs for the vision model. Without it links to pictures / PDFs and "read the picture" are not read. */
     private volatile MediaReader media;
 
@@ -39,6 +41,8 @@ public final class WebSearchService {
     }
 
     public KeyPool pool() { return pool; }
+
+    public WebCache cache() { return cache; }
 
     /** Plugs in picture / PDF downloading (the Android app does this once at start). */
     public void setMedia(MediaReader m) { this.media = m; }
@@ -73,6 +77,10 @@ public final class WebSearchService {
 
         long start = clock.now();
         WebApi.SearchRequest req = plan.request(false);
+        // Image results stay live: a follow-up can legitimately want a fresh set of pictures.
+        WebCache.SearchValue cached = plan.wantsImages() ? null : cache.getSearch(req, start);
+        if (cached != null) return buildSearchTurn(plan, cached.response, 0, start);
+
         Outcome<WebApi.SearchResponse> o = run(all, searchOp(req), start);
         if (o.problem == WebTurn.Problem.NONE && o.response.hits.isEmpty()) {
             // one wider try: fewer words, advanced depth, no topic / time filter
@@ -84,7 +92,11 @@ public final class WebSearchService {
         }
         if (o.problem != WebTurn.Problem.NONE) return fail(plan, o.problem, o.tried);
 
-        WebApi.SearchResponse r = o.response;
+        if (!plan.wantsImages()) cache.putSearch(req, o.response, start);
+        return buildSearchTurn(plan, o.response, o.tried, start);
+    }
+
+    private WebTurn buildSearchTurn(SearchPlan plan, WebApi.SearchResponse r, int tried, long start) {
         boolean deep = plan.steps || plan.kind == SearchPlan.Kind.PROCEDURE;
         boolean wantHome = looksLikeOfficialSite(plan);
         int linkCount = plan.links == SearchPlan.Links.NONE ? 0 : plan.links == SearchPlan.Links.ONE ? 1 : 3;
@@ -94,7 +106,7 @@ public final class WebSearchService {
         // Phase 2: "read the picture" = the vision model really looks at the best pictures (nothing is shown in the chat)
         List<WebMedia> seen = plan.readImages ? lookAtPictures(readPics, start) : new ArrayList<WebMedia>();
         ContextBuilder.Built b = ContextBuilder.build(plan, plan.query, r, links, plan.showImages ? pics : readPics, seen.size());
-        return new WebTurn(plan, true, WebTurn.Problem.NONE, b.text, links, pics, "", plan.query, o.tried, b.injectionHits, seen, null);
+        return new WebTurn(plan, true, WebTurn.Problem.NONE, b.text, links, pics, "", plan.query, tried, b.injectionHits, seen, null);
     }
 
     /** Downloads up to {@link #MAX_READ_PICS} of the picked pictures for the vision model; one that fails is simply skipped. */
@@ -142,16 +154,24 @@ public final class WebSearchService {
         WebTurn.Problem extractProblem = WebTurn.Problem.NONE;
         Map<String, String> got = new LinkedHashMap<String, String>();        // url -> page text
         Map<String, ReadIssue> why = new LinkedHashMap<String, ReadIssue>();   // url -> why Tavily gave nothing
-        if (!forExtract.isEmpty()) {
+
+        // Phase 4: use fresh cached pages first. Only cache misses spend Tavily extract calls.
+        List<String> missingForExtract = new ArrayList<String>();
+        for (String u : forExtract) {
+            WebCache.PageValue cached = cache.getPage(u, start);
+            if (cached != null) got.put(u, cached.text);
+            else missingForExtract.add(u);
+        }
+        if (!missingForExtract.isEmpty()) {
             List<String> all = keys.keys();
             if (all == null || all.isEmpty()) {
                 extractProblem = WebTurn.Problem.NO_KEY;
             } else {
-                Outcome<WebApi.ExtractResponse> o = run(all, extractOp(forExtract, false), start);
+                Outcome<WebApi.ExtractResponse> o = run(all, extractOp(missingForExtract, false), start);
                 tried += o.tried;
                 if (o.problem != WebTurn.Problem.NONE) extractProblem = o.problem;
-                else collect(o.response, forExtract, got, why);
-                List<String> missing = missingOf(forExtract, got);
+                else collect(o.response, missingForExtract, got, why);
+                List<String> missing = missingOf(missingForExtract, got);
                 if (extractProblem == WebTurn.Problem.NONE && !missing.isEmpty() && clock.now() - start < BUDGET_MS) {
                     Outcome<WebApi.ExtractResponse> d = run(all, extractOp(missing, true), start);     // one deeper try, only for those
                     tried += d.tried;
@@ -160,6 +180,7 @@ public final class WebSearchService {
                 }
             }
         }
+        for (Map.Entry<String, String> e : got.entrySet()) cache.putPage(e.getKey(), e.getValue(), start);
 
         int injection = 0;
         int budget = ContextBuilder.pageBudget(got.size());

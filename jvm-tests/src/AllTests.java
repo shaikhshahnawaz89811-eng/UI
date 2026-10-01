@@ -22,6 +22,7 @@ public final class AllTests {
             ChatWebTests.run();
             WebPhase2Tests.run();
             Phase3QuestionSetTest.run();
+            Phase4Tests.run();
             Phase4Command1500Test.run();
             Stage4QuestionSetTest.run();
             AttachmentSendGateTests.run();
