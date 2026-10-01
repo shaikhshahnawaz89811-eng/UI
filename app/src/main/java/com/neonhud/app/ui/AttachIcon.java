@@ -14,7 +14,7 @@ import android.view.View;
  * Camera = blue, Image = green, PDF = red, Zip = amber. Also the round "x" remove button and the double tick.
  */
 final class AttachIcon extends View {
-    static final int CAMERA = 0, IMAGE = 1, PDF = 2, ZIP = 3, VIDEO = 4, CLOSE = 5, TICKS = 6;
+    static final int CAMERA = 0, IMAGE = 1, PDF = 2, ZIP = 3, VIDEO = 4, AUDIO = 5, WORD = 6, EXCEL = 7, PPT = 8, CLOSE = 9, TICKS = 10;
 
     /** {tile top, tile bottom, tile edge} per file type. */
     private static final int[][] TILE = {
@@ -23,6 +23,10 @@ final class AttachIcon extends View {
             {0xFFFF6B7D, 0xFFC81E3A, 0xFFFFB0BA},   // pdf: red
             {0xFFFFD166, 0xFFE08A00, 0xFFFFE9A8},   // zip: amber
             {0xFFB78BFF, 0xFF6B35C8, 0xFFE1C9FF},   // video: purple
+            {0xFFFF9A8B, 0xFFD94D36, 0xFFFFD0C9},   // audio: coral
+            {0xFF5AA9FF, 0xFF246BCE, 0xFFC8E5FF},   // word: blue
+            {0xFF58C878, 0xFF208A48, 0xFFC8F4D5},   // excel: green
+            {0xFFFF8A5B, 0xFFD85B18, 0xFFFFD6C3},   // powerpoint: orange
     };
 
     private final int kind;
@@ -38,7 +42,7 @@ final class AttachIcon extends View {
     }
 
     @Override protected void onSizeChanged(int w, int h, int ow, int oh) {
-        if (kind <= VIDEO) fill = new LinearGradient(0, 0, 0, h, TILE[kind][0], TILE[kind][1], Shader.TileMode.CLAMP);
+        if (kind <= PPT) fill = new LinearGradient(0, 0, 0, h, TILE[kind][0], TILE[kind][1], Shader.TileMode.CLAMP);
     }
 
     private float gx(float f) { return ox + f * s; }
@@ -108,6 +112,26 @@ final class AttachIcon extends View {
             }
             r.set(gx(.45f), gy(.60f), gx(.55f), gy(.70f));
             cv.drawRoundRect(r, s * .03f, s * .03f, p);
+        } else if (kind == AUDIO) {
+            p.setStyle(Paint.Style.FILL);
+            path.reset();
+            path.moveTo(gx(.35f), gy(.45f)); path.lineTo(gx(.50f), gy(.36f)); path.lineTo(gx(.50f), gy(.68f));
+            path.lineTo(gx(.35f), gy(.59f)); path.close(); cv.drawPath(path, p);
+            r.set(gx(.49f), gy(.35f), gx(.55f), gy(.69f)); cv.drawRoundRect(r, s*.02f, s*.02f, p);
+            p.setStyle(Paint.Style.STROKE); cv.drawArc(gx(.45f), gy(.38f), gx(.78f), gy(.66f), -65, 130, false, p);
+        } else if (kind == WORD) {
+            p.setStyle(Paint.Style.FILL); cv.drawRoundRect(gx(.27f), gy(.28f), gx(.72f), gy(.73f), s*.05f, s*.05f, p);
+            p.setColor(TILE[kind][0]); cv.drawCircle(gx(.27f), gy(.51f), s*.14f, p);
+            p.setColor(0xFFFFFFFF); p.setTextSize(s*.34f); p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD); cv.drawText("W", gx(.37f), gy(.61f), p);
+            p.setStyle(Paint.Style.STROKE);
+        } else if (kind == EXCEL) {
+            r.set(gx(.28f), gy(.25f), gx(.74f), gy(.75f)); cv.drawRoundRect(r, s*.05f, s*.05f, p);
+            cv.drawLine(gx(.51f), gy(.27f), gx(.51f), gy(.73f), p); cv.drawLine(gx(.30f), gy(.43f), gx(.72f), gy(.43f), p); cv.drawLine(gx(.30f), gy(.59f), gx(.72f), gy(.59f), p);
+            p.setStyle(Paint.Style.FILL); cv.drawCircle(gx(.39f), gy(.34f), s*.035f, p);
+        } else if (kind == PPT) {
+            r.set(gx(.27f), gy(.25f), gx(.73f), gy(.74f)); cv.drawRoundRect(r, s*.05f, s*.05f, p);
+            p.setStyle(Paint.Style.FILL);
+            cv.drawRect(gx(.35f), gy(.55f), gx(.43f), gy(.66f), p); cv.drawRect(gx(.46f), gy(.45f), gx(.54f), gy(.66f), p); cv.drawRect(gx(.57f), gy(.34f), gx(.65f), gy(.66f), p);
         } else {
             r.set(gx(.22f), gy(.27f), gx(.78f), gy(.73f));
             cv.drawRoundRect(r, s * .08f, s * .08f, p);

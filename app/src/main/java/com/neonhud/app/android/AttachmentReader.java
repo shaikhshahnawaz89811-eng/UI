@@ -7,10 +7,13 @@ import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 
 import com.neonhud.app.core.engine.Attachment;
-import com.neonhud.app.core.engine.AttachmentLoader;
+import com.neonhud.app.core.engine.SelectableAttachmentLoader;
+import com.neonhud.app.core.engine.ReadSelection;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,16 +37,22 @@ import java.util.zip.ZipInputStream;
  * Reads what the user attached, fully offline, with nothing but the Android framework:
  *   image -> one downscaled JPEG the model can look at
  *   pdf   -> its first pages rendered to JPEG (works for scanned PDFs too)
- *   video -> first video frame + basic metadata
+ *   video -> several sampled video frames across the timeline + basic metadata
+ *   audio -> duration / codec / sample rate / channels / tags (no speech-to-text, never invents a transcript)
  *   zip   -> file list + the start of each text/code file, within a fixed size budget
+ *   docx/xlsx/pptx -> Office OOXML text/sheet/slide extraction through dedicated pure-Java skills
  * All limits are constants below; they keep the prompt small enough for a 2B on-device model.
  */
-public final class AttachmentReader implements AttachmentLoader {
+public final class AttachmentReader implements SelectableAttachmentLoader {
 
     static final int IMAGE_MAX_EDGE = 1024;
     static final int PDF_MAX_EDGE = 1100;
     static final int PDF_MAX_PAGES = 4;
     static final int JPEG_QUALITY = 85;
+
+    // Keep enough temporal coverage to let the vision model understand a short video, while staying realistic for a phone.
+    static final int VIDEO_MAX_EDGE = 960;
+    static final int VIDEO_MAX_FRAMES = 6;
 
     static final int ZIP_MAX_ENTRIES = 2000;     // entries looked at before giving up
     static final int ZIP_LIST_MAX = 80;          // names shown in the file list
@@ -59,16 +68,23 @@ public final class AttachmentReader implements AttachmentLoader {
     private static final String[] SKIP_DIRS = {"node_modules/", ".git/", "build/", ".gradle/", "__macosx/", ".idea/", "/.cxx/"};
 
     private final Context app;
+    private final OfficeAttachmentReader office;
 
-    public AttachmentReader(Context context) { this.app = context.getApplicationContext(); }
+    public AttachmentReader(Context context) {
+        this.app = context.getApplicationContext();
+        this.office = new OfficeAttachmentReader(this.app);
+    }
 
-    @Override public Attachment load(Attachment a) throws Exception {
+    @Override public Attachment load(Attachment a, ReadSelection selection) throws Exception {
         Uri uri = Uri.parse(a.uri);
+        ReadSelection sel = selection == null ? ReadSelection.none() : selection;
         switch (a.kind) {
             case IMAGE: return readImage(a, uri);
-            case PDF:   return readPdf(a, uri);
+            case PDF:   return readPdf(a, uri, sel);
             case ZIP:   return readZip(a, uri);
             case VIDEO: return readVideo(a, uri);
+            case AUDIO: return readAudio(a, uri);
+            case DOCX: case XLSX: case PPTX: return office.load(a, sel);
             default:    return a;
         }
     }
@@ -84,7 +100,7 @@ public final class AttachmentReader implements AttachmentLoader {
 
     // ------------------------------------------------------------------ pdf
 
-    private Attachment readPdf(Attachment a, Uri uri) throws IOException {
+    private Attachment readPdf(Attachment a, Uri uri, ReadSelection selection) throws IOException {
         // PdfRenderer needs a seekable file; some providers are not, so work on a private copy.
         File dir = new File(app.getCacheDir(), "attach");
         dir.mkdirs();
@@ -97,9 +113,15 @@ public final class AttachmentReader implements AttachmentLoader {
             PdfRenderer renderer = new PdfRenderer(pfd);      // throws for corrupt / password-protected files
             try {
                 total = renderer.getPageCount();
-                int n = Math.min(total, PDF_MAX_PAGES);
-                for (int i = 0; i < n; i++) {
-                    PdfRenderer.Page page = renderer.openPage(i);
+                int requestedStart = selection.hasPages() ? selection.pageStart : 1;
+                int requestedEnd = selection.hasPages() ? selection.pageEnd : Math.min(total, PDF_MAX_PAGES);
+                if (requestedStart < 1 || requestedStart > total) throw new IOException("PDF page " + requestedStart + " does not exist (" + total + " pages)");
+                if (requestedEnd < requestedStart) throw new IOException("invalid PDF page range");
+                requestedEnd = Math.min(requestedEnd, total);
+                int end = Math.min(requestedEnd, requestedStart + PDF_MAX_PAGES - 1);
+                List<String> labels = new ArrayList<String>();
+                for (int pageNo = requestedStart; pageNo <= end; pageNo++) {
+                    PdfRenderer.Page page = renderer.openPage(pageNo - 1);
                     try {
                         float scale = PDF_MAX_EDGE / (float) Math.max(page.getWidth(), page.getHeight());
                         Bitmap bm = Bitmap.createBitmap(Math.max(1, Math.round(page.getWidth() * scale)),
@@ -107,6 +129,7 @@ public final class AttachmentReader implements AttachmentLoader {
                         bm.eraseColor(Color.WHITE);
                         page.render(bm, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                         pages.add(BitmapLoader.toJpeg(bm, JPEG_QUALITY));
+                        labels.add("page " + pageNo);
                         bm.recycle();
                     } finally {
                         page.close();
@@ -121,10 +144,15 @@ public final class AttachmentReader implements AttachmentLoader {
             tmp.delete();
         }
         StringBuilder note = new StringBuilder("ATTACHED PDF: ").append(a.name).append(" - ").append(total).append(total == 1 ? " page" : " pages");
-        if (pages.isEmpty()) note.append(", but it has no pages to show.");
+        if (selection.hasPages()) {
+            note.append(". Requested page").append(selection.pageStart == selection.pageEnd ? " " + selection.pageStart : "s " + selection.pageStart + "-" + selection.pageEnd).append(" shown above");
+            if (selection.pageEnd - selection.pageStart + 1 > PDF_MAX_PAGES) note.append("; only the first ").append(PDF_MAX_PAGES).append(" requested pages are sent to the model");
+            else if (selection.pageEnd > total) note.append("; the request extended beyond the document and was clipped at page ").append(total);
+            note.append('.');
+        } else if (pages.isEmpty()) note.append(", but it has no pages to show.");
         else if (total > pages.size()) note.append(". Only the first ").append(pages.size()).append(" pages are shown above, in order.");
         else note.append(". All pages are shown above, in order.");
-        return a.loaded(note.toString(), pages);
+        return a.loaded(note.toString(), pages, labels);
     }
 
     private static void copy(ContentResolver r, Uri from, File to) throws IOException {
@@ -142,28 +170,110 @@ public final class AttachmentReader implements AttachmentLoader {
     }
 
 
+    // ------------------------------------------------------------------ audio
+
+    private Attachment readAudio(Attachment a, Uri uri) throws IOException {
+        MediaMetadataRetriever r = new MediaMetadataRetriever();
+        try {
+            r.setDataSource(app, uri);
+            String duration = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            String mime = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+            String bitrate = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
+            String title = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            String artist = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            String album = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+
+            // MediaMetadataRetriever has no channel-count key (and its numbered keys 38/39 are sample-rate/bits-per-sample,
+            // API 31+ only), so sample rate and channels come from the track format on every Android version.
+            int sampleRate = 0, channels = 0;
+            MediaExtractor ex = new MediaExtractor();
+            try {
+                ex.setDataSource(app, uri, null);
+                for (int i = 0; i < ex.getTrackCount(); i++) {
+                    MediaFormat f = ex.getTrackFormat(i);
+                    String trackMime = f.containsKey(MediaFormat.KEY_MIME) ? f.getString(MediaFormat.KEY_MIME) : null;
+                    if (trackMime != null && trackMime.startsWith("audio/")) {
+                        if (f.containsKey(MediaFormat.KEY_SAMPLE_RATE)) sampleRate = f.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+                        if (f.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) channels = f.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+                        break;
+                    }
+                }
+            } catch (IOException | RuntimeException ignored) {
+                // sample rate / channels are a bonus: the rest of the note is still correct without them
+            } finally {
+                try { ex.release(); } catch (RuntimeException ignored) { }
+            }
+
+            StringBuilder note = new StringBuilder("ATTACHED AUDIO: ").append(a.name);
+            long ms = -1L;
+            try { if (duration != null) ms = Long.parseLong(duration); } catch (NumberFormatException ignored) { }
+            if (ms >= 0L) note.append(" - length ").append(clock(ms));
+            if (mime != null) note.append(" - ").append(mime);
+            if (sampleRate > 0) note.append(" - ").append(sampleRate).append(" Hz");
+            if (channels > 0) note.append(" - ").append(channels).append(channels == 1 ? " channel" : " channels");
+            if (bitrate != null) note.append(" - ").append(bitrate).append(" bps");
+            if (title != null && !title.isEmpty()) note.append(" - title: ").append(title);
+            if (artist != null && !artist.isEmpty()) note.append(" - artist: ").append(artist);
+            if (album != null && !album.isEmpty()) note.append(" - album: ").append(album);
+            note.append(". Audio metadata is readable offline. Speech transcription requires a speech-to-text backend and is not fabricated by this skill.");
+            return a.loaded(note.toString(), Collections.<byte[]>emptyList());
+        } catch (RuntimeException e) {
+            throw new IOException("audio could not be read", e);
+        } finally {
+            try { r.release(); } catch (RuntimeException ignored) { }
+        }
+    }
+
+    private static String clock(long ms) {
+        long s = ms / 1000L, h = s / 3600L, m = (s % 3600L) / 60L, sec = s % 60L;
+        return h > 0L ? String.format(Locale.US, "%d:%02d:%02d", h, m, sec) : String.format(Locale.US, "%d:%02d", m, sec);
+    }
+
     // ------------------------------------------------------------------ video
 
     private Attachment readVideo(Attachment a, Uri uri) throws IOException {
         MediaMetadataRetriever r = new MediaMetadataRetriever();
-        Bitmap frame = null;
         try {
             r.setDataSource(app, uri);
-            String duration = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            String durationRaw = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             String width = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
             String height = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-            frame = r.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+            String hasAudio = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO);
+            long durationMs = 0L;
+            try { if (durationRaw != null) durationMs = Math.max(0L, Long.parseLong(durationRaw)); } catch (NumberFormatException ignored) { }
+
+            List<byte[]> frames = new ArrayList<byte[]>();
+            if (durationMs > 0L) {
+                int count = VIDEO_MAX_FRAMES;
+                for (int i = 0; i < count; i++) {
+                    // Spread samples across the whole video, including both ends.
+                    long atMs = count == 1 ? 0L : (durationMs * i) / (count - 1);
+                    Bitmap frame = null;
+                    try {
+                        frame = r.getFrameAtTime(atMs * 1000L, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                        if (frame != null) {
+                            Bitmap scaled = BitmapLoader.scale(frame, VIDEO_MAX_EDGE);
+                            frames.add(BitmapLoader.toJpeg(scaled, JPEG_QUALITY));
+                            if (scaled != frame) scaled.recycle();
+                        }
+                    } finally {
+                        if (frame != null) frame.recycle();
+                    }
+                }
+            }
+
             String note = "ATTACHED VIDEO: " + a.name;
-            if (duration != null) note += " - " + duration + " ms";
+            if (durationMs > 0L) note += " - " + durationMs + " ms";
             if (width != null && height != null) note += " - " + width + "x" + height;
-            if (frame == null) note += ". No preview frame could be decoded.";
-            List<byte[]> images = frame == null ? Collections.<byte[]>emptyList()
-                    : Collections.singletonList(BitmapLoader.toJpeg(frame, JPEG_QUALITY));
-            return a.loaded(note, images);
+            if ("yes".equalsIgnoreCase(hasAudio)) note += " - audio track present";
+            if (frames.isEmpty()) note += ". No video frames could be decoded.";
+            else note += ". " + frames.size() + " sampled frames are shown across the video.";
+            if ("yes".equalsIgnoreCase(hasAudio)) note += " Audio is detected but speech transcription requires the Audio/Speech-to-Text backend.";
+            else note += " No audio track was reported.";
+            return a.loaded(note, frames);
         } catch (RuntimeException e) {
             throw new IOException("video could not be read", e);
         } finally {
-            if (frame != null) frame.recycle();
             try { r.release(); } catch (RuntimeException ignored) { }
         }
     }

@@ -1,0 +1,301 @@
+id	block	style	attachments	last	command	expected	must_not
+1	read_image	hinglish	IMAGE	0	photo padho r1	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+2	read_image	english	IMAGE	1	Read this photo r2	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+3	read_image	spelling	IMAGE	0	image_3.jpg check karo r3	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+4	read_image	short	IMAGE	1	iske andar kya hai batao r4	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+5	read_image	long	IMAGE	0	please photo ko review karo r5	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+6	read_image	reversed	IMAGE	1	ye photo dekh ke samjhao r6	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+7	read_image	nopunct	IMAGE	0	photo ka content extract karo r7	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+8	read_image	followup	IMAGE	1	open karke photo ka summary batao r8	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+9	read_image	hinglish	IMAGE	0	photo padho r9	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+10	read_image	english	IMAGE	1	Read this photo r10	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+11	read_image	spelling	IMAGE	0	image_11.jpg check karo r11	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+12	read_image	short	IMAGE	1	iske andar kya hai batao r12	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+13	read_image	long	IMAGE	0	please photo ko review karo r13	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+14	read_image	reversed	IMAGE	1	ye photo dekh ke samjhao r14	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+15	read_image	nopunct	IMAGE	0	photo ka content extract karo r15	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+16	read_image	followup	IMAGE	1	open karke photo ka summary batao r16	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+17	read_image	hinglish	IMAGE	0	photo padho r17	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+18	read_image	english	IMAGE	1	Read this photo r18	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+19	read_image	spelling	IMAGE	0	image_19.jpg check karo r19	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+20	read_image	short	IMAGE	1	iske andar kya hai batao r20	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+351	read_pdf	hinglish	PDF	0	pdf padho r351	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+352	read_pdf	english	PDF	1	Read this pdf r352	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+353	read_pdf	spelling	PDF	0	pdf_3.pdf check karo r353	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+354	read_pdf	short	PDF	1	iske andar kya hai batao r354	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+355	read_pdf	long	PDF	0	please pdf ko review karo r355	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+356	read_pdf	reversed	PDF	1	ye pdf dekh ke samjhao r356	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+357	read_pdf	nopunct	PDF	0	pdf ka content extract karo r357	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+358	read_pdf	followup	PDF	1	open karke pdf ka summary batao r358	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+359	read_pdf	hinglish	PDF	0	pdf padho r359	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+360	read_pdf	english	PDF	1	Read this pdf r360	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+361	read_pdf	spelling	PDF	0	pdf_11.pdf check karo r361	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+362	read_pdf	short	PDF	1	iske andar kya hai batao r362	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+363	read_pdf	long	PDF	0	please pdf ko review karo r363	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+364	read_pdf	reversed	PDF	1	ye pdf dekh ke samjhao r364	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+365	read_pdf	nopunct	PDF	0	pdf ka content extract karo r365	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+366	read_pdf	followup	PDF	1	open karke pdf ka summary batao r366	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+367	read_pdf	hinglish	PDF	0	pdf padho r367	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+368	read_pdf	english	PDF	1	Read this pdf r368	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+369	read_pdf	spelling	PDF	0	pdf_19.pdf check karo r369	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+370	read_pdf	short	PDF	1	iske andar kya hai batao r370	READ:PDF_READER	NO_CREATE;NO_EDIT;NO_WEB
+701	read_audio	hinglish	AUDIO	0	audio padho r701	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+702	read_audio	english	AUDIO	1	Read this audio r702	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+703	read_audio	spelling	AUDIO	0	audio_3.mp3 check karo r703	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+704	read_audio	short	AUDIO	1	iske andar kya hai batao r704	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+705	read_audio	long	AUDIO	0	please audio ko review karo r705	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+706	read_audio	reversed	AUDIO	1	ye audio dekh ke samjhao r706	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+707	read_audio	nopunct	AUDIO	0	audio ka content extract karo r707	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+708	read_audio	followup	AUDIO	1	open karke audio ka summary batao r708	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+709	read_audio	hinglish	AUDIO	0	audio padho r709	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+710	read_audio	english	AUDIO	1	Read this audio r710	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+711	read_audio	spelling	AUDIO	0	audio_11.mp3 check karo r711	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+712	read_audio	short	AUDIO	1	iske andar kya hai batao r712	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+713	read_audio	long	AUDIO	0	please audio ko review karo r713	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+714	read_audio	reversed	AUDIO	1	ye audio dekh ke samjhao r714	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+715	read_audio	nopunct	AUDIO	0	audio ka content extract karo r715	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+716	read_audio	followup	AUDIO	1	open karke audio ka summary batao r716	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+717	read_audio	hinglish	AUDIO	0	audio padho r717	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+718	read_audio	english	AUDIO	1	Read this audio r718	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+719	read_audio	spelling	AUDIO	0	audio_19.mp3 check karo r719	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+720	read_audio	short	AUDIO	1	iske andar kya hai batao r720	READ:AUDIO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1001	read_video	hinglish	VIDEO	0	video padho r1001	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1002	read_video	english	VIDEO	1	Read this video r1002	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1003	read_video	spelling	VIDEO	0	video_3.mp4 check karo r1003	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1004	read_video	short	VIDEO	1	iske andar kya hai batao r1004	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1005	read_video	long	VIDEO	0	please video ko review karo r1005	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1006	read_video	reversed	VIDEO	1	ye video dekh ke samjhao r1006	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1007	read_video	nopunct	VIDEO	0	video ka content extract karo r1007	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1008	read_video	followup	VIDEO	1	open karke video ka summary batao r1008	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1009	read_video	hinglish	VIDEO	0	video padho r1009	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1010	read_video	english	VIDEO	1	Read this video r1010	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1011	read_video	spelling	VIDEO	0	video_11.mp4 check karo r1011	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1012	read_video	short	VIDEO	1	iske andar kya hai batao r1012	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1013	read_video	long	VIDEO	0	please video ko review karo r1013	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1014	read_video	reversed	VIDEO	1	ye video dekh ke samjhao r1014	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1015	read_video	nopunct	VIDEO	0	video ka content extract karo r1015	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1016	read_video	followup	VIDEO	1	open karke video ka summary batao r1016	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1017	read_video	hinglish	VIDEO	0	video padho r1017	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1018	read_video	english	VIDEO	1	Read this video r1018	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1019	read_video	spelling	VIDEO	0	video_19.mp4 check karo r1019	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1020	read_video	short	VIDEO	1	iske andar kya hai batao r1020	READ:VIDEO_READER	NO_CREATE;NO_EDIT;NO_WEB
+1301	read_zip	hinglish	ZIP	0	zip padho r1301	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1302	read_zip	english	ZIP	1	Read this zip r1302	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1303	read_zip	spelling	ZIP	0	zip_3.zip check karo r1303	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1304	read_zip	short	ZIP	1	iske andar kya hai batao r1304	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1305	read_zip	long	ZIP	0	please zip ko review karo r1305	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1306	read_zip	reversed	ZIP	1	ye zip dekh ke samjhao r1306	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1307	read_zip	nopunct	ZIP	0	zip ka content extract karo r1307	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1308	read_zip	followup	ZIP	1	open karke zip ka summary batao r1308	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1309	read_zip	hinglish	ZIP	0	zip padho r1309	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1310	read_zip	english	ZIP	1	Read this zip r1310	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1311	read_zip	spelling	ZIP	0	zip_11.zip check karo r1311	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1312	read_zip	short	ZIP	1	iske andar kya hai batao r1312	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1313	read_zip	long	ZIP	0	please zip ko review karo r1313	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1314	read_zip	reversed	ZIP	1	ye zip dekh ke samjhao r1314	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1315	read_zip	nopunct	ZIP	0	zip ka content extract karo r1315	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1316	read_zip	followup	ZIP	1	open karke zip ka summary batao r1316	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1317	read_zip	hinglish	ZIP	0	zip padho r1317	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1318	read_zip	english	ZIP	1	Read this zip r1318	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1319	read_zip	spelling	ZIP	0	zip_19.zip check karo r1319	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1320	read_zip	short	ZIP	1	iske andar kya hai batao r1320	READ:PROJECT_ZIP_READER	NO_CREATE;NO_EDIT;NO_WEB
+1601	read_docx	hinglish	DOCX	0	word file padho r1601	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1602	read_docx	english	DOCX	1	Read this word file r1602	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1603	read_docx	spelling	DOCX	0	docx_3.docx check karo r1603	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1604	read_docx	short	DOCX	1	iske andar kya hai batao r1604	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1605	read_docx	long	DOCX	0	please word file ko review karo r1605	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1606	read_docx	reversed	DOCX	1	ye word file dekh ke samjhao r1606	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1607	read_docx	nopunct	DOCX	0	word file ka content extract karo r1607	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1608	read_docx	followup	DOCX	1	open karke word file ka summary batao r1608	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1609	read_docx	hinglish	DOCX	0	word file padho r1609	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1610	read_docx	english	DOCX	1	Read this word file r1610	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1611	read_docx	spelling	DOCX	0	docx_11.docx check karo r1611	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1612	read_docx	short	DOCX	1	iske andar kya hai batao r1612	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1613	read_docx	long	DOCX	0	please word file ko review karo r1613	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1614	read_docx	reversed	DOCX	1	ye word file dekh ke samjhao r1614	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1615	read_docx	nopunct	DOCX	0	word file ka content extract karo r1615	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1616	read_docx	followup	DOCX	1	open karke word file ka summary batao r1616	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1617	read_docx	hinglish	DOCX	0	word file padho r1617	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1618	read_docx	english	DOCX	1	Read this word file r1618	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1619	read_docx	spelling	DOCX	0	docx_19.docx check karo r1619	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1620	read_docx	short	DOCX	1	iske andar kya hai batao r1620	READ:DOCX	NO_CREATE;NO_EDIT;NO_WEB
+1901	read_xlsx	hinglish	XLSX	0	excel sheet padho r1901	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1902	read_xlsx	english	XLSX	1	Read this excel sheet r1902	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1903	read_xlsx	spelling	XLSX	0	xlsx_3.xlsx check karo r1903	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1904	read_xlsx	short	XLSX	1	iske andar kya hai batao r1904	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1905	read_xlsx	long	XLSX	0	please excel sheet ko review karo r1905	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1906	read_xlsx	reversed	XLSX	1	ye excel sheet dekh ke samjhao r1906	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1907	read_xlsx	nopunct	XLSX	0	excel sheet ka content extract karo r1907	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1908	read_xlsx	followup	XLSX	1	open karke excel sheet ka summary batao r1908	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1909	read_xlsx	hinglish	XLSX	0	excel sheet padho r1909	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1910	read_xlsx	english	XLSX	1	Read this excel sheet r1910	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1911	read_xlsx	spelling	XLSX	0	xlsx_11.xlsx check karo r1911	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1912	read_xlsx	short	XLSX	1	iske andar kya hai batao r1912	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1913	read_xlsx	long	XLSX	0	please excel sheet ko review karo r1913	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1914	read_xlsx	reversed	XLSX	1	ye excel sheet dekh ke samjhao r1914	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1915	read_xlsx	nopunct	XLSX	0	excel sheet ka content extract karo r1915	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1916	read_xlsx	followup	XLSX	1	open karke excel sheet ka summary batao r1916	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1917	read_xlsx	hinglish	XLSX	0	excel sheet padho r1917	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1918	read_xlsx	english	XLSX	1	Read this excel sheet r1918	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1919	read_xlsx	spelling	XLSX	0	xlsx_19.xlsx check karo r1919	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+1920	read_xlsx	short	XLSX	1	iske andar kya hai batao r1920	READ:XLSX	NO_CREATE;NO_EDIT;NO_WEB
+2201	read_pptx	hinglish	PPTX	0	slides padho r2201	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2202	read_pptx	english	PPTX	1	Read this slides r2202	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2203	read_pptx	spelling	PPTX	0	pptx_3.pptx check karo r2203	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2204	read_pptx	short	PPTX	1	iske andar kya hai batao r2204	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2205	read_pptx	long	PPTX	0	please slides ko review karo r2205	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2206	read_pptx	reversed	PPTX	1	ye slides dekh ke samjhao r2206	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2207	read_pptx	nopunct	PPTX	0	slides ka content extract karo r2207	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2208	read_pptx	followup	PPTX	1	open karke slides ka summary batao r2208	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2209	read_pptx	hinglish	PPTX	0	slides padho r2209	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2210	read_pptx	english	PPTX	1	Read this slides r2210	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2211	read_pptx	spelling	PPTX	0	pptx_11.pptx check karo r2211	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2212	read_pptx	short	PPTX	1	iske andar kya hai batao r2212	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2213	read_pptx	long	PPTX	0	please slides ko review karo r2213	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2214	read_pptx	reversed	PPTX	1	ye slides dekh ke samjhao r2214	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2215	read_pptx	nopunct	PPTX	0	slides ka content extract karo r2215	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2216	read_pptx	followup	PPTX	1	open karke slides ka summary batao r2216	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2217	read_pptx	hinglish	PPTX	0	slides padho r2217	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2218	read_pptx	english	PPTX	1	Read this slides r2218	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2219	read_pptx	spelling	PPTX	0	pptx_19.pptx check karo r2219	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2220	read_pptx	short	PPTX	1	iske andar kya hai batao r2220	READ:PPTX	NO_CREATE;NO_EDIT;NO_WEB
+2501	create_pdf	hinglish	-	0	AI basics par pdf banao r2501	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2502	create_pdf	english	-	0	Create a pdf about solar energy r2502	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2503	create_pdf	spelling	-	0	water cycle pr pdff bnao r2503	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2504	create_pdf	short	-	0	pdf Indian history banao r2504	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2505	create_pdf	long	-	0	Bhai mujhe healthy diet ke baare mein ek simple pdf bana do please r2505	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2506	create_pdf	reversed	-	0	Pdf space travel par banao r2506	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2507	create_pdf	nopunct	-	0	football ke upar ek pdf tayar karo r2507	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2508	create_pdf	followup	-	1	mujhe cricket ka pdf chahiye r2508	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2509	create_pdf	hinglish	-	0	yoga par pdf banao r2509	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2510	create_pdf	english	-	0	Create a pdf about photosynthesis r2510	CREATE:PDF_CREATOR	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2751	create_docx	hinglish	-	0	AI basics par word banao r2751	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2752	create_docx	english	-	0	Create a word about solar energy r2752	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2753	create_docx	spelling	-	0	water cycle pr wrod bnao r2753	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2754	create_docx	short	-	0	word Indian history banao r2754	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2755	create_docx	long	-	0	Bhai mujhe healthy diet ke baare mein ek simple word bana do please r2755	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2756	create_docx	reversed	-	0	Word space travel par banao r2756	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2757	create_docx	nopunct	-	0	football ke upar ek word tayar karo r2757	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2758	create_docx	followup	-	1	mujhe cricket ka word chahiye r2758	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2759	create_docx	hinglish	-	0	yoga par word banao r2759	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+2760	create_docx	english	-	0	Create a word about photosynthesis r2760	CREATE:DOCX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3001	create_xlsx	hinglish	-	0	AI basics par excel banao r3001	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3002	create_xlsx	english	-	0	Create an excel sheet about solar energy r3002	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3003	create_xlsx	spelling	-	0	water cycle pr excle bnao r3003	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3004	create_xlsx	short	-	0	excel Indian history banao r3004	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3005	create_xlsx	long	-	0	Bhai mujhe healthy diet ke baare mein ek simple excel bana do please r3005	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3006	create_xlsx	reversed	-	0	Excel space travel par banao r3006	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3007	create_xlsx	nopunct	-	0	football ke upar ek excel tayar karo r3007	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3008	create_xlsx	followup	-	1	mujhe cricket ka excel chahiye r3008	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3009	create_xlsx	hinglish	-	0	yoga par excel banao r3009	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3010	create_xlsx	english	-	0	Create an excel sheet about photosynthesis r3010	CREATE:XLSX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3251	create_pptx	hinglish	-	0	AI basics par presentation banao r3251	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3252	create_pptx	english	-	0	Create a presentation about solar energy r3252	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3253	create_pptx	spelling	-	0	water cycle pr presentaion bnao r3253	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3254	create_pptx	short	-	0	presentation Indian history banao r3254	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3255	create_pptx	long	-	0	Bhai mujhe healthy diet ke baare mein ek simple presentation bana do please r3255	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3256	create_pptx	reversed	-	0	Presentation space travel par banao r3256	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3257	create_pptx	nopunct	-	0	football ke upar ek presentation tayar karo r3257	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3258	create_pptx	followup	-	1	mujhe cricket ka presentation chahiye r3258	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3259	create_pptx	hinglish	-	0	yoga par presentation banao r3259	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3260	create_pptx	english	-	0	Create a presentation about photosynthesis r3260	CREATE:PPTX	NO_FALSE_READY;NO_EDIT;NO_OVERWRITE
+3501	edit_docx	hinglish	DOCX	1	Ravi ki jagah Raj likh do r3501	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3502	edit_docx	english	DOCX	1	replace Draft with Final r3502	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3503	edit_docx	spelling	DOCX	1	New title likh do Old title ki jagah r3503	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3504	edit_docx	short	DOCX	1	change Pending to Done r3504	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3505	edit_docx	long	DOCX	1	word me Alpha ko Beta kar do r3505	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3506	edit_docx	reversed	DOCX	1	please update Version 1 as Version 2 r3506	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3507	edit_docx	nopunct	DOCX	1	Mumbai ko Pune se replace karo r3507	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3508	edit_docx	followup	DOCX	1	modify this word: replace Monday with Friday r3508	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3509	edit_docx	hinglish	DOCX	1	Ravi ki jagah Raj likh do r3509	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3510	edit_docx	english	DOCX	1	replace Draft with Final r3510	READ:DOCX>EDIT:DOCX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3701	edit_xlsx	hinglish	XLSX	1	B2 me 125 likh do r3701	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3702	edit_xlsx	english	XLSX	1	set C3 to 250 r3702	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3703	edit_xlsx	spelling	XLSX	1	sheet Summary me D4 me 350 likh do r3703	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3704	edit_xlsx	short	XLSX	1	put 500 in E5 r3704	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3705	edit_xlsx	long	XLSX	1	excel me F6 ko 750 kar do r3705	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3706	edit_xlsx	reversed	XLSX	1	Input sheet mein G7 ki value 900 karna r3706	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3707	edit_xlsx	nopunct	XLSX	1	enter 42 at H8 r3707	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3708	edit_xlsx	followup	XLSX	1	A10 mein 1000 bhar do r3708	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3709	edit_xlsx	hinglish	XLSX	1	B2 me 125 likh do r3709	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3710	edit_xlsx	english	XLSX	1	set C3 to 250 r3710	READ:XLSX>EDIT:XLSX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3901	edit_pptx	hinglish	PPTX	1	Ravi ki jagah Raj likh do r3901	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3902	edit_pptx	english	PPTX	1	replace Draft with Final r3902	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3903	edit_pptx	spelling	PPTX	1	New title likh do Old title ki jagah r3903	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3904	edit_pptx	short	PPTX	1	change Pending to Done r3904	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3905	edit_pptx	long	PPTX	1	ppt me Alpha ko Beta kar do r3905	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3906	edit_pptx	reversed	PPTX	1	please update Version 1 as Version 2 r3906	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3907	edit_pptx	nopunct	PPTX	1	Mumbai ko Pune se replace karo r3907	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3908	edit_pptx	followup	PPTX	1	modify this ppt: replace Monday with Friday r3908	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3909	edit_pptx	hinglish	PPTX	1	Ravi ki jagah Raj likh do r3909	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+3910	edit_pptx	english	PPTX	1	replace Draft with Final r3910	READ:PPTX>EDIT:PPTX	NO_OVERWRITE;NO_CREATE_NEW_SOURCE
+4101	multi	hinglish	-	1	AI basics par word aur excel dono banao r4101	CREATE:DOCX>CREATE:XLSX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4102	multi	english	-	0	create a pdf about solar energy and a powerpoint about electric cars r4102	CREATE:PDF_CREATOR>CREATE:PPTX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4103	multi	spelling	-	0	water cycle par word banao phir pdf banao r4103	CREATE:DOCX>CREATE:PDF_CREATOR	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4104	multi	short	DOCX	0	is word file ko pdf me convert karo aur ppt create r4104	READ:DOCX>CREATE:PDF_CREATOR>CREATE:PPTX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4105	multi	long	XLSX	0	Bhai please is excel sheet ko word file me convert karo phir pdf banao jaldi kar do r4105	READ:XLSX>CREATE:DOCX>CREATE:PDF_CREATOR	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4106	multi	reversed	PPTX	0	is ppt ko pdf me convert karo aur word file banao r4106	READ:PPTX>CREATE:PDF_CREATOR>CREATE:DOCX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4107	multi	nopunct	DOCX,XLSX	0	dono files padho and ppt banao r4107	READ:DOCX>READ:XLSX>CREATE:PPTX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4108	multi	followup	PDF	0	is pdf ko word me convert karo then excel banao r4108	READ:PDF_READER>CREATE:DOCX>CREATE:XLSX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4109	multi	hinglish	XLSX	0	B2 me 500 likh do aur report ppt banao r4109	READ:XLSX>EDIT:XLSX>CREATE:PPTX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4110	multi	english	DOCX,PPTX	0	files padho aur pdf banao r4110	READ:DOCX>READ:PPTX>CREATE:PDF_CREATOR	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4111	multi	spelling	-	1	electric cars par wrod aur excle dono bnao r4111	CREATE:DOCX>CREATE:XLSX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4112	multi	short	-	0	create a pdf about startup funding and a powerpoint about Python basics r4112	CREATE:PDF_CREATOR>CREATE:PPTX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4113	multi	long	-	0	Bhai please ocean life par word banao phir pdf banao jaldi kar do r4113	CREATE:DOCX>CREATE:PDF_CREATOR	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4114	multi	reversed	DOCX	0	is word file ko pdf me convert karo aur ppt banao r4114	READ:DOCX>CREATE:PDF_CREATOR>CREATE:PPTX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4115	multi	nopunct	XLSX	0	is excel sheet ko word file me convert karo phir pdf banao r4115	READ:XLSX>CREATE:DOCX>CREATE:PDF_CREATOR	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4116	multi	followup	PPTX	0	is ppt ko pdf me convert karo aur word file banao r4116	READ:PPTX>CREATE:PDF_CREATOR>CREATE:DOCX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4117	multi	hinglish	DOCX,XLSX	0	dono files padho aur ppt banao r4117	READ:DOCX>READ:XLSX>CREATE:PPTX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4118	multi	english	PDF	0	is pdf ko word me convert karo phir excel banao r4118	READ:PDF_READER>CREATE:DOCX>CREATE:XLSX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4119	multi	spelling	XLSX	0	B2 me 500 likh do aur report ppt banao r4119	READ:XLSX>EDIT:XLSX>CREATE:PPTX	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4120	multi	short	DOCX,PPTX	0	files padho aur pdf create r4120	READ:DOCX>READ:PPTX>CREATE:PDF_CREATOR	NO_FALSE_READY;NO_OVERWRITE;MAX_3_TASKS
+4601	negative	hinglish	-	0	music theory samjhao [case 1] r4601	NONE	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4602	negative	english	-	0	strong password kaise banate hain [case 2] r4602	NONE	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4603	negative	spelling	-	0	word ka matlab kya hota hai [case 3] r4603	NONE	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4604	negative	short	-	0	pdf mat banao [case 4] r4604	NONE	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4605	negative	long	-	0	dont make a pdf [case 5] r4605	NONE	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4606	negative	reversed	-	0	presentation me kya bolna chahiye [case 6] r4606	NONE	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4607	negative	nopunct	-	0	how to make a pdf in python [case 7] r4607	NONE	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4608	negative	followup	-	0	python se excel banao [case 8] r4608	NONE	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4609	negative	hinglish	-	0	deck of cards ka game banao [case 9] r4609	NONE	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4610	negative	english	-	0	document banao [case 10] r4610	CLARIFY	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4611	negative	spelling	-	0	report bana do [case 11] r4611	CLARIFY	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4612	negative	short	-	0	resume banao [case 12] r4612	CLARIFY	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4613	negative	long	-	0	ek letter bana do [case 13] r4613	CLARIFY	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4614	negative	reversed	AUDIO	0	audio ka transcript do [case 14] r4614	READ:AUDIO_READER|UNSUP	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4615	negative	nopunct	VIDEO	0	video ko text me transcribe karo [case 15] r4615	READ:VIDEO_READER|UNSUP	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4616	negative	followup	-	0	legacy file.doc kholo [case 16] r4616	UNSUP	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4617	negative	hinglish	-	0	old.xls read karo [case 17] r4617	UNSUP	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4618	negative	english	-	0	old.ppt check karo [case 18] r4618	UNSUP	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4619	negative	spelling	PDF	0	pdf edit karo [case 19] r4619	CLARIFY	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+4620	negative	short	PDF	0	isko change karo [case 20] r4620	READ:PDF_READER	NO_FALSE_READY;NO_UNSAFE_EDIT;NO_WEB_WHEN_LOCAL
+25	read_image	hinglish	IMAGE	0	photo padho r25	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+26	read_image	english	IMAGE	1	Read this photo r26	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+27	read_image	spelling	IMAGE	0	image_27.jpg check karo r27	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+28	read_image	short	IMAGE	1	iske andar kya hai batao r28	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+21	read_image	long	IMAGE	0	please photo ko review karo r21	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+22	read_image	reversed	IMAGE	1	ye photo dekh ke samjhao r22	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+23	read_image	nopunct	IMAGE	0	photo ka content extract karo r23	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+24	read_image	followup	IMAGE	1	open karke photo ka summary batao r24	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+29	read_image	long	IMAGE	0	please photo ko review karo r29	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+30	read_image	reversed	IMAGE	1	ye photo dekh ke samjhao r30	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+31	read_image	nopunct	IMAGE	0	photo ka content extract karo r31	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+32	read_image	followup	IMAGE	1	open karke photo ka summary batao r32	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+33	read_image	hinglish	IMAGE	0	photo padho r33	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+34	read_image	english	IMAGE	1	Read this photo r34	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+35	read_image	spelling	IMAGE	0	image_35.jpg check karo r35	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+36	read_image	short	IMAGE	1	iske andar kya hai batao r36	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+37	read_image	long	IMAGE	0	please photo ko review karo r37	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+38	read_image	reversed	IMAGE	1	ye photo dekh ke samjhao r38	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+39	read_image	nopunct	IMAGE	0	photo ka content extract karo r39	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+40	read_image	followup	IMAGE	1	open karke photo ka summary batao r40	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+41	read_image	hinglish	IMAGE	0	photo padho r41	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+42	read_image	english	IMAGE	1	Read this photo r42	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+43	read_image	spelling	IMAGE	0	image_43.jpg check karo r43	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+44	read_image	short	IMAGE	1	iske andar kya hai batao r44	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+45	read_image	long	IMAGE	0	please photo ko review karo r45	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+46	read_image	reversed	IMAGE	1	ye photo dekh ke samjhao r46	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+47	read_image	nopunct	IMAGE	0	photo ka content extract karo r47	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+48	read_image	followup	IMAGE	1	open karke photo ka summary batao r48	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+49	read_image	hinglish	IMAGE	0	photo padho r49	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB
+50	read_image	english	IMAGE	1	Read this photo r50	READ:IMAGE_READER	NO_CREATE;NO_EDIT;NO_WEB

@@ -36,6 +36,10 @@ final class AttachViews {
             case PDF: return AttachIcon.PDF;
             case ZIP: return AttachIcon.ZIP;
             case VIDEO: return AttachIcon.VIDEO;
+            case AUDIO: return AttachIcon.AUDIO;
+            case DOCX: return AttachIcon.WORD;
+            case XLSX: return AttachIcon.EXCEL;
+            case PPTX: return AttachIcon.PPT;
             default:  return AttachIcon.IMAGE;
         }
     }
@@ -95,6 +99,38 @@ final class AttachViews {
             card.addView(x, xp);
         }
         return card;
+    }
+
+    /** File result card used under an AI reply. It exposes only the real Open and Share actions. */
+    static View outputCard(Context c, Attachment a, View.OnClickListener onOpen, View.OnClickListener onShare) {
+        LinearLayout root = (LinearLayout) card(c, a, null);
+        root.setTag("skill-output");
+        TextView open = action(c, "Open");
+        open.setContentDescription("Open " + a.name);
+        open.setOnClickListener(onOpen);
+        LinearLayout.LayoutParams op = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, NeonUi.dp(c, 30));
+        op.leftMargin = NeonUi.dp(c, 4);
+        root.addView(open, op);
+
+        TextView share = action(c, "Share");
+        share.setContentDescription("Share " + a.name);
+        share.setOnClickListener(onShare);
+        LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, NeonUi.dp(c, 30));
+        sp.leftMargin = NeonUi.dp(c, 4);
+        root.addView(share, sp);
+        return root;
+    }
+
+    private static TextView action(Context c, String label) {
+        TextView v = new TextView(c);
+        v.setText(label);
+        v.setTextColor(NeonUi.CYAN);
+        v.setTextSize(11.5f);
+        v.setGravity(Gravity.CENTER);
+        v.setPadding(NeonUi.dp(c, 8), 0, NeonUi.dp(c, 8), 0);
+        v.setBackground(NeonUi.glass(c, 9, 0x5538D6FF, 0x33123C7A, 0x220A2250));
+        v.setClickable(true);
+        return v;
     }
 
     /** Small picture thumbnails, decoded off the UI thread and cached. */

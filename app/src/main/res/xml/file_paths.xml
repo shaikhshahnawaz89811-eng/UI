@@ -2,4 +2,6 @@
 <paths>
     <!-- only the photos taken with Attach > Camera -->
     <cache-path name="camera" path="camera/" />
+    <!-- files created by the document skills; shared read-only through FileProvider -->
+    <files-path name="skill_outputs" path="skill-outputs/" />
 </paths>

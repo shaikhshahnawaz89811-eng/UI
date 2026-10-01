@@ -16,6 +16,11 @@ import com.neonhud.app.core.web.HttpFetcher;
 import com.neonhud.app.core.web.HttpWebApi;
 import com.neonhud.app.core.web.MediaReader;
 import com.neonhud.app.core.web.WebSearchService;
+import com.neonhud.app.core.skill.SkillRegistry;
+import com.neonhud.app.core.skill.SkillExecution;
+import com.neonhud.app.core.office.DocxSkill;
+import com.neonhud.app.core.office.XlsxSkill;
+import com.neonhud.app.core.office.PptxSkill;
 
 import java.io.File;
 
@@ -48,6 +53,11 @@ public final class App extends Application {
     private TavilyKeyManager tavily;
     private PrefsWebSettings webSettings;
     private WebSearchService webSearch;
+    private SkillRegistry skillRegistry;
+    private PdfCreator pdfCreator;
+    private DocxSkill docxSkill;
+    private XlsxSkill xlsxSkill;
+    private PptxSkill pptxSkill;
 
     private volatile int chatMode = MODE_GEMMA;
 
@@ -66,7 +76,18 @@ public final class App extends Application {
         brain = new ConversationBrain(memory, new ConversationBrain.Clock() {
             @Override public long now() { return System.currentTimeMillis(); }
         });
+        skillRegistry = new SkillRegistry();
+        pdfCreator = new PdfCreator();
+        docxSkill = new DocxSkill();
+        xlsxSkill = new XlsxSkill();
+        pptxSkill = new PptxSkill();
+        File skillOutputDir = new File(getFilesDir(), "skill-outputs");
+        SkillOutputBridge skillBridge = new SkillOutputBridge(this, skillOutputDir);
+        SkillExecution skillExecution = new SkillExecution(docxSkill, xlsxSkill, pptxSkill, pdfCreator,
+                skillBridge, skillBridge, skillOutputDir);
+
         chat = new ChatController(modules, brain, memory);
+        chat.setSkillExecution(skillExecution);
         chat.setAttachmentLoader(new AttachmentReader(this));     // images / PDF / ZIP / video files the user attaches with "+"
 
         // ------------------------------------------------ Qwen2.5-Coder 1.5B Instruct Q4_K_M (same flow, own everything)
@@ -80,6 +101,7 @@ public final class App extends Application {
             @Override public long now() { return System.currentTimeMillis(); }
         }, CoderSpec.SYSTEM_BASE);
         coderChat = new ChatController(coderModules, coderBrain, coderMemory, CoderSpec.DISPLAY_NAME, "coder-chat");
+        coderChat.setSkillsEnabled(false);          // the offline coding chat has no document skills
 
         // ------------------------------------------------ Tavily API keys (Settings card: Add tests the key, Delete removes it)
         tavily = new TavilyKeyManager(new HttpTavilyClient(), new PrefsTavilyKeyStore(this));
@@ -109,6 +131,11 @@ public final class App extends Application {
     public TavilyKeyManager tavily() { return tavily; }
     public PrefsWebSettings webSettings() { return webSettings; }
     public WebSearchService webSearch() { return webSearch; }
+    public SkillRegistry skills() { return skillRegistry; }
+    public PdfCreator pdfCreator() { return pdfCreator; }
+    public DocxSkill docxSkill() { return docxSkill; }
+    public XlsxSkill xlsxSkill() { return xlsxSkill; }
+    public PptxSkill pptxSkill() { return pptxSkill; }
 
     /** Which chat the user is looking at (kept here so it survives the Activity being re-created). */
     public int chatMode() { return chatMode; }

@@ -19,7 +19,7 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
 
     private companion object {
         // Small on-device models follow a reminder placed right next to the question far better than one in the system slot.
-        const val REPLY_HINT = "\n\n[EXECUTION CONTRACT: Execute the CURRENT USER MESSAGE. If it says sikhao/teach, start teaching immediately. If it says code likho/full code/pura code/banao, actually provide the requested code or artifact, not a promise or explanation of capability. If it corrects the previous reply with nahi/no, follow the new action immediately. If it says haan/yes/karo/yahi/continue, resolve it from the immediately preceding user+assistant exchange and move forward. If there are multiple questions/tasks, answer every one in order. Preserve exact names, acronyms, numbers, model names and programming languages. Never silently replace a user term. Do not restart with a generic introduction when the user asked to continue. If I write Hindi/Hinglish, reply in Hindi using ONLY English letters, never Devanagari. No ** or ### symbols.]"
+        const val REPLY_HINT = "\n\n[EXECUTION CONTRACT: Execute the CURRENT USER MESSAGE. If it says sikhao/teach, start teaching immediately. If it says code likho/full code/pura code/banao, actually provide the requested code or artifact, not a promise or explanation of capability. If it corrects the previous reply with nahi/no, follow the new action immediately. If it says haan/yes/karo/yahi/continue, resolve it from the immediately preceding user+assistant exchange and move forward. If there are multiple questions/tasks, answer every one in order. Preserve exact names, acronyms, numbers, model names and programming languages. Never silently replace a user term. Do not restart with a generic introduction when the user asked to continue. If I write Hindi/Hinglish, reply in Hindi using ONLY English letters, never Devanagari. Never claim you created, saved or edited a file unless a SKILLS NOTE says it exists. No ** or ### symbols.]"
     }
 
     @Volatile private var engine: Engine? = null
@@ -82,17 +82,29 @@ class GemmaEngine(private val context: Context, private val cacheDir: File) : Mo
         )
 
         val conversation = e.createConversation(conversationConfig)
-        // Attached pictures / PDF pages go in first, then all the text (file texts + the user's message).
+        // Attached pictures / PDF pages go before the textual question. Every image is explicitly labelled so the
+        // model can distinguish page/frame/image N from another attachment when several are present.
         val parts = ArrayList<Content>()
-        for (a in prompt.attachments) for (img in a.images) parts.add(Content.ImageBytes(img))
+        var imageNumber = 0
+        if (visionReady) {
+            for (a in prompt.attachments) {
+                for (i in a.images.indices) {
+                    val label = if (i < a.imageLabels.size) a.imageLabels[i] else "image ${i + 1}"
+                    imageNumber += 1
+                    parts.add(Content.Text("[IMAGE $imageNumber | file=${a.name} | $label]"))
+                    parts.add(Content.ImageBytes(a.images[i]))
+                }
+            }
+        }
         val text = StringBuilder()
-        if (parts.isNotEmpty() && !visionReady) {
-            parts.clear()
-            text.append("[NOTE: a picture or PDF was meant to be shown to you (attached by the user, or taken from a web link), but image input is not available on this phone. Tell the user you cannot see it.]\n\n")
+        if (imageNumber > 0 && !visionReady) {
+            text.append("[NOTE: one or more pictures/PDF pages were meant to be shown, but image input is not available on this phone. Tell the user you cannot see them.]\n\n")
         }
         for (a in prompt.attachments) if (a.text.isNotEmpty()) text.append(a.text).append("\n\n")
         // Internet results for THIS message only (cleaned and shortened by the web layer); placed next to the question.
         if (prompt.webContext.isNotEmpty()) text.append(prompt.webContext).append("\n\n")
+        // Skill-router note for THIS message (e.g. "no file can be created yet"); empty for most messages.
+        if (prompt.skillContext.isNotEmpty()) text.append(prompt.skillContext).append("\n\n")
         text.append(prompt.userMessage).append(REPLY_HINT)
         parts.add(Content.Text(text.toString()))
 

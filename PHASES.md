@@ -102,3 +102,82 @@ Completed:
 - Updated GitHub Actions Gradle setup from 8.13 to 8.14.4 to remove the Gradle deprecation warning for the Kotlin Gradle Plugin.
 - JVM regression after fix: 10,565 checks, 0 failures.
 - Android CI build should be rerun on GitHub Actions; local environment has no Android SDK/toolchain.
+
+## Phase 4 — Office Skills extension [DONE]
+- Researched the current Anthropic `docx`, `xlsx`, and `pptx` Skills documentation and implemented an Android-friendly local equivalent as dedicated skills.
+- Added pure-Java OOXML package readers/creators/editors for DOCX, XLSX and PPTX; no new third-party Android office dependency was added.
+- DOCX: paragraph/table-text reading, styled creation, targeted text replacement.
+- XLSX: sheet/cell/formula-aware reading, CSV/TSV reading, spreadsheet creation, targeted cell editing; created formula cells are marked for recalculation on open.
+- PPTX: slide-text reading, simple 16:9 presentation creation, targeted text replacement.
+- Added OOXML-internal file classification so DOCX/XLSX/PPTX are distinguished from normal project ZIPs; added CSV/TSV fallback for the spreadsheet skill.
+- Wired Office attachment loading into the existing AttachmentLoader path and exposed the three skills from the process-wide App for Lab/export use. Stage 2 later connected the same real skills to the chat execution path without redesigning the Office chip UI.
+- Added per-skill `SKILL.md` references under `phase4/skills/` following Anthropic's metadata/instruction pattern, without copying their implementation.
+- Regression: **10,597 checks, 0 failures**.
+- External interoperability: generated DOCX/XLSX/PPTX packages passed ZIP/XML validation and opened successfully with independent `python-docx`, `openpyxl`, and `python-pptx` readers; external Python-generated DOCX/XLSX/PPTX were also read successfully by the new skills.
+- Android APK build was not executed here because this environment still lacks the Android SDK/Gradle toolchain; that limitation is unchanged.
+
+## Skills wiring (conversation <-> skills) - PLAN written 2026-10-01
+Full plan, verified gaps and the 5,000-question test design: `SKILLS_WIRING_PLAN.md`.
+Stage 1 router + honesty, Stage 2 execution + file card, Stage 3 read budget, Stage 4 5,000-question test.
+
+### Stage 1 - router + honesty [DONE 2026-10-01]
+SkillRouter / SkillPlan / SkillTask / RouterContext / SkillPrompt, `PromptPackage.skillContext`, clarify without calling the model, honest "no file exists" note,
+`REPLY_HINT` no longer lets the model claim a file. Seed corpus 320 rows (`phase5/router_corpus.tsv`), 320/320 after fixes (first run 92.5%).
+Full JVM suite: 10,714 checks, 0 failures. Details and limits: `phase5/STAGE1_REPORT.md`.
+Next: Stage 2 - execution (marker format + parser, executors, FileProvider output, file card, copy-on-edit, read-back verification).
+
+## Stage 2 — Skills execution + real file outputs  [DONE (JVM/source verified; Android APK build pending)]
+
+Completed on 2026-10-01:
+- Added a strict `SKILL_FILE` marker protocol + parser for DOCX, PDF, XLSX and PPTX CREATE tasks.
+- Added deterministic `SkillExecution`: CREATE parses markers and calls the existing real Office skills / PDF writer; EDIT writes a new `-edited` copy and never overwrites the source.
+- Every successful CREATE/EDIT requires a real output file plus read-back verification. PDF uses an Android `PdfRenderer` verification implementation.
+- Added Android `SkillOutputBridge`: content URIs are materialized to a capped temporary input, outputs are published through the existing `FileProvider`, and temporary inputs are removed.
+- Added AI output file cards with `Open` and `Share`, including MIME types and read-grant flags for FileProvider URIs.
+- ChatController now executes ordered write tasks, hides the model's marker protocol from the visible chat bubble, reports real `Step x/y` results, and keeps the last verified output available for follow-up conversion/edit flows.
+- Same-format multi-create requests consume same-kind markers in order, so the first artifact is not duplicated.
+- Failure paths remove partially-created outputs, including FileProvider/publisher failure; PDF editing remains explicitly unsupported.
+- Stage 2 JVM suite added parser, four CREATE paths, three EDIT-copy paths, ChatController integration, same-kind markers, unsupported PDF edit and failure-cleanup checks.
+
+Verification:
+- Full JVM regression: **10,763 checks, 0 failures**.
+- Router corpus: **320/320 (100%)**.
+- Independent Python interoperability check: generated DOCX/XLSX/PPTX were reopened successfully by `python-docx`, `openpyxl` and `python-pptx`.
+- Source sanity checks passed for the Stage 2 production files and FileProvider XML.
+- **Android APK build was not executed in this environment:** no Gradle executable/wrapper and no Android SDK compiler were available. The Android Stage 2 wiring is therefore source-inspected but not claimed as locally compiled/runtime-tested.
+- Existing conversation stress suite remains at **1242/1300 (95.5%)**; its 58 classification misses are pre-existing conversation-quality findings, and the suite still exits PASS because this corpus is diagnostic rather than a Stage 2 gate.
+
+Report: `phase5/STAGE2_REPORT.md`.
+
+## Stage 3 — Read budget + selections + attachment cache  [DONE (JVM/source verified; Android APK build pending)]
+
+Completed on 2026-10-01:
+- Added a strict attachment read budget: 24,000 total text characters, 8,000 per file, 4 images total and 4 images per file. Clipping is explicit and remains inside the cap even when only a few characters remain.
+- Added numbered/labelled vision inputs (`IMAGE 1`, `IMAGE 2`, etc.) with file name plus page/frame/image label, so multiple pictures/PDF pages are distinguishable by the local vision model.
+- Added explicit read selections: `page 3` / page ranges for PDFs, `slide 2` / slide ranges for PPTX, and exact sheet names for XLSX. Invalid/missing selections fail honestly instead of silently switching to another file.
+- Added an in-process LRU attachment read cache keyed by source + selection. Router follow-ups such as `page 4 padho` or `isko summarize karo` can reuse the saved source/read payload without forcing a re-attachment or unnecessary reread.
+- Added dedicated attachment icons for Audio, Word, Excel and PowerPoint; existing Camera/Image/PDF/ZIP/Video and remove/sent icons remain unchanged.
+- Added Stage 3 regression tests, including ChatController cache wiring, read-budget edge cases, selection parsing, real XLSX/PPTX selection, and image-label propagation.
+
+Verification:
+- Current full JVM regression: **10,800 checks, 0 failures**.
+- Stage 3 source sanity suite: **PASS**.
+- Stage 1 uploaded-source baseline (`neon-hud-skills-stage1.zip`): **10,714 checks, 0 failures**.
+- Router seed corpus: **320/320 (100%)**.
+- Existing Phase 3/Phase 4 deterministic corpora remain green, and the known 1,300-message conversation diagnostic remains **1242/1300 (95.5%)**; those 58 misses were already present and are not relabelled as Stage 3 failures.
+- Initial Stage 1 → Stage 3 audit: **0 original files removed**. Stage 3 changes over the Stage 2 working source are limited to the attachment reader/selection, budget/cache, vision labelling, Office selection methods, router/task wiring, attachment icons, and corresponding tests.
+
+Android build limitation:
+- This environment still has no usable Android SDK/Gradle compiler, so Android code was source-inspected and checked by targeted sanity assertions, but **no APK build or device runtime test is claimed**.
+
+Stage 4 remains separate: the planned 5,000-question corpus and its deeper create/edit/multitask validation are intentionally not included in this Stage 3 ZIP.
+
+## Stage 4 — 5,000-question regression + attachment/send race hardening [COMPLETE 2026-10-01]
+
+Stage 4 completion addendum (the earlier Stage 4 planning line above is historical):
+- Added `phase5/stage4_5000.tsv`: exact 5,000 unique rows with the planned 2,500 read / 1,000 create / 600 edit / 500 multi-task / 400 negative split and eight wording styles.
+- Layer 1: actual `SkillRouter` = **5,000/5,000 (100%)** exact.
+- Layer 2: actual `SkillExecution` on every routed write task = **2,500/2,500 successful**, with independent Python validation for DOCX/XLSX/PPTX/PDF outputs.
+- Added Stage 4 source audit and attachment/send race protection: `AttachmentSendGate` blocks Send and `+` while async attachment validation is active; validated attachments are committed before the gate releases.
+- Added a deterministic 300-case phone sample, 32 dedicated attachment race cases, and a Stage 4 problem catalogue. Device run remains pending because this environment has no Android SDK/Gradle/adb.
+- Added the Stage 4 JVM regression as a CI gate before the Android APK build.

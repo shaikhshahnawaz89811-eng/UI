@@ -1,0 +1,33 @@
+case	attachment	action	must_not	expected
+1	pdf	type text while attachment is still validating then tap send once	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+2	zip	type text while attachment is validating then tap send repeatedly	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+3	video	tap + again while attachment is validating, then send	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+4	docx	type, delete text, retype, then send at validation completion boundary	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+5	xlsx	type text while attachment is still validating then tap send once	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+6	pptx	type text while attachment is validating then tap send repeatedly	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+7	audio	tap + again while attachment is validating, then send	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+8	image	type, delete text, retype, then send at validation completion boundary	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+9	pdf	type text while attachment is still validating then tap send once	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+10	zip	type text while attachment is validating then tap send repeatedly	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+11	video	tap + again while attachment is validating, then send	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+12	docx	type, delete text, retype, then send at validation completion boundary	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+13	xlsx	type text while attachment is still validating then tap send once	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+14	pptx	type text while attachment is validating then tap send repeatedly	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+15	audio	tap + again while attachment is validating, then send	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+16	image	type, delete text, retype, then send at validation completion boundary	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+17	pdf	type text while attachment is still validating then tap send once	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+18	zip	type text while attachment is validating then tap send repeatedly	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+19	video	tap + again while attachment is validating, then send	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+20	docx	type, delete text, retype, then send at validation completion boundary	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+21	xlsx	type text while attachment is still validating then tap send once	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+22	pptx	type text while attachment is validating then tap send repeatedly	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+23	audio	tap + again while attachment is validating, then send	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+24	image	type, delete text, retype, then send at validation completion boundary	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+25	pdf	type text while attachment is still validating then tap send once	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+26	zip	type text while attachment is validating then tap send repeatedly	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+27	video	tap + again while attachment is validating, then send	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+28	docx	type, delete text, retype, then send at validation completion boundary	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+29	xlsx	type text while attachment is still validating then tap send once	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+30	pptx	type text while attachment is validating then tap send repeatedly	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+31	audio	tap + again while attachment is validating, then send	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message
+32	image	type, delete text, retype, then send at validation completion boundary	must NOT send text before attachment is committed	attachment exactly once in accepted message; no spillover to next message

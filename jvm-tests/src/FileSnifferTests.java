@@ -30,5 +30,9 @@ final class FileSnifferTests {
         byte[] mark = s("%PDF-1.4");
         System.arraycopy(mark, 0, far, 1500, mark.length);
         T.eq(null, FileSniffer.detect(far, 1024), "header beyond the first 1024 bytes is ignored (only 1024 are read)");
+        T.eq(Attachment.Kind.AUDIO, FileSniffer.detect(new byte[]{'I','D','3',3}, 4), "ID3 audio detected");
+        T.eq(Attachment.Kind.AUDIO, FileSniffer.detect(new byte[]{'f','L','a','C'}, 4), "FLAC audio detected");
+        T.eq(Attachment.Kind.AUDIO, FileSniffer.detect(new byte[]{'O','g','g','S'}, 4), "OGG audio detected");
+        T.eq(Attachment.Kind.AUDIO, FileSniffer.detect(new byte[]{'R','I','F','F',0,0,0,0,'W','A','V','E'}, 12), "WAV audio detected");
     }
 }

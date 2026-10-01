@@ -17,10 +17,18 @@ jobs:
 
       # JDK 21: the LiteRT-LM library is compiled to Java 21 bytecode; the app itself still targets Java 17.
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Set up Python for Office artifact validation
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install Office artifact validators
+        run: python -m pip install python-docx openpyxl python-pptx
 
       # No Gradle wrapper in the repo: this installs the exact Gradle the project needs.
       - name: Set up Gradle
@@ -28,6 +36,15 @@ jobs:
         with:
           gradle-version: '8.14.4'
           cache-provider: basic
+
+      - name: Run JVM regression gate
+        run: bash jvm-tests/run-tests.sh
+
+      - name: Run Android/source wiring sanity gate
+        run: bash jvm-tests/check-stage4-source.sh
+
+      - name: Run Stage 4 deep write and artifact validation
+        run: bash jvm-tests/run-stage4-deep.sh
 
       - name: Build debug APK
         run: gradle assembleDebug --stacktrace

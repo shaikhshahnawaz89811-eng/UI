@@ -1,0 +1,321 @@
+id	block	style	attach	lastreply	text	expected
+1	create-topic	hinglish	-	0	AI par pdf banao	CREATE:PDF_CREATOR
+2	create-topic	english	-	0	create a pdf about solar energy	CREATE:PDF_CREATOR
+3	create-topic	spelling	-	0	india ka itihas pr pdff bnao	CREATE:PDF_CREATOR
+4	create-topic	reversed	-	0	banao cricket par pdf	CREATE:PDF_CREATOR
+5	create-topic	voice	-	0	mujhe healthy diet ke upar ek pdf bana do	CREATE:PDF_CREATOR
+6	create-topic	long	-	0	yaar mujhe kal subah tak space travel ke upar ek achhi si pdf chahiye please jaldi bana do	CREATE:PDF_CREATOR
+7	create-topic	hinglish	-	0	water cycle par pdf banao	CREATE:PDF_CREATOR
+8	create-topic	english	-	0	create a pdf about football	CREATE:PDF_CREATOR
+9	create-topic	spelling	-	0	electric cars pr pdff bnao	CREATE:PDF_CREATOR
+10	create-topic	reversed	-	0	banao yoga par pdf	CREATE:PDF_CREATOR
+11	create-topic	voice	-	0	mujhe photosynthesis ke upar ek pdf bana do	CREATE:PDF_CREATOR
+12	create-topic	long	-	0	yaar mujhe kal subah tak monsoon ke upar ek achhi si pdf chahiye please jaldi bana do	CREATE:PDF_CREATOR
+13	create-topic	hinglish	-	0	startup funding par pdf banao	CREATE:PDF_CREATOR
+14	create-topic	english	-	0	create a pdf about chess	CREATE:PDF_CREATOR
+15	create-topic	spelling	-	0	ocean life pr pdff bnao	CREATE:PDF_CREATOR
+16	create-topic	hinglish	-	0	AI par word file banao	CREATE:DOCX
+17	create-topic	english	-	0	create a word document about solar energy	CREATE:DOCX
+18	create-topic	spelling	-	0	india ka itihas pr wrod file bnao	CREATE:DOCX
+19	create-topic	reversed	-	0	banao cricket par word doc	CREATE:DOCX
+20	create-topic	voice	-	0	mujhe healthy diet ke upar ek word file bana do	CREATE:DOCX
+21	create-topic	long	-	0	yaar mujhe kal subah tak space travel ke upar ek achhi si word document chahiye please jaldi bana do	CREATE:DOCX
+22	create-topic	hinglish	-	0	water cycle par docx banao	CREATE:DOCX
+23	create-topic	english	-	0	create a word doc about football	CREATE:DOCX
+24	create-topic	spelling	-	0	electric cars pr wrod file bnao	CREATE:DOCX
+25	create-topic	reversed	-	0	banao yoga par word document	CREATE:DOCX
+26	create-topic	voice	-	0	mujhe photosynthesis ke upar ek docx bana do	CREATE:DOCX
+27	create-topic	long	-	0	yaar mujhe kal subah tak monsoon ke upar ek achhi si word doc chahiye please jaldi bana do	CREATE:DOCX
+28	create-topic	hinglish	-	0	startup funding par word file banao	CREATE:DOCX
+29	create-topic	english	-	0	create a word document about chess	CREATE:DOCX
+30	create-topic	spelling	-	0	ocean life pr wrod file bnao	CREATE:DOCX
+31	create-topic	hinglish	-	0	AI par excel sheet banao	CREATE:XLSX
+32	create-topic	english	-	0	create a excel about solar energy	CREATE:XLSX
+33	create-topic	spelling	-	0	india ka itihas pr excle bnao	CREATE:XLSX
+34	create-topic	reversed	-	0	banao cricket par spreadsheet	CREATE:XLSX
+35	create-topic	voice	-	0	mujhe healthy diet ke upar ek excel sheet bana do	CREATE:XLSX
+36	create-topic	long	-	0	yaar mujhe kal subah tak space travel ke upar ek achhi si excel chahiye please jaldi bana do	CREATE:XLSX
+37	create-topic	hinglish	-	0	water cycle par xlsx banao	CREATE:XLSX
+38	create-topic	english	-	0	create a spreadsheet about football	CREATE:XLSX
+39	create-topic	spelling	-	0	electric cars pr excle bnao	CREATE:XLSX
+40	create-topic	reversed	-	0	banao yoga par excel	CREATE:XLSX
+41	create-topic	voice	-	0	mujhe photosynthesis ke upar ek xlsx bana do	CREATE:XLSX
+42	create-topic	long	-	0	yaar mujhe kal subah tak monsoon ke upar ek achhi si spreadsheet chahiye please jaldi bana do	CREATE:XLSX
+43	create-topic	hinglish	-	0	startup funding par excel sheet banao	CREATE:XLSX
+44	create-topic	english	-	0	create a excel about chess	CREATE:XLSX
+45	create-topic	spelling	-	0	ocean life pr excle bnao	CREATE:XLSX
+46	create-topic	hinglish	-	0	AI par ppt banao	CREATE:PPTX
+47	create-topic	english	-	0	create a presentation about solar energy	CREATE:PPTX
+48	create-topic	spelling	-	0	india ka itihas pr presentaion bnao	CREATE:PPTX
+49	create-topic	reversed	-	0	banao cricket par slides	CREATE:PPTX
+50	create-topic	voice	-	0	mujhe healthy diet ke upar ek ppt bana do	CREATE:PPTX
+51	create-topic	long	-	0	yaar mujhe kal subah tak space travel ke upar ek achhi si presentation chahiye please jaldi bana do	CREATE:PPTX
+52	create-topic	hinglish	-	0	water cycle par powerpoint banao	CREATE:PPTX
+53	create-topic	english	-	0	create a slides about football	CREATE:PPTX
+54	create-topic	spelling	-	0	electric cars pr presentaion bnao	CREATE:PPTX
+55	create-topic	reversed	-	0	banao yoga par presentation	CREATE:PPTX
+56	create-topic	voice	-	0	mujhe photosynthesis ke upar ek powerpoint bana do	CREATE:PPTX
+57	create-topic	long	-	0	yaar mujhe kal subah tak monsoon ke upar ek achhi si slides chahiye please jaldi bana do	CREATE:PPTX
+58	create-topic	hinglish	-	0	startup funding par ppt banao	CREATE:PPTX
+59	create-topic	english	-	0	create a presentation about chess	CREATE:PPTX
+60	create-topic	spelling	-	0	ocean life pr presentaion bnao	CREATE:PPTX
+61	create-bare	short	-	1	pdf banao	CREATE:PDF_CREATOR
+62	create-bare	short	-	0	pdf banao	CLARIFY
+63	create-followup	followup	-	1	isko pdf me daal do	CREATE:PDF_CREATOR
+64	create-followup	followup	-	1	pehle wala pdf bana do	CREATE:PDF_CREATOR
+65	create-followup	followup	-	0	pehle wala pdf bana do	CLARIFY
+66	create-bare	english	-	1	make me a pdf	CREATE:PDF_CREATOR
+67	create-bare	hinglish	-	1	ek pdf chahiye	CREATE:PDF_CREATOR
+68	create-text	typed	-	0	pdf banao: Meeting kal 5 baje hai	CREATE:PDF_CREATOR
+69	create-chat	whole-chat	-	1	poori chat ka pdf banao	CREATE:PDF_CREATOR
+70	create-bare	short	-	1	word file banao	CREATE:DOCX
+71	create-bare	short	-	0	word file banao	CLARIFY
+72	create-bare	short	-	1	word document banao	CREATE:DOCX
+73	create-bare	short	-	0	word document banao	CLARIFY
+74	create-bare	short	-	1	docx banao	CREATE:DOCX
+75	create-bare	short	-	0	docx banao	CLARIFY
+76	create-bare	short	-	1	word doc banao	CREATE:DOCX
+77	create-bare	short	-	0	word doc banao	CLARIFY
+78	create-followup	followup	-	1	isko word file me daal do	CREATE:DOCX
+79	create-followup	followup	-	1	pehle wala word doc bana do	CREATE:DOCX
+80	create-followup	followup	-	0	pehle wala word doc bana do	CLARIFY
+81	create-bare	english	-	1	make me a word file	CREATE:DOCX
+82	create-bare	hinglish	-	1	ek word file chahiye	CREATE:DOCX
+83	create-text	typed	-	0	word file banao: Meeting kal 5 baje hai	CREATE:DOCX
+84	create-chat	whole-chat	-	1	poori chat ka word file banao	CREATE:DOCX
+85	create-bare	short	-	1	excel sheet banao	CREATE:XLSX
+86	create-bare	short	-	0	excel sheet banao	CLARIFY
+87	create-bare	short	-	1	excel banao	CREATE:XLSX
+88	create-bare	short	-	0	excel banao	CLARIFY
+89	create-bare	short	-	1	xlsx banao	CREATE:XLSX
+90	create-bare	short	-	0	xlsx banao	CLARIFY
+91	create-bare	short	-	1	spreadsheet banao	CREATE:XLSX
+92	create-bare	short	-	0	spreadsheet banao	CLARIFY
+93	create-followup	followup	-	1	isko excel sheet me daal do	CREATE:XLSX
+94	create-followup	followup	-	1	pehle wala spreadsheet bana do	CREATE:XLSX
+95	create-followup	followup	-	0	pehle wala spreadsheet bana do	CLARIFY
+96	create-bare	english	-	1	make me a excel sheet	CREATE:XLSX
+97	create-bare	hinglish	-	1	ek excel sheet chahiye	CREATE:XLSX
+98	create-text	typed	-	0	excel sheet banao: Meeting kal 5 baje hai	CREATE:XLSX
+99	create-chat	whole-chat	-	1	poori chat ka excel sheet banao	CREATE:XLSX
+100	create-bare	short	-	1	ppt banao	CREATE:PPTX
+101	create-bare	short	-	0	ppt banao	CLARIFY
+102	create-bare	short	-	1	presentation banao	CREATE:PPTX
+103	create-bare	short	-	0	presentation banao	CLARIFY
+104	create-bare	short	-	1	powerpoint banao	CREATE:PPTX
+105	create-bare	short	-	0	powerpoint banao	CLARIFY
+106	create-bare	short	-	1	slides banao	CREATE:PPTX
+107	create-bare	short	-	0	slides banao	CLARIFY
+108	create-followup	followup	-	1	isko ppt me daal do	CREATE:PPTX
+109	create-followup	followup	-	1	pehle wala slides bana do	CREATE:PPTX
+110	create-followup	followup	-	0	pehle wala slides bana do	CLARIFY
+111	create-bare	english	-	1	make me a ppt	CREATE:PPTX
+112	create-bare	hinglish	-	1	ek ppt chahiye	CREATE:PPTX
+113	create-text	typed	-	0	ppt banao: Meeting kal 5 baje hai	CREATE:PPTX
+114	create-chat	whole-chat	-	1	poori chat ka ppt banao	CREATE:PPTX
+115	convert	hinglish	DOCX	0	is word file ko pdf me convert karo	READ:DOCX>CREATE:PDF_CREATOR
+116	convert	english	DOCX	0	convert this to pdf	READ:DOCX>CREATE:PDF_CREATOR
+117	convert	followup	DOCX	0	isko pdf me daal do	READ:DOCX>CREATE:PDF_CREATOR
+118	convert	hinglish	DOCX	0	is word file ko excel sheet me convert karo	READ:DOCX>CREATE:XLSX
+119	convert	english	DOCX	0	convert this to excel sheet	READ:DOCX>CREATE:XLSX
+120	convert	followup	DOCX	0	isko excel sheet me daal do	READ:DOCX>CREATE:XLSX
+121	convert	hinglish	DOCX	0	is word file ko ppt me convert karo	READ:DOCX>CREATE:PPTX
+122	convert	english	DOCX	0	convert this to ppt	READ:DOCX>CREATE:PPTX
+123	convert	followup	DOCX	0	isko ppt me daal do	READ:DOCX>CREATE:PPTX
+124	convert	hinglish	XLSX	0	is excel sheet ko pdf me convert karo	READ:XLSX>CREATE:PDF_CREATOR
+125	convert	english	XLSX	0	convert this to pdf	READ:XLSX>CREATE:PDF_CREATOR
+126	convert	followup	XLSX	0	isko pdf me daal do	READ:XLSX>CREATE:PDF_CREATOR
+127	convert	hinglish	XLSX	0	is excel sheet ko word file me convert karo	READ:XLSX>CREATE:DOCX
+128	convert	english	XLSX	0	convert this to word file	READ:XLSX>CREATE:DOCX
+129	convert	followup	XLSX	0	isko word file me daal do	READ:XLSX>CREATE:DOCX
+130	convert	hinglish	XLSX	0	is excel sheet ko ppt me convert karo	READ:XLSX>CREATE:PPTX
+131	convert	english	XLSX	0	convert this to ppt	READ:XLSX>CREATE:PPTX
+132	convert	followup	XLSX	0	isko ppt me daal do	READ:XLSX>CREATE:PPTX
+133	convert	hinglish	PPTX	0	is ppt ko pdf me convert karo	READ:PPTX>CREATE:PDF_CREATOR
+134	convert	english	PPTX	0	convert this to pdf	READ:PPTX>CREATE:PDF_CREATOR
+135	convert	followup	PPTX	0	isko pdf me daal do	READ:PPTX>CREATE:PDF_CREATOR
+136	convert	hinglish	PPTX	0	is ppt ko word file me convert karo	READ:PPTX>CREATE:DOCX
+137	convert	english	PPTX	0	convert this to word file	READ:PPTX>CREATE:DOCX
+138	convert	followup	PPTX	0	isko word file me daal do	READ:PPTX>CREATE:DOCX
+139	convert	hinglish	PPTX	0	is ppt ko excel sheet me convert karo	READ:PPTX>CREATE:XLSX
+140	convert	english	PPTX	0	convert this to excel sheet	READ:PPTX>CREATE:XLSX
+141	convert	followup	PPTX	0	isko excel sheet me daal do	READ:PPTX>CREATE:XLSX
+142	convert	hinglish	PDF	0	is pdf ko word file me convert karo	READ:PDF_READER>CREATE:DOCX
+143	convert	english	PDF	0	convert this to word file	READ:PDF_READER>CREATE:DOCX
+144	convert	followup	PDF	0	isko word file me daal do	READ:PDF_READER>CREATE:DOCX
+145	convert	hinglish	PDF	0	is pdf ko excel sheet me convert karo	READ:PDF_READER>CREATE:XLSX
+146	convert	english	PDF	0	convert this to excel sheet	READ:PDF_READER>CREATE:XLSX
+147	convert	followup	PDF	0	isko excel sheet me daal do	READ:PDF_READER>CREATE:XLSX
+148	convert	hinglish	PDF	0	is pdf ko ppt me convert karo	READ:PDF_READER>CREATE:PPTX
+149	convert	english	PDF	0	convert this to ppt	READ:PDF_READER>CREATE:PPTX
+150	convert	followup	PDF	0	isko ppt me daal do	READ:PDF_READER>CREATE:PPTX
+151	create-from-file	hinglish	IMAGE	0	isko pdf me daal do	READ:IMAGE_READER>CREATE:PDF_CREATOR
+152	create-from-file	hinglish	VIDEO	0	isko pdf me daal do	READ:VIDEO_READER>CREATE:PDF_CREATOR
+153	create-from-file	hinglish	ZIP	0	isko pdf me daal do	READ:PROJECT_ZIP_READER>CREATE:PDF_CREATOR
+154	edit	hinglish	DOCX	0	Ravi ki jagah Raj likh do	READ:DOCX>EDIT:DOCX
+155	edit	english	DOCX	0	replace Amit with Sumit	READ:DOCX>EDIT:DOCX
+156	edit	english	DOCX	0	change "Delhi" to "Mumbai"	READ:DOCX>EDIT:DOCX
+157	edit	hinglish	DOCX	0	2024 ko 2025 kar do	READ:DOCX>EDIT:DOCX
+158	edit	reversed	DOCX	0	Verma likh do Sharma ki jagah	READ:DOCX>EDIT:DOCX
+159	edit	spelling	DOCX	0	isme draft ki jagah final likh do	READ:DOCX>EDIT:DOCX
+160	edit	hinglish	DOCX	0	Monday ko Friday se badlo	READ:DOCX>EDIT:DOCX
+161	edit	hinglish	DOCX	0	Pune ki jagah Nagpur likh do	READ:DOCX>EDIT:DOCX
+162	edit	hinglish	PPTX	0	Ravi ki jagah Raj likh do	READ:PPTX>EDIT:PPTX
+163	edit	english	PPTX	0	replace Amit with Sumit	READ:PPTX>EDIT:PPTX
+164	edit	english	PPTX	0	change "Delhi" to "Mumbai"	READ:PPTX>EDIT:PPTX
+165	edit	hinglish	PPTX	0	2024 ko 2025 kar do	READ:PPTX>EDIT:PPTX
+166	edit	reversed	PPTX	0	Verma likh do Sharma ki jagah	READ:PPTX>EDIT:PPTX
+167	edit	spelling	PPTX	0	isme draft ki jagah final likh do	READ:PPTX>EDIT:PPTX
+168	edit	hinglish	PPTX	0	Monday ko Friday se badlo	READ:PPTX>EDIT:PPTX
+169	edit	hinglish	PPTX	0	Pune ki jagah Nagpur likh do	READ:PPTX>EDIT:PPTX
+170	edit-cell	hinglish	XLSX	0	B2 me 500 likh do	READ:XLSX>EDIT:XLSX
+171	edit-cell	english	XLSX	0	set C3 to 250	READ:XLSX>EDIT:XLSX
+172	edit-cell	hinglish	XLSX	0	A1 ko Name kar do	READ:XLSX>EDIT:XLSX
+173	edit-cell	hinglish	XLSX	0	cell D4 mein Total daal do	READ:XLSX>EDIT:XLSX
+174	edit-cell	english	XLSX	0	put 1200 in E10	READ:XLSX>EDIT:XLSX
+175	edit-cell	spelling	XLSX	0	b7 me Done likhdo	READ:XLSX>EDIT:XLSX
+176	edit-cell	hinglish	XLSX	0	B2 me 500 aur C3 me 250 likh do	READ:XLSX>EDIT:XLSX>EDIT:XLSX
+177	edit-clarify	hinglish	-	0	Ravi ki jagah Raj likh do	CLARIFY
+178	edit-clarify	english	-	0	replace Ravi with Raj	CLARIFY
+179	edit-clarify	hinglish	-	0	B2 me 500 likh do	CLARIFY
+180	edit-clarify	hinglish	DOCX	0	B2 me 500 likh do	CLARIFY
+181	edit-clarify	hinglish	DOCX	0	isme badlav karo	CLARIFY
+182	edit-clarify	english	PPTX	0	please edit this	CLARIFY
+183	edit-clarify	hinglish	XLSX	0	excel me Ravi ki jagah Raj likh do	CLARIFY
+184	edit-clarify	hinglish	DOCX,DOCX	0	Ravi ki jagah Raj likh do	CLARIFY
+185	edit-pdf	hinglish	PDF	0	Ravi ki jagah Raj likh do	READ:PDF_READER|UNSUP
+186	edit-pdf	english	PDF	0	replace Ravi with Raj	READ:PDF_READER|UNSUP
+187	multi	hinglish	-	0	AI par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+188	multi	english	-	0	make a pdf and a ppt about AI	CREATE:PDF_CREATOR>CREATE:PPTX
+189	multi	hinglish	-	0	pehle AI par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+190	multi	voice	-	0	AI par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+191	multi	hinglish	-	0	solar energy par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+192	multi	english	-	0	make a pdf and a ppt about solar energy	CREATE:PDF_CREATOR>CREATE:PPTX
+193	multi	hinglish	-	0	pehle solar energy par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+194	multi	voice	-	0	solar energy par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+195	multi	hinglish	-	0	india ka itihas par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+196	multi	english	-	0	make a pdf and a ppt about india ka itihas	CREATE:PDF_CREATOR>CREATE:PPTX
+197	multi	hinglish	-	0	pehle india ka itihas par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+198	multi	voice	-	0	india ka itihas par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+199	multi	hinglish	-	0	cricket par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+200	multi	english	-	0	make a pdf and a ppt about cricket	CREATE:PDF_CREATOR>CREATE:PPTX
+201	multi	hinglish	-	0	pehle cricket par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+202	multi	voice	-	0	cricket par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+203	multi	hinglish	-	0	healthy diet par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+204	multi	english	-	0	make a pdf and a ppt about healthy diet	CREATE:PDF_CREATOR>CREATE:PPTX
+205	multi	hinglish	-	0	pehle healthy diet par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+206	multi	voice	-	0	healthy diet par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+207	multi	hinglish	-	0	space travel par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+208	multi	english	-	0	make a pdf and a ppt about space travel	CREATE:PDF_CREATOR>CREATE:PPTX
+209	multi	hinglish	-	0	pehle space travel par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+210	multi	voice	-	0	space travel par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+211	multi	hinglish	-	0	water cycle par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+212	multi	english	-	0	make a pdf and a ppt about water cycle	CREATE:PDF_CREATOR>CREATE:PPTX
+213	multi	hinglish	-	0	pehle water cycle par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+214	multi	voice	-	0	water cycle par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+215	multi	hinglish	-	0	football par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+216	multi	english	-	0	make a pdf and a ppt about football	CREATE:PDF_CREATOR>CREATE:PPTX
+217	multi	hinglish	-	0	pehle football par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+218	multi	voice	-	0	football par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+219	multi	hinglish	-	0	electric cars par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+220	multi	english	-	0	make a pdf and a ppt about electric cars	CREATE:PDF_CREATOR>CREATE:PPTX
+221	multi	hinglish	-	0	pehle electric cars par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+222	multi	voice	-	0	electric cars par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+223	multi	hinglish	-	0	yoga par word aur excel dono banao	CREATE:DOCX>CREATE:XLSX
+224	multi	english	-	0	make a pdf and a ppt about yoga	CREATE:PDF_CREATOR>CREATE:PPTX
+225	multi	hinglish	-	0	pehle yoga par word banao phir uska pdf bhi bana do	CREATE:DOCX>CREATE:PDF_CREATOR
+226	multi	voice	-	0	yoga par word excel ppt aur pdf sab banao	CREATE:DOCX>CREATE:XLSX>CREATE:PPTX|LIMIT
+227	multi	hinglish	PDF,DOCX	0	dono files padho	READ:PDF_READER>READ:DOCX
+228	multi	hinglish	IMAGE,PDF,XLSX	0	ye sab dekho aur batao	READ:IMAGE_READER>READ:PDF_READER>READ:XLSX
+229	multi	hinglish	DOCX	0	isko excel me daal do phir uska pdf bhi banao	READ:DOCX>CREATE:XLSX>CREATE:PDF_CREATOR
+230	read	hinglish	IMAGE	0	isme kya hai	READ:IMAGE_READER
+231	read	english	IMAGE	0	what is in this file	READ:IMAGE_READER
+232	read	short	IMAGE	0	ye padho	READ:IMAGE_READER
+233	read	hinglish	PDF	0	isme kya hai	READ:PDF_READER
+234	read	english	PDF	0	what is in this file	READ:PDF_READER
+235	read	short	PDF	0	ye padho	READ:PDF_READER
+236	read	hinglish	ZIP	0	isme kya hai	READ:PROJECT_ZIP_READER
+237	read	english	ZIP	0	what is in this file	READ:PROJECT_ZIP_READER
+238	read	short	ZIP	0	ye padho	READ:PROJECT_ZIP_READER
+239	read	hinglish	AUDIO	0	isme kya hai	READ:AUDIO_READER
+240	read	english	AUDIO	0	what is in this file	READ:AUDIO_READER
+241	read	short	AUDIO	0	ye padho	READ:AUDIO_READER
+242	read	hinglish	VIDEO	0	isme kya hai	READ:VIDEO_READER
+243	read	english	VIDEO	0	what is in this file	READ:VIDEO_READER
+244	read	short	VIDEO	0	ye padho	READ:VIDEO_READER
+245	read	hinglish	DOCX	0	isme kya hai	READ:DOCX
+246	read	english	DOCX	0	what is in this file	READ:DOCX
+247	read	short	DOCX	0	ye padho	READ:DOCX
+248	read	hinglish	XLSX	0	isme kya hai	READ:XLSX
+249	read	english	XLSX	0	what is in this file	READ:XLSX
+250	read	short	XLSX	0	ye padho	READ:XLSX
+251	read	hinglish	PPTX	0	isme kya hai	READ:PPTX
+252	read	english	PPTX	0	what is in this file	READ:PPTX
+253	read	short	PPTX	0	ye padho	READ:PPTX
+254	extra	uppercase	-	0	PDF BANAO AI PAR	CREATE:PDF_CREATOR
+255	extra	english	-	0	Make a PowerPoint on solar energy	CREATE:PPTX
+256	extra	english	-	0	kya aap word file bana sakte ho cricket par	CREATE:DOCX
+257	extra	hinglish	-	0	excel sheet bana do marks ki	CREATE:XLSX
+258	extra	hinglish	-	0	yoga ke liye slides bana do	CREATE:PPTX
+259	extra	english	-	1	export as pdf	CREATE:PDF_CREATOR
+260	extra	hinglish	-	1	is chat ko word me save kar do	CREATE:DOCX
+261	extra	followup	-	1	uska excel bhi bana do	CREATE:XLSX
+262	extra	hinglish	-	1	pdf aur word dono me chahiye	CREATE:PDF_CREATOR>CREATE:DOCX
+263	extra	short	-	1	hello pdf banao	CREATE:PDF_CREATOR
+264	extra	followup	PDF	0	isko word me de do	READ:PDF_READER>CREATE:DOCX
+265	extra	hinglish	PDF	0	pdf ko word kar do	READ:PDF_READER>CREATE:DOCX
+266	extra	hinglish	PPTX	0	is ppt ka pdf bana do	READ:PPTX>CREATE:PDF_CREATOR
+267	extra	hinglish	XLSX	0	sheet ka pdf nikal do	READ:XLSX>CREATE:PDF_CREATOR
+268	extra	hinglish	PPTX	0	2025 ki jagah 2026 likh do	READ:PPTX>EDIT:PPTX
+269	extra	hinglish	PPTX	0	slide me Ravi ko Raj kar do	READ:PPTX>EDIT:PPTX
+270	extra	hinglish	XLSX	0	A1 me Name likh do	READ:XLSX>EDIT:XLSX
+271	extra	hinglish	XLSX	0	sheet2 me B5 me 99 likh do	READ:XLSX>EDIT:XLSX
+272	extra	hinglish	IMAGE	0	is image me kya likha hai	READ:IMAGE_READER
+273	extra	hinglish	VIDEO	0	video ka summary batao	READ:VIDEO_READER
+274	extra	hinglish	ZIP	0	is zip me kya hai	READ:PROJECT_ZIP_READER
+275	extra	hinglish	AUDIO	0	audio ki duration kitni hai	READ:AUDIO_READER
+276	extra	hinglish	-	1	excel me data daal do	CREATE:XLSX
+277	extra	hinglish	-	0	slide banane ka tarika kaise hai	NONE
+278	extra	hinglish	-	0	excel kaise seekhu	NONE
+279	extra	hinglish	-	0	word file kya hoti hai	NONE
+280	extra	hinglish	-	0	pdf banao nahi chahiye	NONE
+281	negative	mixed	-	0	password banao	NONE
+282	negative	mixed	-	0	strong password kaise banate hain	NONE
+283	negative	mixed	-	0	music theory samjhao	NONE
+284	negative	mixed	-	0	song ke lyrics ka matlab batao	NONE
+285	negative	mixed	-	0	screen recording kaise karte hain	NONE
+286	negative	mixed	-	0	ogg vorbis kya hai	NONE
+287	negative	mixed	-	0	word count kya hota hai	NONE
+288	negative	mixed	-	0	ek word batao jo H se shuru ho	NONE
+289	negative	mixed	-	0	bed sheet banane ka tarika	NONE
+290	negative	mixed	-	0	slide karna hai kal	NONE
+291	negative	mixed	-	0	deck of cards ka game banao	NONE
+292	negative	mixed	-	0	pdf mat banao	NONE
+293	negative	mixed	-	0	dont make a pdf	NONE
+294	negative	mixed	-	0	excel me formula kaise lagate hain	NONE
+295	negative	mixed	-	0	how to make a pdf in python	NONE
+296	negative	mixed	-	0	python se excel banao	NONE
+297	negative	mixed	-	0	namaste	NONE
+298	negative	mixed	-	0	tum kaun ho	NONE
+299	negative	mixed	-	0	2+2 kya hai	NONE
+300	negative	mixed	-	0	word ka matlab kya hai	NONE
+301	negative	mixed	-	0	kal presentation hai tips do	NONE
+302	negative	mixed	-	0	presentation me kya bolna chahiye	NONE
+303	negative	mixed	-	0	pdf kya hota hai	NONE
+304	negative	mixed	-	0	excel seekhna hai	NONE
+305	negative	mixed	-	0	powerpoint kab aaya tha	NONE
+306	negative	mixed	-	0	document banao	CLARIFY
+307	negative	mixed	-	0	resume bana do	CLARIFY
+308	negative	mixed	-	0	ek letter bana do	CLARIFY
+309	negative	mixed	-	0	report banao	CLARIFY
+310	negative	mixed	-	0	csv banao	UNSUP
+311	negative	mixed	-	0	html file banao	UNSUP
+312	negative	mixed	-	0	audio ka transcript chahiye	UNSUP
+313	negative	mixed	-	0	is purani report.doc ko edit karo	UNSUP
+314	negative	mixed	-	0	.xls file padho	UNSUP
+315	negation	mixed	-	1	word nahi excel banao	CREATE:XLSX
+316	negation	mixed	-	1	pdf nahi ppt banao	CREATE:PPTX
+317	negation	mixed	AUDIO	0	transcript do	READ:AUDIO_READER|UNSUP
+318	negation	mixed	VIDEO	0	video ka transcript likh do	READ:VIDEO_READER|UNSUP
+319	negation	mixed	AUDIO	0	speech to text karo	READ:AUDIO_READER|UNSUP
+320	negation	mixed	AUDIO	0	music theory samjhao	READ:AUDIO_READER

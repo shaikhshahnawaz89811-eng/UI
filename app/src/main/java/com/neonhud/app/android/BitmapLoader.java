@@ -85,4 +85,14 @@ public final class BitmapLoader {
             if (in != null) { try { in.close(); } catch (IOException ignored) { } }
         }
     }
+    /** Scale a decoded bitmap down so media skills can control memory before JPEG encoding. */
+    public static Bitmap scale(Bitmap source, int maxEdge) {
+        if (source == null) return null;
+        if (maxEdge <= 0 || Math.max(source.getWidth(), source.getHeight()) <= maxEdge) return source;
+        float factor = maxEdge / (float) Math.max(source.getWidth(), source.getHeight());
+        int w = Math.max(1, Math.round(source.getWidth() * factor));
+        int h = Math.max(1, Math.round(source.getHeight() * factor));
+        return Bitmap.createScaledBitmap(source, w, h, true);
+    }
+
 }

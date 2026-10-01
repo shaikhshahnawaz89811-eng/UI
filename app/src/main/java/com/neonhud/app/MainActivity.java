@@ -348,12 +348,10 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
             i.setType("image/*");
             code = REQ_ATTACH_IMAGE;
         } else {
-            // The single Zip/Files entry accepts ZIP, PDF and video. Multiple selection remains enabled.
+            // The single Files entry intentionally allows any file provider type. The attachment checker below
+            // sniffs real content (ZIP/PDF/OOXML/audio/video) instead of trusting a provider MIME declaration.
+            // Unsupported files are rejected after selection with a clear message.
             i.setType("*/*");
-            i.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
-                    "application/zip", "application/x-zip-compressed", "application/pdf",
-                    "video/*"
-            });
             code = REQ_ATTACH_ZIP;
         }
         try {
@@ -435,51 +433,78 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
      * worker thread because a cloud provider (Drive ...) may download the file first.
      */
     private void checkAndAttach(final List<Uri> uris) {
+        chatPage.setAttachmentBusy(true);
         new Thread(new Runnable() {
             @Override public void run() {
                 final List<Attachment> ok = new ArrayList<Attachment>();
                 final List<String> problems = new ArrayList<String>();
-                for (Uri u : uris) {
-                    if (u == null) continue;
-                    UriImportSource info = new UriImportSource(MainActivity.this, u);
-                    String name = info.displayName().isEmpty() ? "This file" : info.displayName();
-                    if (info.sizeBytes() > MAX_ATTACH_BYTES) { problems.add(name + " is too big (max 50 MB)."); continue; }
-                    byte[] head = new byte[FileSniffer.HEAD_BYTES];
-                    int len = 0;
-                    try {
-                        InputStream in = info.open();
+                try {
+                    for (Uri u : uris) {
+                        if (u == null) continue;
+                        UriImportSource info = new UriImportSource(MainActivity.this, u);
+                        String name = info.displayName().isEmpty() ? "This file" : info.displayName();
+                        if (info.sizeBytes() > MAX_ATTACH_BYTES) { problems.add(name + " is too big (max 50 MB)."); continue; }
+                        byte[] head = new byte[FileSniffer.HEAD_BYTES];
+                        int len = 0;
                         try {
-                            int n;
-                            while (len < head.length && (n = in.read(head, len, head.length - len)) > 0) len += n;
-                        } finally {
-                            in.close();
+                            InputStream in = info.open();
+                            try {
+                                int n;
+                                while (len < head.length && (n = in.read(head, len, head.length - len)) > 0) len += n;
+                            } finally {
+                                in.close();
+                            }
+                        } catch (IOException | RuntimeException e) {
+                            problems.add(name + " could not be opened.");
+                            continue;
                         }
-                    } catch (IOException | RuntimeException e) {
-                        problems.add(name + " could not be opened.");
-                        continue;
-                    }
-                    Attachment.Kind real = FileSniffer.detect(head, len);
-                    if (real == null) {
+                        Attachment.Kind real = FileSniffer.detect(head, len);
                         String mime = getContentResolver().getType(u);
                         String lower = name.toLowerCase(Locale.ROOT);
-                        if (mime != null && mime.startsWith("video/")) real = Attachment.Kind.VIDEO;
-                        else if (lower.endsWith(".mp4") || lower.endsWith(".mkv") || lower.endsWith(".webm") || lower.endsWith(".mov") || lower.endsWith(".3gp") || lower.endsWith(".avi")) real = Attachment.Kind.VIDEO;
-                    }
-                    if (real == Attachment.Kind.PDF || real == Attachment.Kind.ZIP || real == Attachment.Kind.VIDEO) {
-                        ok.add(new Attachment(real, info.displayName(), info.sizeBytes(), u.toString()));
-                    } else {
-                        problems.add(name + " is not a supported PDF, ZIP or video file.");
-                    }
-                }
-                ui.post(new Runnable() {
-                    @Override public void run() {
-                        if (!problems.isEmpty()) {
-                            Toast.makeText(MainActivity.this, problems.get(0) + (problems.size() > 1 ? " (+" + (problems.size() - 1) + " more)" : ""),
-                                    Toast.LENGTH_LONG).show();
+                        if (real == Attachment.Kind.VIDEO && mime != null && mime.startsWith("audio/")) real = Attachment.Kind.AUDIO;
+                        if (real == Attachment.Kind.VIDEO && (lower.endsWith(".m4a") || lower.endsWith(".aac") || lower.endsWith(".m4b") || lower.endsWith(".3ga"))) real = Attachment.Kind.AUDIO;
+                        if (real == Attachment.Kind.ZIP) {
+                            // OOXML office files are ZIP packages; identify them from their internal package parts.
+                            try {
+                                Attachment.Kind office = FileSniffer.detectZipContainer(info.open());
+                                if (office != null) real = office;
+                            } catch (IOException ignored) { /* leave it as a normal ZIP */ }
                         }
-                        addPicked(ok);
+                        if (real == null) {
+                            if (mime != null && mime.startsWith("audio/")) real = Attachment.Kind.AUDIO;
+                            else if (mime != null && mime.startsWith("video/")) real = Attachment.Kind.VIDEO;
+                            else if (lower.endsWith(".mp3") || lower.endsWith(".wav") || lower.endsWith(".m4a") || lower.endsWith(".aac") || lower.endsWith(".ogg") || lower.endsWith(".flac") || lower.endsWith(".opus") || lower.endsWith(".amr") || lower.endsWith(".3ga")) real = Attachment.Kind.AUDIO;
+                            else if (lower.endsWith(".mp4") || lower.endsWith(".mkv") || lower.endsWith(".webm") || lower.endsWith(".mov") || lower.endsWith(".3gp") || lower.endsWith(".avi")) real = Attachment.Kind.VIDEO;
+                            else if (lower.endsWith(".csv") || "text/csv".equalsIgnoreCase(mime)) real = Attachment.Kind.XLSX;
+                            else if (lower.endsWith(".tsv") || "text/tab-separated-values".equalsIgnoreCase(mime)) real = Attachment.Kind.XLSX;
+                            else if (lower.endsWith(".docx")) real = Attachment.Kind.DOCX;
+                            else if (lower.endsWith(".xlsx")) real = Attachment.Kind.XLSX;
+                            else if (lower.endsWith(".pptx")) real = Attachment.Kind.PPTX;
+                        }
+                        if (real == Attachment.Kind.PDF || real == Attachment.Kind.ZIP || real == Attachment.Kind.AUDIO || real == Attachment.Kind.VIDEO
+                                || real == Attachment.Kind.DOCX || real == Attachment.Kind.XLSX || real == Attachment.Kind.PPTX) {
+                            ok.add(new Attachment(real, info.displayName(), info.sizeBytes(), u.toString()));
+                        } else {
+                            problems.add(name + " is not a supported image, audio, video, PDF, ZIP, Word, Excel or PowerPoint file.");
+                        }
                     }
-                });
+                } catch (Throwable t) {
+                    problems.add("Attachment check failed; no file was added.");
+                } finally {
+                    ui.post(new Runnable() {
+                        @Override public void run() {
+                            try {
+                                if (!problems.isEmpty()) {
+                                    Toast.makeText(MainActivity.this, problems.get(0) + (problems.size() > 1 ? " (+" + (problems.size() - 1) + " more)" : ""),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                                addPicked(ok);
+                            } finally {
+                                chatPage.setAttachmentBusy(false);
+                            }
+                        }
+                    });
+                }
             }
         }, "attach-check").start();
     }

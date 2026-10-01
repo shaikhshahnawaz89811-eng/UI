@@ -32,21 +32,24 @@ public final class PromptPackage {
      * Never stored in memory or history: it belongs to this one reply only.
      */
     public final String webContext;
+    /** Short capability note from the skill router for this message only ("" = none). Never stored. */
+    public final String skillContext;
 
     public PromptPackage(String systemContext, String relevantMemory,
                          List<Turn> recentConversation, String userMessage) {
-        this(systemContext, relevantMemory, recentConversation, userMessage, null, null);
+        this(systemContext, relevantMemory, recentConversation, userMessage, null, null, null);
     }
 
     public PromptPackage(String systemContext, String relevantMemory,
                          List<Turn> recentConversation, String userMessage, List<Attachment> attachments) {
-        this(systemContext, relevantMemory, recentConversation, userMessage, attachments, null);
+        this(systemContext, relevantMemory, recentConversation, userMessage, attachments, null, null);
     }
 
     private PromptPackage(String systemContext, String relevantMemory,
                           List<Turn> recentConversation, String userMessage, List<Attachment> attachments,
-                          String webContext) {
+                          String webContext, String skillContext) {
         this.webContext = webContext == null ? "" : webContext;
+        this.skillContext = skillContext == null ? "" : skillContext;
         this.attachments = attachments == null
                 ? Collections.<Attachment>emptyList()
                 : Collections.unmodifiableList(new ArrayList<Attachment>(attachments));
@@ -60,12 +63,17 @@ public final class PromptPackage {
 
     /** Same prompt with the current message's files attached. */
     public PromptPackage withAttachments(List<Attachment> files) {
-        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, files, webContext);
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, files, webContext, skillContext);
     }
 
     /** Same prompt with the internet search block for the current message ("" = none). */
     public PromptPackage withWebContext(String web) {
-        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, attachments, web);
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, attachments, web, skillContext);
+    }
+
+    /** Same prompt with the skill-router note for the current message ("" = none). */
+    public PromptPackage withSkillContext(String note) {
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, attachments, webContext, note);
     }
 
     /** System text for engines that have a dedicated system slot: context + memory. */
@@ -91,6 +99,7 @@ public final class PromptPackage {
             if (!a.text.isEmpty()) sb.append(a.text).append("\n\n");
         }
         if (!webContext.isEmpty()) sb.append(webContext).append("\n\n");
+        if (!skillContext.isEmpty()) sb.append(skillContext).append("\n\n");
         sb.append("CURRENT USER MESSAGE:\n").append(userMessage);
         return sb.toString();
     }

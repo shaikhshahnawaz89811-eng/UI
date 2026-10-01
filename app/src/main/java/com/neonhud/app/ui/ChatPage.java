@@ -32,6 +32,7 @@ import com.neonhud.app.android.WebImageLoader;
 import com.neonhud.app.core.chat.ChatController;
 import com.neonhud.app.core.coder.CoderSpec;
 import com.neonhud.app.core.engine.Attachment;
+import com.neonhud.app.core.engine.AttachmentSendGate;
 import com.neonhud.app.core.module.ModuleState;
 import com.neonhud.app.core.web.UrlTools;
 import com.neonhud.app.core.web.WebLink;
@@ -76,6 +77,7 @@ public final class ChatPage extends FrameLayout {
     private final LinearLayout pendingList;
     private final AttachIcon clearAll;
     private final List<Attachment> pending = new ArrayList<Attachment>();
+    private final AttachmentSendGate attachmentGate = new AttachmentSendGate();
     private boolean attachEnabled = true;
     private AttachHandler attachHandler;
 
@@ -271,8 +273,18 @@ public final class ChatPage extends FrameLayout {
 
     private void submit() {
         String text = input.getText().toString().trim();
-        if ((text.isEmpty() && pending.isEmpty()) || generating || handler == null) return;
+        if (!attachmentGate.canSend(generating, !text.isEmpty(), !pending.isEmpty(), handler != null)) return;
         handler.onSend(text, new ArrayList<Attachment>(pending));
+    }
+
+    /** Blocks send/picker actions while an attachment provider is still being validated or materialized. */
+    public void setAttachmentBusy(boolean busy) {
+        if (busy) attachmentGate.beginValidation(); else attachmentGate.endValidation();
+        boolean enabled = !busy && attachEnabled;
+        plus.setEnabled(enabled);
+        plus.setAlpha(enabled ? 1f : 0.35f);
+        if (busy) cart.hide();
+        refreshSendEnabled();
     }
 
     /** Called by the activity after the message was accepted: empties the box, the waiting files and the cart. */
@@ -287,7 +299,7 @@ public final class ChatPage extends FrameLayout {
     // ------------------------------------------------------------------ attachments
 
     private void toggleCart() {
-        if (!attachEnabled) return;
+        if (!attachEnabled || attachmentGate.isBusy()) return;
         if (cart.isOpen()) { cart.hide(); return; }
         input.clearFocus();
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -350,7 +362,8 @@ public final class ChatPage extends FrameLayout {
     public void focusInput() { input.requestFocus(); }
 
     private void refreshSendEnabled() {
-        boolean on = !generating && (input.getText().toString().trim().length() > 0 || !pending.isEmpty());
+        boolean on = attachmentGate.canSend(generating,
+                input.getText().toString().trim().length() > 0, !pending.isEmpty(), handler != null);
         if (send.isEnabled() != on) { send.setEnabled(on); }
         send.invalidate();
     }
@@ -366,8 +379,10 @@ public final class ChatPage extends FrameLayout {
         generating = isGenerating;
         boolean coder = mode == MODE_CODER;
         attachEnabled = !coder;                 // the coding model reads text only
-        plus.setAlpha(attachEnabled ? 1f : 0.35f);
-        if (!attachEnabled) cart.hide();
+        boolean plusOn = attachEnabled && !attachmentGate.isBusy();
+        plus.setEnabled(plusOn);
+        plus.setAlpha(plusOn ? 1f : 0.35f);
+        if (!attachEnabled || attachmentGate.isBusy()) cart.hide();
         emptyTitle.setText(coder ? CoderSpec.DISPLAY_NAME : "Gemma 4 E2B");
         emptyTitle.setTextSize(coder ? 17f : 24f);
         emptySub.setText(coder ? "OFFLINE CODING ASSISTANT" : "OFFLINE AI ASSISTANT");
@@ -539,6 +554,7 @@ public final class ChatPage extends FrameLayout {
         private final TextView text;
         private final LinearLayout linkBox;
         private final LinearLayout picBox;
+        private final LinearLayout fileBox;
         private List<WebLink> shownLinks;
         private List<WebPic> shownPics;
         private int shownWidth = -1;
@@ -554,6 +570,13 @@ public final class ChatPage extends FrameLayout {
             text.setPadding(NeonUi.dp(c, 2), NeonUi.dp(c, 2), NeonUi.dp(c, 2), NeonUi.dp(c, 2));
             text.setGravity(Gravity.START);
             addView(text, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            fileBox = new LinearLayout(c);
+            fileBox.setOrientation(VERTICAL);
+            fileBox.setVisibility(GONE);
+            LayoutParams flp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            flp.topMargin = NeonUi.dp(c, 6);
+            addView(fileBox, flp);
 
             picBox = new LinearLayout(c);
             picBox.setOrientation(HORIZONTAL);
@@ -584,6 +607,23 @@ public final class ChatPage extends FrameLayout {
                 text.setTextColor(0xFFF2FBFF);
                 text.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
             }
+            fileBox.removeAllViews();
+            if (it.outputFiles.isEmpty()) {
+                fileBox.setVisibility(GONE);
+            } else {
+                fileBox.setVisibility(VISIBLE);
+                for (final Attachment file : it.outputFiles) {
+                    View card = AttachViews.outputCard(c, file, new OnClickListener() {
+                        @Override public void onClick(View v) { openAttachment(getContext(), file); }
+                    }, new OnClickListener() {
+                        @Override public void onClick(View v) { shareAttachment(getContext(), file); }
+                    });
+                    LayoutParams fp = new LayoutParams(Math.min(maxW, NeonUi.dp(c, 520)), ViewGroup.LayoutParams.WRAP_CONTENT);
+                    fp.bottomMargin = NeonUi.dp(c, 4);
+                    fileBox.addView(card, fp);
+                }
+            }
+
             // rebuilt only when the lists (or the width) really changed - not on every streamed word
             if (it.pics != shownPics || maxW != shownWidth) { shownPics = it.pics; buildPics(c, it.pics, maxW); }
             if (it.links != shownLinks || maxW != shownWidth) { shownLinks = it.links; buildLinks(c, it.links, maxW); }
@@ -664,12 +704,40 @@ public final class ChatPage extends FrameLayout {
     }
 
     private static void openAttachment(Context c, Attachment a) {
-        if (!UrlTools.isSafe(a.uri)) {
-            try { c.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(a.uri))); } catch (Throwable ignored) { }
-            return;
+        if (a == null || a.uri == null || a.uri.trim().isEmpty()) return;
+        try {
+            Intent view = new Intent(Intent.ACTION_VIEW, Uri.parse(a.uri));
+            view.setType(mimeFor(a.kind));
+            view.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            c.startActivity(view);
+        } catch (ActivityNotFoundException ignored) {
+        } catch (SecurityException ignored) {
+        } catch (Throwable ignored) {
         }
-        try { c.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(a.uri)).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK)); }
-        catch (Throwable ignored) { }
+    }
+
+    private static void shareAttachment(Context c, Attachment a) {
+        try {
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType(mimeFor(a.kind));
+            share.putExtra(Intent.EXTRA_STREAM, Uri.parse(a.uri));
+            share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            c.startActivity(Intent.createChooser(share, "Share " + a.name).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (Throwable ignored) { }
+    }
+
+    private static String mimeFor(Attachment.Kind k) {
+        switch (k) {
+            case PDF: return "application/pdf";
+            case DOCX: return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case XLSX: return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            case PPTX: return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+            case ZIP: return "application/zip";
+            case VIDEO: return "video/*";
+            case AUDIO: return "audio/*";
+            case IMAGE: return "image/*";
+            default: return "application/octet-stream";
+        }
     }
 
     private static void showImagePreview(Context c, Attachment a) {

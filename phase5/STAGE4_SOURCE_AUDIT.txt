@@ -1,0 +1,38 @@
+STAGE 3 ZIP -> STAGE 4 SOURCE AUDIT
+removed=0
+added=15
+ADDED: app/src/main/java/com/neonhud/app/core/engine/AttachmentSendGate.java
+ADDED: jvm-tests/check-stage4-source.sh
+ADDED: jvm-tests/run-stage4-deep.sh
+ADDED: jvm-tests/src/AttachmentSendGateTests.java
+ADDED: jvm-tests/src/Stage4Execution5000Test.java
+ADDED: jvm-tests/src/Stage4QuestionSetTest.java
+ADDED: phase5/ATTACHMENT_RACE_CASES.tsv
+ADDED: phase5/PHONE_SAMPLE300.md
+ADDED: phase5/STAGE4_PROBLEM_CATALOGUE.md
+ADDED: phase5/STAGE4_REPORT.md
+ADDED: phase5/STAGE4_SOURCE_AUDIT.txt
+ADDED: phase5/gen_stage4_corpus.py
+ADDED: phase5/phone_sample300.tsv
+ADDED: phase5/stage4_5000.tsv
+ADDED: phase5/validate_stage4_artifacts.py
+changed_existing=8
+CHANGED: .github/workflows/build-apk.yml
+CHANGED: PHASES.md
+CHANGED: SKILLS_WIRING_PLAN.md
+CHANGED: app/src/main/java/com/neonhud/app/MainActivity.java
+CHANGED: app/src/main/java/com/neonhud/app/core/skill/SkillExecution.java
+CHANGED: app/src/main/java/com/neonhud/app/core/skill/SkillRouter.java
+CHANGED: app/src/main/java/com/neonhud/app/ui/ChatPage.java
+CHANGED: jvm-tests/src/AllTests.java
+RESULT: PASS
+
+POST-REPORT FINAL AUDIT CHANGES (2026-10-01)
+changed_existing=6
+CHANGED: .github/workflows/build-apk.yml (setup-java v6 + explicit Stage 4 source sanity gate)
+CHANGED: SKILLS_WIRING_PLAN.md (final status + audit addendum + historical-baseline wording)
+CHANGED: app/src/main/java/com/neonhud/app/core/skill/SkillRegistry.java (stale PDF wiring metadata corrected)
+CHANGED: app/src/main/java/com/neonhud/app/core/skill/SkillRouter.java (explicit multi-attachment target disambiguation)
+CHANGED: phase5/STAGE4_REPORT.md (final regression count + audit addendum)
+CHANGED: PHASES.md (historical Stage 2 Office-skills wording clarified)
+NOTE: app/src/main/java/com/neonhud/app/MainActivity.java already contains the final * / * Files picker behavior described in the audit; it is part of the original Stage 4 source diff.
