@@ -11,6 +11,9 @@ import com.neonhud.app.core.memory.MemoryStore;
 import com.neonhud.app.core.module.FileModelStorage;
 import com.neonhud.app.core.module.ModelStorage;
 import com.neonhud.app.core.module.ModuleManager;
+import com.neonhud.app.core.module.ModuleState;
+import com.neonhud.app.core.module.ModuleSnapshot;
+import com.neonhud.app.core.module.ModelRuntimeCoordinator;
 import com.neonhud.app.core.search.TavilyKeyManager;
 import com.neonhud.app.core.web.HttpFetcher;
 import com.neonhud.app.core.web.HttpWebApi;
@@ -49,6 +52,7 @@ public final class App extends Application {
 
     private ModuleManager coderModules;
     private ChatController coderChat;
+    private ModelRuntimeCoordinator runtime;
 
     private TavilyKeyManager tavily;
     private PrefsWebSettings webSettings;
@@ -86,22 +90,38 @@ public final class App extends Application {
         SkillExecution skillExecution = new SkillExecution(docxSkill, xlsxSkill, pptxSkill, pdfCreator,
                 skillBridge, skillBridge, skillOutputDir);
 
-        chat = new ChatController(modules, brain, memory);
-        chat.setSkillExecution(skillExecution);
-        chat.setAttachmentLoader(new AttachmentReader(this));     // images / PDF / ZIP / video files the user attaches with "+"
-
-        // ------------------------------------------------ Qwen2.5-Coder 1.5B Instruct Q4_K_M (same flow, own everything)
+        // Both model files can be imported, but one shared runtime owns RAM and serializes model handoff.
+        // The coordinator is created before either chat so every real Android reply uses the exclusive lifecycle.
         ModelEngine coderEngine = new CoderEngine();
         ModelStorage coderStorage = new FileModelStorage(modelDir, CoderSpec.MODEL_FILE, CoderSpec.REQUIRED_EXTENSION,
                 CoderSpec.MIN_MODEL_BYTES, CoderSpec.DISPLAY_NAME, CoderSpec.GGUF_MAGIC);
         coderModules = new ModuleManager(coderEngine, coderStorage, new PrefsStateStore(this, "coder_module"),
                 CoderSpec.DISPLAY_NAME, "coder-module");
+        runtime = new ModelRuntimeCoordinator(modules, coderModules);
+        modules.addListener(new ModuleManager.Listener() {
+            @Override public void onModuleChanged(ModuleSnapshot snapshot) {
+                // Import is the only user action that needs a default runtime kickoff. Coder remains imported-only.
+                if (snapshot.state == ModuleState.IMPORTED && snapshot.inFlight == null) {
+                    runtime.ensureGemmaLoadedAsync(null);
+                }
+            }
+        });
+
+        chat = new ChatController(modules, brain, memory, "Gemma 4 E2B", "gemma-chat", runtime,
+                ModelRuntimeCoordinator.Target.GEMMA);
+        chat.setSkillExecution(skillExecution);
+        chat.setAttachmentLoader(new AttachmentReader(this));     // images / PDF / ZIP / video files the user attaches with "+"
+
+        // ------------------------------------------------ Qwen2.5-Coder 1.5B Instruct Q4_K_M
         MemoryStore coderMemory = new SqliteMemoryStore(this, "coder_conversation_memory.db");
         ConversationBrain coderBrain = new ConversationBrain(coderMemory, new ConversationBrain.Clock() {
             @Override public long now() { return System.currentTimeMillis(); }
         }, CoderSpec.SYSTEM_BASE);
-        coderChat = new ChatController(coderModules, coderBrain, coderMemory, CoderSpec.DISPLAY_NAME, "coder-chat");
-        coderChat.setSkillsEnabled(false);          // the offline coding chat has no document skills
+        coderChat = new ChatController(coderModules, coderBrain, coderMemory, CoderSpec.DISPLAY_NAME, "coder-chat", runtime,
+                ModelRuntimeCoordinator.Target.CODER);
+        coderChat.setSkillExecution(skillExecution);
+        coderChat.setAttachmentLoader(new AttachmentReader(this));
+        coderChat.setSkillsEnabled(true);
 
         // ------------------------------------------------ Tavily API keys (Settings card: Add tests the key, Delete removes it)
         tavily = new TavilyKeyManager(new HttpTavilyClient(), new PrefsTavilyKeyStore(this));
@@ -116,6 +136,11 @@ public final class App extends Application {
         // handed to the vision model; pages are read through Tavily Extract. Both use only public http(s) addresses.
         webSearch.setMedia(new MediaReader(new HttpFetcher(), new WebMediaDecoder(this)));
         chat.setWebSearch(webSearch);
+
+        // Cold start rule: imported models stay offline; only Gemma is automatically brought into RAM.
+        if (modules.state() == ModuleState.IMPORTED || modules.state() == ModuleState.UNLOADED) {
+            runtime.ensureGemmaLoadedAsync(null);
+        }
     }
 
     public static App get(Context c) { return (App) c.getApplicationContext(); }
@@ -127,6 +152,7 @@ public final class App extends Application {
 
     public ModuleManager coderModules() { return coderModules; }
     public ChatController coderChat() { return coderChat; }
+    public ModelRuntimeCoordinator runtime() { return runtime; }
 
     public TavilyKeyManager tavily() { return tavily; }
     public PrefsWebSettings webSettings() { return webSettings; }

@@ -34,22 +34,25 @@ public final class PromptPackage {
     public final String webContext;
     /** Short capability note from the skill router for this message only ("" = none). Never stored. */
     public final String skillContext;
+    /** Cross-model conversation context for a handoff; never stored as a normal turn. */
+    public final String handoffContext;
 
     public PromptPackage(String systemContext, String relevantMemory,
                          List<Turn> recentConversation, String userMessage) {
-        this(systemContext, relevantMemory, recentConversation, userMessage, null, null, null);
+        this(systemContext, relevantMemory, recentConversation, userMessage, null, null, null, null);
     }
 
     public PromptPackage(String systemContext, String relevantMemory,
                          List<Turn> recentConversation, String userMessage, List<Attachment> attachments) {
-        this(systemContext, relevantMemory, recentConversation, userMessage, attachments, null, null);
+        this(systemContext, relevantMemory, recentConversation, userMessage, attachments, null, null, null);
     }
 
     private PromptPackage(String systemContext, String relevantMemory,
                           List<Turn> recentConversation, String userMessage, List<Attachment> attachments,
-                          String webContext, String skillContext) {
+                          String webContext, String skillContext, String handoffContext) {
         this.webContext = webContext == null ? "" : webContext;
         this.skillContext = skillContext == null ? "" : skillContext;
+        this.handoffContext = handoffContext == null ? "" : handoffContext;
         this.attachments = attachments == null
                 ? Collections.<Attachment>emptyList()
                 : Collections.unmodifiableList(new ArrayList<Attachment>(attachments));
@@ -63,23 +66,29 @@ public final class PromptPackage {
 
     /** Same prompt with the current message's files attached. */
     public PromptPackage withAttachments(List<Attachment> files) {
-        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, files, webContext, skillContext);
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, files, webContext, skillContext, handoffContext);
     }
 
     /** Same prompt with the internet search block for the current message ("" = none). */
     public PromptPackage withWebContext(String web) {
-        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, attachments, web, skillContext);
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, attachments, web, skillContext, handoffContext);
     }
 
     /** Same prompt with the skill-router note for the current message ("" = none). */
     public PromptPackage withSkillContext(String note) {
-        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, attachments, webContext, note);
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, attachments, webContext, note, handoffContext);
     }
 
-    /** System text for engines that have a dedicated system slot: context + memory. */
+    /** Same prompt with transient context handed over from the other offline model. */
+    public PromptPackage withHandoffContext(String handoff) {
+        return new PromptPackage(systemContext, relevantMemory, recentConversation, userMessage, attachments, webContext, skillContext, handoff);
+    }
+
+    /** System text for engines that have a dedicated system slot: context + memory + transient handoff. */
     public String systemInstruction() {
         StringBuilder sb = new StringBuilder(systemContext);
         if (!relevantMemory.isEmpty()) sb.append("\n\n").append(relevantMemory);
+        if (!handoffContext.isEmpty()) sb.append("\n\nCONVERSATION HANDOFF (from the other offline model; use only when relevant):\n").append(handoffContext);
         return sb.toString();
     }
 
@@ -100,6 +109,7 @@ public final class PromptPackage {
         }
         if (!webContext.isEmpty()) sb.append(webContext).append("\n\n");
         if (!skillContext.isEmpty()) sb.append(skillContext).append("\n\n");
+        if (!handoffContext.isEmpty()) sb.append("CONVERSATION HANDOFF:\n").append(handoffContext).append("\n\n");
         sb.append("CURRENT USER MESSAGE:\n").append(userMessage);
         return sb.toString();
     }

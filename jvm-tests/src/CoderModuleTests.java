@@ -3,6 +3,7 @@ package tests;
 import com.neonhud.app.core.chat.ChatController;
 import com.neonhud.app.core.coder.CoderPrompt;
 import com.neonhud.app.core.coder.CoderSpec;
+import com.neonhud.app.core.engine.Attachment;
 import com.neonhud.app.core.engine.PromptPackage;
 import com.neonhud.app.core.memory.ConversationBrain;
 import com.neonhud.app.core.memory.InMemoryStore;
@@ -279,5 +280,22 @@ final class CoderModuleTests {
         String real = CoderPrompt.system(t.prompt);
         T.check(real.length() <= CoderPrompt.MAX_SYSTEM_CHARS, "real coder system prompt fits (" + real.length() + ")");
         T.check(real.contains("Kotlin"), "user's language name is preserved in the prompt");
+
+        Attachment attached = new Attachment(Attachment.Kind.ZIP, "project.zip", 1, "zip")
+                .loaded("=== app/src/MainActivity.java ===\nclass MainActivity {}", java.util.Collections.<byte[]>emptyList());
+        PromptPackage skillP = new PromptPackage("SYS", "", new ArrayList<PromptPackage.Turn>(),
+                "Word document banao", java.util.Collections.singletonList(attached))
+                .withSkillContext("CREATE Word requires [[SKILL_FILE type=docx title=\"Title\"]]");
+        String skillUser = CoderPrompt.user(skillP);
+        T.check(skillUser.contains("project.zip") && skillUser.contains("MainActivity.java"),
+                "coder prompt includes extracted attachment text");
+        T.check(skillUser.contains("SKILL_FILE"), "coder prompt includes the skill execution contract");
+
+        String longCurrent = new String(new char[4000]).replace('\0', 'x');
+        PromptPackage longP = new PromptPackage("SYS", "", new ArrayList<PromptPackage.Turn>(), longCurrent)
+                .withSkillContext("SKILL");
+        String longUser = CoderPrompt.user(longP);
+        T.check(longUser.length() <= CoderPrompt.MAX_USER_PROMPT_CHARS, "coder prompt remains within budget for max-length current message");
+        T.check(longUser.endsWith(longCurrent), "coder prompt never cuts the current message");
     }
 }

@@ -31,6 +31,13 @@ final class Fakes {
         volatile String lastSystem = "";
         volatile PromptPackage lastPrompt;
         volatile String cannedReply = "Sure. Here is a short answer. It has a second sentence too.";
+        volatile String[] replySequence;
+        final AtomicInteger generateCalls = new AtomicInteger();
+
+        void setReplySequence(String... replies) {
+            replySequence = replies == null ? null : replies.clone();
+            generateCalls.set(0);
+        }
 
         @Override public void load(String path) throws Exception {
             loadCalls.incrementAndGet();
@@ -52,8 +59,12 @@ final class Fakes {
             if (!loaded) { violations.incrementAndGet(); throw new IllegalStateException("not loaded"); }
             generating = true;
             lastPrompt = p;
+            String answer = cannedReply;
+            String[] sequence = replySequence;
+            int call = generateCalls.getAndIncrement();
+            if (sequence != null && sequence.length > 0) answer = sequence[Math.min(call, sequence.length - 1)];
             try {
-                for (String w : cannedReply.split("(?<= )")) {
+                for (String w : answer.split("(?<= )")) {
                     if (tokenDelayMs > 0) Thread.sleep(tokenDelayMs);
                     cb.onToken(w);
                 }

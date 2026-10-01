@@ -35,6 +35,8 @@ import com.neonhud.app.core.engine.FileSniffer;
 import com.neonhud.app.core.module.ModuleState;
 import com.neonhud.app.core.module.ModuleManager;
 import com.neonhud.app.core.module.ModuleSnapshot;
+import com.neonhud.app.core.module.ModelRuntimeCoordinator;
+import com.neonhud.app.core.chat.ModelTaskRouter;
 import com.neonhud.app.core.search.TavilyKeyManager;
 import com.neonhud.app.core.search.TavilySnapshot;
 import com.neonhud.app.ui.ChatPage;
@@ -57,7 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This Activity is ONLY a view: the model, the chat and the memory live in {@link App}, so going to the
  * background and coming back (or the Activity being re-created) never stops a load or a reply.
  */
-public class MainActivity extends Activity implements ModuleManager.Listener, ChatController.Listener, TavilyKeyManager.Listener {
+public class MainActivity extends Activity implements ModuleManager.Listener, ChatController.Listener, TavilyKeyManager.Listener, ModelRuntimeCoordinator.Listener {
 
     private static final int REQ_PICK_GEMMA = 41;
     private static final int REQ_NOTIFICATIONS = 42;
@@ -107,8 +109,6 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
         settingsPage = new SettingsPage(this, new SettingsPage.Actions() {
             @Override public void onBack() { showSettings(false); }
             @Override public void onImport(int module) { pickModel(module); }
-            @Override public void onLoad(int module) { doLoad(module); }
-            @Override public void onUnload(int module) { doUnload(module); }
             @Override public void onDelete(int module) { doDelete(module); }
             @Override public void onAddTavilyKey(String key) { app.tavily().requestAdd(key); }
             @Override public void onDeleteTavilyKey(String key) { app.tavily().requestDelete(key); }
@@ -125,13 +125,6 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
         chatPage.setAttachHandler(new ChatPage.AttachHandler() {
             @Override public void onPick(int kind) { pickAttachment(kind); }
         });
-        chatPage.setModeHandler(new ChatPage.ModeHandler() {
-            @Override public void onSwitch() {
-                app.setChatMode(app.chatMode() == App.MODE_CODER ? App.MODE_GEMMA : App.MODE_CODER);
-                refresh();
-            }
-        });
-
         // top-right icons
         hud.minimizeButton().setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { moveTaskToBack(true); }
@@ -226,6 +219,8 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
 
     @Override protected void onStart() {
         super.onStart();
+        app.runtime().addListener(this);
+        lastRuntimeActive = app.runtime().snapshot().active;
         app.modules().addListener(this);
         app.coderModules().addListener(this);
         app.chat().addListener(this);
@@ -235,6 +230,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     }
 
     @Override protected void onStop() {
+        app.runtime().removeListener(this);
         app.modules().removeListener(this);
         app.coderModules().removeListener(this);
         app.chat().removeListener(this);
@@ -262,18 +258,33 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     @Override public void onChatChanged() { scheduleRefresh(); }
     @Override public void onKeysChanged(TavilySnapshot snapshot) { scheduleRefresh(); }
 
+    @Override public void onRuntimeChanged(ModelRuntimeCoordinator.RuntimeSnapshot snapshot) {
+        ModelRuntimeCoordinator.Target active = snapshot.active;
+        if (active != null && active != lastRuntimeActive) {
+            if (active == ModelRuntimeCoordinator.Target.CODER) {
+                app.coderChat().setHandoffContext(app.chat().recentHandoffContext());
+                app.setChatMode(App.MODE_CODER);
+            } else {
+                app.chat().setHandoffContext(app.coderChat().recentHandoffContext());
+                app.setChatMode(App.MODE_GEMMA);
+            }
+            lastRuntimeActive = active;
+        }
+        scheduleRefresh();
+    }
+
     private void scheduleRefresh() {
         if (refreshQueued.compareAndSet(false, true)) ui.postDelayed(refreshRunnable, 33);
     }
 
+    private ModelRuntimeCoordinator.Target lastRuntimeActive;
+
     private boolean coderMode() { return app.chatMode() == App.MODE_CODER; }
     private ChatController currentChat() { return coderMode() ? app.coderChat() : app.chat(); }
-    private ModuleManager manager(int module) { return module == SettingsPage.CODER ? app.coderModules() : app.modules(); }
-
     private void refresh() {
         ModuleSnapshot gemma = app.modules().snapshot();
         ModuleSnapshot coder = app.coderModules().snapshot();
-        settingsPage.bind(gemma, coder, app.tavily().snapshot(), app.webSettings().mode());
+        settingsPage.bind(gemma, coder, app.tavily().snapshot(), app.webSettings().mode(), app.runtime().snapshot());
         ChatController chat = currentChat();
         ModuleState shown = coderMode() ? coder.state : gemma.state;
         chatPage.bind(chat.items(), chat.isGenerating(), shown,
@@ -297,7 +308,17 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
     // ------------------------------------------------------------------ chat
 
     private void sendMessage(String text, List<Attachment> files) {
-        ChatController.SendResult r = currentChat().send(text, files);
+        ModelTaskRouter.Target current = coderMode()
+                ? ModelTaskRouter.Target.CODER : ModelTaskRouter.Target.GEMMA;
+        ModelTaskRouter.Target target = ModelTaskRouter.route(text, files, current);
+        if (target != current) {
+            ChatController source = currentChat();
+            ChatController destination = target == ModelTaskRouter.Target.CODER ? app.coderChat() : app.chat();
+            destination.setHandoffContext(source.recentHandoffContext());
+            app.setChatMode(target == ModelTaskRouter.Target.CODER ? App.MODE_CODER : App.MODE_GEMMA);
+        }
+        ChatController rChat = target == ModelTaskRouter.Target.CODER ? app.coderChat() : app.chat();
+        ChatController.SendResult r = rChat.send(text, files);
         switch (r) {
             case ACCEPTED:
                 chatPage.clearInput();
@@ -526,17 +547,6 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
         refresh();
     }
 
-    private void doLoad(int module) {
-        ModuleManager.Result r = manager(module).requestLoad();
-        if (r.accepted) ModelService.ensureRunning(this);
-        refresh();
-    }
-
-    private void doUnload(int module) {
-        manager(module).requestUnload();
-        refresh();
-    }
-
     private void doDelete(int module) {
         manager(module).requestDelete();
         refresh();
@@ -556,8 +566,7 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
                 while ((app.chat().isGenerating() || app.coderChat().isGenerating()) && System.currentTimeMillis() < end) {
                     try { Thread.sleep(30); } catch (InterruptedException ignored) { }
                 }
-                app.modules().shutdownQuietly();
-                app.coderModules().shutdownQuietly();
+                app.runtime().shutdownQuietly();
                 ui.post(new Runnable() {
                     @Override public void run() {
                         stopService(new Intent(MainActivity.this, ModelService.class));

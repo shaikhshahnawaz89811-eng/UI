@@ -13,6 +13,7 @@ import com.neonhud.app.core.memory.ConversationBrain;
 import com.neonhud.app.core.memory.ConversationMessage;
 import com.neonhud.app.core.memory.MemoryStore;
 import com.neonhud.app.core.module.ModuleManager;
+import com.neonhud.app.core.module.ModelRuntimeCoordinator;
 import com.neonhud.app.core.module.ModuleState;
 import com.neonhud.app.core.skill.RouterContext;
 import com.neonhud.app.core.skill.SkillPlan;
@@ -109,6 +110,8 @@ public final class ChatController {
     private final MemoryStore store;
     private final ExecutorService worker;
     private final String displayName;
+    private final ModelRuntimeCoordinator runtime;
+    private final ModelRuntimeCoordinator.Target runtimeTarget;
     private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<Listener>();
     private final List<Item> items = new ArrayList<Item>();
     private long nextKey = 1;
@@ -122,18 +125,30 @@ public final class ChatController {
     private String lastQuery = "", lastUserText = "";
     private List<String> lastWebUrls = Collections.emptyList();
     private Attachment lastOutput;
+    private volatile String handoffContext = "";
 
     public ChatController(ModuleManager modules, ConversationBrain brain, MemoryStore store) {
-        this(modules, brain, store, modules.displayName(), "gemma-chat");
+        this(modules, brain, store, modules.displayName(), "gemma-chat", null,
+                ModelRuntimeCoordinator.Target.GEMMA);
     }
 
     public ChatController(ModuleManager modules, ConversationBrain brain, MemoryStore store,
                           String displayName, final String threadName) {
+        this(modules, brain, store, displayName, threadName, null,
+                displayName.equalsIgnoreCase("Gemma 4 E2B")
+                        ? ModelRuntimeCoordinator.Target.GEMMA : ModelRuntimeCoordinator.Target.CODER);
+    }
+
+    public ChatController(ModuleManager modules, ConversationBrain brain, MemoryStore store,
+                          String displayName, final String threadName,
+                          ModelRuntimeCoordinator runtime, ModelRuntimeCoordinator.Target runtimeTarget) {
         this.displayName = displayName;
         this.modules = modules;
         this.engine = modules.engine();
         this.brain = brain;
         this.store = store;
+        this.runtime = runtime;
+        this.runtimeTarget = runtimeTarget == null ? ModelRuntimeCoordinator.Target.GEMMA : runtimeTarget;
         this.worker = Executors.newSingleThreadExecutor(new ThreadFactory() {
             @Override public Thread newThread(Runnable r) {
                 Thread t = new Thread(r, threadName);
@@ -156,8 +171,26 @@ public final class ChatController {
     /** Connects the deterministic file executor. Null keeps the read-only core behaviour. */
     public void setSkillExecution(SkillExecution execution) { skillExecution = execution; }
 
-    /** The skill router (files / documents). The offline coding chat switches it off. */
+    /** The skill router (files / documents). Each active chat may enable the same conversation-driven skills. */
     public void setSkillsEnabled(boolean on) { skillsEnabled = on; }
+
+    /** Supplies transient history from the other offline model for the next handoff turn only. */
+    public void setHandoffContext(String context) { handoffContext = context == null ? "" : context; }
+
+    /** Returns recent user/assistant text suitable for a cross-model handoff; attachments stay out. */
+    public synchronized String recentHandoffContext() {
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (int i = items.size() - 1; i >= 0 && count < 8; i--) {
+            Item it = items.get(i);
+            if (it.kind == Kind.NOTICE || it.pending || it.text.trim().isEmpty()) continue;
+            String line = (it.kind == Kind.USER ? "User: " : "Assistant: ") + it.text;
+            if (sb.length() + line.length() + 1 > 6000) break;
+            sb.insert(0, line + "\n");
+            count++;
+        }
+        return sb.toString().trim();
+    }
 
     private volatile boolean skillsEnabled = true;
 
@@ -190,12 +223,15 @@ public final class ChatController {
                 : new ArrayList<Attachment>(attached.subList(0, Math.min(attached.size(), MAX_ATTACHMENTS)));
         if (text.isEmpty() && files.isEmpty()) return SendResult.EMPTY;
         if (generating) return SendResult.BUSY;
-        if (!modules.tryBeginReply()) {
-            if (modules.state() != ModuleState.LOADED) {
-                notice(displayName + " is not loaded. Open Settings \u2699 and Import / Load the model.");
-                return SendResult.MODEL_NOT_READY;
+        // In runtime-managed mode the model is prepared on this chat's worker, never on the Android UI thread.
+        if (runtime == null) {
+            if (!modules.tryBeginReply()) {
+                if (modules.state() != ModuleState.LOADED) {
+                    notice(displayName + " is not loaded. Open Settings and import the model.");
+                    return SendResult.MODEL_NOT_READY;
+                }
+                return SendResult.BUSY;
             }
-            return SendResult.BUSY;
         }
         generating = true;
         cancelled = false;
@@ -262,6 +298,15 @@ public final class ChatController {
 
     private void runTurn(String text, List<Attachment> files, final long aiKey) {
         final StringBuilder reply = new StringBuilder();
+        if (!beginRuntimeReply(aiKey)) {
+            generating = false;
+            removeItem(aiKey);
+            changed();
+            return;
+        }
+        // Handoff is one-turn context only; never accumulate it across turns.
+        final String handoff = handoffContext;
+        handoffContext = "";
         ConversationBrain.Turn turn = null;
         String error = null;
         WebTurn webTurn = null;
@@ -276,8 +321,8 @@ public final class ChatController {
                 reply.append(plan.clarify);
                 setAi(aiKey, plan.clarify, false);
                 brain.finishTurn(turn, plan.clarify, false);
+                endRuntimeReply(aiKey);
                 generating = false;
-                modules.endReply();
                 changed();
                 return;
             }
@@ -290,6 +335,7 @@ public final class ChatController {
             if (!hasWrite) webTurn = searchIfWanted(text, files, aiKey);
 
             PromptPackage prompt = turn.prompt;
+            if (!handoff.isEmpty()) prompt = prompt.withHandoffContext(handoff);
             if (plan != null) {
                 String note = SkillPrompt.build(plan);
                 if (!note.isEmpty()) prompt = prompt.withSkillContext(note);
@@ -323,6 +369,18 @@ public final class ChatController {
                             else setAi(aiKey, reply.toString(), true);
                         }
                     });
+                    if (createFlow && !cancelled && !hasRequiredCreateArtifacts(plan, reply.toString())) {
+                        setStatus(aiKey, "Formatting file content…");
+                        PromptPackage recovery = prompt.withSkillContext(SkillPrompt.recovery(plan));
+                        reply.setLength(0);
+                        engine.generate(recovery, new GenerationCallback() {
+                            @Override public void onToken(String delta) {
+                                if (delta == null || delta.isEmpty()) return;
+                                synchronized (reply) { reply.append(delta); }
+                                setStatus(aiKey, "Formatting file content…");
+                            }
+                        });
+                    }
                 }
             }
         } catch (Throwable e) {
@@ -383,9 +441,59 @@ public final class ChatController {
         if (error != null) notice(error);
         else if (finalText.trim().isEmpty()) notice("The model returned no reply. Please try again.");
         else if (!skillWriteHandled && webTurn != null && !webTurn.notice.isEmpty()) notice(webTurn.notice);
+        endRuntimeReply(aiKey);
         generating = false;
-        modules.endReply();
         changed();
+    }
+
+    private boolean beginRuntimeReply(final long aiKey) {
+        if (runtime == null) {
+            // Legacy/core-only controller: the reply permit was claimed synchronously in send().
+            return true;
+        }
+        boolean ok = runtime.beginReply(runtimeTarget, new ModelRuntimeCoordinator.StatusSink() {
+            @Override public void onStatus(String status) { setStatus(aiKey, status); }
+        });
+        if (!ok) {
+            notice(runtimeTarget == ModelRuntimeCoordinator.Target.CODER
+                    ? "Qwen Coder is unavailable or another model is still finishing its work."
+                    : "Gemma is unavailable or another model is still finishing its work.");
+        }
+        return ok;
+    }
+
+    private void endRuntimeReply(final long aiKey) {
+        if (runtime == null) {
+            modules.endReply();
+        } else {
+            runtime.endReply(runtimeTarget, new ModelRuntimeCoordinator.StatusSink() {
+                @Override public void onStatus(String status) {
+                    if (!status.isEmpty()) setStatus(aiKey, status);
+                }
+            });
+        }
+    }
+
+    private static boolean hasRequiredCreateArtifacts(SkillPlan plan, String modelText) {
+        if (plan == null) return true;
+        com.neonhud.app.core.skill.SkillContentMarker.ParseResult parsed =
+                com.neonhud.app.core.skill.SkillContentMarker.parse(modelText);
+        if (!parsed.ok()) return false;
+        java.util.EnumMap<com.neonhud.app.core.skill.SkillKind, Integer> seen =
+                new java.util.EnumMap<com.neonhud.app.core.skill.SkillKind, Integer>(com.neonhud.app.core.skill.SkillKind.class);
+        for (SkillTask task : plan.tasks) {
+            if (task == null || task.action != SkillTask.Action.CREATE) continue;
+            int ordinal = seen.containsKey(task.skill) ? seen.get(task.skill) : 0;
+            boolean found = false;
+            int current = 0;
+            for (com.neonhud.app.core.skill.SkillContentMarker.Artifact a : parsed.artifacts) {
+                if (a.kind != task.skill) continue;
+                if (current++ == ordinal) { found = true; break; }
+            }
+            if (!found) return false;
+            seen.put(task.skill, ordinal + 1);
+        }
+        return true;
     }
 
     private static List<SkillTask> writeTasks(SkillPlan plan) {

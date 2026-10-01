@@ -59,8 +59,6 @@ public final class ChatPage extends FrameLayout {
     public static final int ATTACH_CAMERA = AttachIcon.CAMERA, ATTACH_IMAGE = AttachIcon.IMAGE,
             ATTACH_ZIP = AttachIcon.ZIP;
 
-    /** Kept for later: the model switch button was removed from the input bar for now. */
-    public interface ModeHandler { void onSwitch(); }
 
     public static final int MODE_GEMMA = 0, MODE_CODER = 1;
 
@@ -70,6 +68,7 @@ public final class ChatPage extends FrameLayout {
     private final LinearLayout emptyBox;
     private final TextView emptyHint;
     private final TextView emptyTitle, emptySub;
+    private final NeonUi.NeonButton modeSwitch;
     private final NeonUi.IconView plus;
     private final Adapter adapter = new Adapter();
     private final AttachCart cart;
@@ -82,7 +81,6 @@ public final class ChatPage extends FrameLayout {
     private AttachHandler attachHandler;
 
     private SendHandler handler;
-    private ModeHandler modeHandler;
     private int mode = MODE_GEMMA;
     private List<ChatController.Item> items = new ArrayList<ChatController.Item>();
     private boolean generating;
@@ -111,6 +109,22 @@ public final class ChatPage extends FrameLayout {
         list.setAdapter(adapter);
         list.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
         listWrap.addView(list, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        // ---- compact active-model status pill (display-only; runtime owns model handoff)
+        LinearLayout modeBar = new LinearLayout(c);
+        modeBar.setOrientation(LinearLayout.HORIZONTAL);
+        modeBar.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        modeSwitch = new NeonUi.NeonButton(c, "Gemma", NeonUi.CYAN);
+        modeSwitch.setClickable(false);
+        modeSwitch.setFocusable(false);
+        modeSwitch.setTextSize(11.5f);
+        modeSwitch.setMinHeight(NeonUi.dp(c, 32));
+        modeSwitch.setPadding(NeonUi.dp(c, 10), NeonUi.dp(c, 4), NeonUi.dp(c, 10), NeonUi.dp(c, 4));
+        modeSwitch.setContentDescription("Active AI model");
+        modeBar.addView(modeSwitch, new LinearLayout.LayoutParams(NeonUi.dp(c, 118), NeonUi.dp(c, 34)));
+        LinearLayout.LayoutParams mbp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, NeonUi.dp(c, 38));
+        mbp.leftMargin = side; mbp.rightMargin = side;
+        column.addView(modeBar, mbp);
 
         // ---- empty state (mirrors the reference screen: title + subtitle)
         emptyBox = new LinearLayout(c);
@@ -247,6 +261,7 @@ public final class ChatPage extends FrameLayout {
         plus.setOnClickListener(new OnClickListener() {
             @Override public void onClick(View v) { toggleCart(); }
         });
+        // Model selection is automatic now: the pill below only shows which model currently owns RAM.
         clearAll.setOnClickListener(new OnClickListener() {
             @Override public void onClick(View v) { pending.clear(); rebuildPending(); refreshSendEnabled(); }
         });
@@ -268,7 +283,6 @@ public final class ChatPage extends FrameLayout {
     }
 
     public void setSendHandler(SendHandler h) { handler = h; }
-    public void setModeHandler(ModeHandler h) { modeHandler = h; }
     public void setAttachHandler(AttachHandler h) { attachHandler = h; }
 
     private void submit() {
@@ -378,11 +392,15 @@ public final class ChatPage extends FrameLayout {
         items = newItems;
         generating = isGenerating;
         boolean coder = mode == MODE_CODER;
-        attachEnabled = !coder;                 // the coding model reads text only
+        // Both chats now expose the same skill/attachment router. The coder receives extracted text; visual bytes
+        // remain a Gemma-only capability at the engine level.
+        attachEnabled = true;
         boolean plusOn = attachEnabled && !attachmentGate.isBusy();
         plus.setEnabled(plusOn);
         plus.setAlpha(plusOn ? 1f : 0.35f);
         if (!attachEnabled || attachmentGate.isBusy()) cart.hide();
+        modeSwitch.setText(coder ? "Qwen Coder" : "Gemma 4 E2B");
+        modeSwitch.setAccent(coder ? NeonUi.BLUE : NeonUi.CYAN);
         emptyTitle.setText(coder ? CoderSpec.DISPLAY_NAME : "Gemma 4 E2B");
         emptyTitle.setTextSize(coder ? 17f : 24f);
         emptySub.setText(coder ? "OFFLINE CODING ASSISTANT" : "OFFLINE AI ASSISTANT");
@@ -390,7 +408,8 @@ public final class ChatPage extends FrameLayout {
         emptyBox.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
         emptyHint.setText(moduleState == ModuleState.LOADED
                 ? "Type your message below."
-                : "Open Settings \u2699 to import and load " + (coder ? CoderSpec.DISPLAY_NAME : "Gemma 4 E2B") + ".");
+                : (coder ? "Imported coder model loads automatically when a coding task starts."
+                         : "Gemma loads automatically after import and is restored as the idle model."));
         adapter.notifyDataSetChanged();
         refreshSendEnabled();
         if (modeChanged) { stick = true; list.setSelection(Math.max(0, adapter.getCount() - 1)); }

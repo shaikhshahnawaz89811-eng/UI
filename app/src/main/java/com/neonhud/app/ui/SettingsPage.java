@@ -15,14 +15,15 @@ import com.neonhud.app.core.coder.CoderSpec;
 import com.neonhud.app.core.module.ModuleAction;
 import com.neonhud.app.core.module.ModuleSnapshot;
 import com.neonhud.app.core.module.ModuleState;
+import com.neonhud.app.core.module.ModelRuntimeCoordinator;
 import com.neonhud.app.core.search.TavilySnapshot;
 import com.neonhud.app.core.web.WebMode;
 
 /**
  * Settings: one module card per offline model - Gemma 4 E2B (Offline AI Model) and the Qwen2.5-Coder coding model -
  * plus a Tavily API key card (Add / Delete).
- * Both cards look and behave the same: Import, then Load / Unload / Delete. Every button mirrors that module's
- * real state ({@link ModuleSnapshot}); the actual protection lives in the module state machine.
+ * Models are imported independently, but RAM is controlled automatically: Gemma is the idle/default model and
+ * Qwen Coder is loaded only for coding work. At most one model may be resident at a time.
  */
 public final class SettingsPage extends FrameLayout {
 
@@ -31,22 +32,20 @@ public final class SettingsPage extends FrameLayout {
     public interface Actions {
         void onBack();
         void onImport(int module);
-        void onLoad(int module);
-        void onUnload(int module);
         void onDelete(int module);
         void onAddTavilyKey(String key);
         void onDeleteTavilyKey(String key);
         void onWebMode(WebMode mode);
     }
 
-    /** One module card (title, status line, progress, message and the Import / Load / Unload / Delete buttons). */
+    /** One module card (title, status line, progress, import and delete). Loading is runtime-controlled. */
     private static final class Card {
         final LinearLayout view;
         final TextView status;
         final View dot;
         final TextView message;
         final NeonUi.ThinProgress progress;
-        final NeonUi.NeonButton btnImport, btnLoad, btnUnload, btnDelete;
+        final NeonUi.NeonButton btnImport, btnDelete;
         final LinearLayout moduleButtons;
 
         Card(Context c, String title, String subtitle, final int module, final Actions actions) {
@@ -95,8 +94,6 @@ public final class SettingsPage extends FrameLayout {
 
             moduleButtons = new LinearLayout(c);
             moduleButtons.setOrientation(LinearLayout.HORIZONTAL);
-            btnLoad = button(c, "Load", NeonUi.CYAN, moduleButtons);
-            btnUnload = button(c, "Unload", NeonUi.BLUE, moduleButtons);
             btnDelete = button(c, "Delete", NeonUi.RED, moduleButtons);
             view.addView(moduleButtons, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -104,8 +101,6 @@ public final class SettingsPage extends FrameLayout {
             view.addView(btnImport, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
             btnImport.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { actions.onImport(module); } });
-            btnLoad.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { actions.onLoad(module); } });
-            btnUnload.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { actions.onUnload(module); } });
             btnDelete.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { actions.onDelete(module); } });
         }
 
@@ -121,12 +116,10 @@ public final class SettingsPage extends FrameLayout {
         /** Buttons and texts are derived ONLY from the snapshot. */
         void bind(ModuleSnapshot s) {
             boolean notImported = s.state == ModuleState.NOT_IMPORTED;
-            // Before import: only Import. After import: Load / Unload / Delete (no Import).
+            // Before import: only Import. After import: Delete remains available when the model is safely offline.
             btnImport.setVisibility(notImported ? View.VISIBLE : View.GONE);
             moduleButtons.setVisibility(notImported ? View.GONE : View.VISIBLE);
             btnImport.setEnabled(s.canImport);
-            btnLoad.setEnabled(s.canLoad);
-            btnUnload.setEnabled(s.canUnload);
             btnDelete.setEnabled(s.canDelete);
 
             String text;
@@ -143,8 +136,8 @@ public final class SettingsPage extends FrameLayout {
                 switch (s.state) {
                     case NOT_IMPORTED: text = "Not Imported"; color = NeonUi.DIM; break;
                     case IMPORTED: text = "Imported / Ready"; color = NeonUi.CYAN; break;
-                    case LOADED: text = "Loaded"; color = NeonUi.GREEN; break;
-                    default: text = "Unloaded"; color = NeonUi.AMBER; break;
+                    case LOADED: text = "Active in RAM"; color = NeonUi.GREEN; break;
+                    default: text = "Imported / Offline"; color = NeonUi.AMBER; break;
                 }
             }
             status.setText(text);
@@ -159,13 +152,14 @@ public final class SettingsPage extends FrameLayout {
             if (importing) progress.setValue(s.importPercent);
 
             String msg = s.message;
-            if (msg.isEmpty() && s.replyActive) msg = "A reply is being written - Unload is locked until it finishes.";
+            if (msg.isEmpty() && s.replyActive) msg = "Reply is running; model stays in RAM until the task finishes.";
             message.setText(msg);
             message.setVisibility(msg.isEmpty() ? View.GONE : View.VISIBLE);
         }
     }
 
     private final Card gemmaCard, coderCard;
+    private final TextView runtimeStatus;
     private final TavilyKeysCard tavilyCard;
     private final WebSearchCard webCard;
 
@@ -190,6 +184,12 @@ public final class SettingsPage extends FrameLayout {
         title.setShadowLayer(NeonUi.dp(c, 6), 0, 0, 0xAA38B6FF);
         header.addView(title);
         root.addView(header, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        runtimeStatus = new TextView(c);
+        runtimeStatus.setTextSize(12.5f);
+        runtimeStatus.setTextColor(NeonUi.DIM);
+        runtimeStatus.setPadding(NeonUi.dp(c, 14), NeonUi.dp(c, 5), NeonUi.dp(c, 14), NeonUi.dp(c, 5));
+        root.addView(runtimeStatus, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         // ---- scrollable body (tiny landscape screens): the two module cards one under the other
         ScrollView scroll = new ScrollView(c);
@@ -230,9 +230,14 @@ public final class SettingsPage extends FrameLayout {
         parent.addView(card.view, lp);
     }
 
-    public void bind(ModuleSnapshot gemma, ModuleSnapshot coder, TavilySnapshot tavily, WebMode webMode) {
+    public void bind(ModuleSnapshot gemma, ModuleSnapshot coder, TavilySnapshot tavily, WebMode webMode,
+                     ModelRuntimeCoordinator.RuntimeSnapshot runtime) {
         gemmaCard.bind(gemma);
         coderCard.bind(coder);
+        if (runtime.transitioning) runtimeStatus.setText(runtime.status.isEmpty() ? "Switching offline model…" : runtime.status);
+        else if (runtime.active == ModelRuntimeCoordinator.Target.CODER) runtimeStatus.setText("RAM: Qwen Coder • Gemma is offline");
+        else if (runtime.active == ModelRuntimeCoordinator.Target.GEMMA) runtimeStatus.setText("RAM: Gemma • Qwen Coder is offline");
+        else runtimeStatus.setText("RAM: no model loaded • import both models; Gemma loads automatically");
         tavilyCard.bind(tavily);
         webCard.bind(webMode, tavily.entries.size());
     }

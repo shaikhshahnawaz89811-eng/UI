@@ -64,6 +64,11 @@ final class SkillStage2Tests {
         T.eq(1, r.artifacts.get(3).slides.size(), "one PPTX slide parsed");
         T.eq(2, r.artifacts.get(3).slides.get(0).bullets.size(), "PPTX bullet lines parsed");
 
+        SkillContentMarker.ParseResult fenced = SkillContentMarker.parse(
+                "```[[SKILL_FILE type=docx title=\"Fence Test\"]]\nbody\n[[END_SKILL_FILE]]```");
+        T.check(fenced.ok() && fenced.artifacts.size() == 1 && fenced.artifacts.get(0).text.contains("body"),
+                "accidental markdown fence around a marker remains executable");
+
         T.check(!SkillContentMarker.parse("[[SKILL_FILE type=docx title=X]]\nbody").ok(), "missing end marker is rejected");
         T.check(!SkillContentMarker.parse("[[SKILL_FILE type=xlsx title=X]]\n[[SHEET name=S]]\na\tb\n[[END_SKILL_FILE]]").ok(), "missing XLSX end-sheet marker is rejected");
         T.check(!SkillContentMarker.parse("[[SKILL_FILE type=bogus]]\nbody\n[[END_SKILL_FILE]]").ok(), "unknown marker type is rejected");

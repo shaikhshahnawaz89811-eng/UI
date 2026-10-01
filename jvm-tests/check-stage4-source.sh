@@ -33,3 +33,23 @@ PY
 "$ROOT/jvm-tests/check-stage3-source.sh"
 
 echo 'PASS: Stage 4 Android/source race + Stage 3 sanity suite'
+
+# Model selection is automatic: the visible pill reports the active model but cannot directly load/switch RAM.
+check 'modeSwitch.setClickable(false);' 'app/src/main/java/com/neonhud/app/ui/ChatPage.java' 'model pill is display-only'
+check 'modeSwitch.setText(coder ? "Qwen Coder" : "Gemma 4 E2B")' 'app/src/main/java/com/neonhud/app/ui/ChatPage.java' 'active-model label follows runtime chat'
+check 'ModelRuntimeCoordinator' 'app/src/main/java/com/neonhud/app/core/module/ModelRuntimeCoordinator.java' 'exclusive runtime coordinator exists'
+check 'destination.setHandoffContext(source.recentHandoffContext());' 'app/src/main/java/com/neonhud/app/MainActivity.java' 'conversation context crosses model handoff'
+check 'private static final class Card' 'app/src/main/java/com/neonhud/app/ui/SettingsPage.java' 'settings keeps import-only model management UI'
+
+# Both chat engines may execute the same document skills; shared execution is synchronized to prevent filename races.
+check 'coderChat.setSkillExecution(skillExecution);' 'app/src/main/java/com/neonhud/app/android/App.java' 'coder chat has file skill execution'
+check 'coderChat.setAttachmentLoader(new AttachmentReader(this));' 'app/src/main/java/com/neonhud/app/android/App.java' 'coder chat reads attachments'
+check 'coderChat.setSkillsEnabled(true);' 'app/src/main/java/com/neonhud/app/android/App.java' 'coder chat uses skill routing'
+check 'public synchronized Result execute' 'app/src/main/java/com/neonhud/app/core/skill/SkillExecution.java' 'skill writes are serialized across both chats'
+
+# Real-model create flow gets one format-only recovery pass when its first reply omits a usable marker.
+check 'SkillPrompt.recovery(plan)' 'app/src/main/java/com/neonhud/app/core/chat/ChatController.java' 'create marker recovery is wired'
+check 'public static String recovery(SkillPlan plan)' 'app/src/main/java/com/neonhud/app/core/skill/SkillPrompt.java' 'recovery contract exists'
+
+check 'String skill = p.skillContext == null ? "" : p.skillContext.trim();' 'app/src/main/java/com/neonhud/app/core/coder/CoderPrompt.java' 'coder prompt receives skill context'
+check 'private static String attachmentText(List<Attachment> attachments, int max)' 'app/src/main/java/com/neonhud/app/core/coder/CoderPrompt.java' 'coder prompt receives extracted attachment data'

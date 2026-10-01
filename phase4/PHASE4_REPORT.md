@@ -71,11 +71,11 @@ Verification:
 - Independent readers: `python-docx`, `openpyxl`, and `python-pptx` opened the generated DOCX/XLSX/PPTX.
 - External compatibility read test: Python-generated DOCX/XLSX/PPTX content was successfully extracted by the new Java skills.
 
-The current chat UI remains unchanged in this extension; the Office skill services are available through `App` for the later Lab/export step.
+The Office skills are connected to the live chat execution path. The final wiring pass also added a visible Gemma/Qwen model switch and enabled attachment/skill routing in the coding chat.
 
 ## Skills review (audio / video / docx / xlsx / pptx) - bugs found and fixed
 
-Scope: only the existing skills were reviewed and fixed. Nothing new was connected, no UI or chat flow was changed.
+Scope at the time of this historical review: only the existing skills were reviewed and fixed; the later final wiring pass added the live model switch and chat execution hardening described below.
 
 Android
 1. `AttachmentReader.load()` had no `case AUDIO`, so an attached audio file was never read (the model got no audio note at all). Added.
@@ -95,7 +95,7 @@ Pure-Java core
 
 Verification
 - New `SkillBugfixTests` (79 checks) - the same tests fail on the previous code.
-- Full JVM suite: **10,683 checks, 0 failures**; stress / 1,000-message regression unchanged (topic-change 99.7% / 99.4%, same-question recall 94.1%, false positives 0.33%).
+- Full JVM suite at the skills review point: **10,683 checks, 0 failures**; stress / 1,000-message regression unchanged (topic-change 99.7% / 99.4%, same-question recall 94.1%, false positives 0.33%).
 - Generated DOCX/XLSX/PPTX re-opened with python-docx, openpyxl, python-pptx and LibreOffice (rendered slide checked by eye); all XML parts well-formed.
 - Android-only code (`AttachmentReader`) could not be built here (no Android SDK); the new audio method was type-checked against hand-written stubs only. Build it with GitHub Actions and try one MP3 / M4A / WAV on a phone.
 

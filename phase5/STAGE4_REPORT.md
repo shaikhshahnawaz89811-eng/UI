@@ -67,7 +67,7 @@ A deterministic `phase5/phone_sample300.tsv` has been prepared across read/creat
 
 ## Full regression
 
-The complete current JVM regression, including previous Stage 1–3 suites, Phase 3/4 suites, the new 5,000-row router corpus, attachment/send gate, and 1,000 assistant regression, is **20,860 checks / 0 failures** via `jvm-tests/run-tests.sh`. The preserved Stage 1 source baseline was re-run at **10,714 checks / 0 failures**. The prior Stage 3 baseline was **10,800 checks / 0 failures**.
+The complete current JVM regression, including previous Stage 1–3 suites, Phase 3/4 suites, the new 5,000-row router corpus, attachment/send gate, and 1,000 assistant regression, is **20,886 checks / 0 failures** via `jvm-tests/run-tests.sh`. The preserved Stage 1 source baseline was re-run at **10,714 checks / 0 failures**. The prior Stage 3 baseline was **10,800 checks / 0 failures**.
 
 The known conversation stress diagnostic remains 1242/1300 (95.5%) and is retained as a diagnostic corpus; its 58 pre-existing misses are not hidden.
 
@@ -88,10 +88,24 @@ A second end-to-end wiring pass was run after the original Stage 4 report. It fo
 3. **PDF skill metadata:** the registry descriptor was stale and claimed the chat export path was not wired. It now reflects the real ChatController -> SkillExecution -> PdfCreator path.
 
 Final local gates after these fixes:
-- Full JVM regression: **20,860 / 20,860 checks passed**.
+- Full JVM regression: **20,886 / 20,886 checks passed**.
 - Stage 4 deep execution: **2,500 / 2,500 write tasks successful**.
 - Independent artifact validation: **PASS**.
 - Stage 4 source/race sanity: **PASS**.
 - CI runs the full JVM regression, Stage 4 source/race sanity, and deep write/artifact validation before attempting `assembleDebug`.
 
 The Android APK/device gate is still environment-dependent: this container has no Android SDK/compiler and no `adb`, so no local APK or device pass is claimed. GitHub Actions now runs both `run-tests.sh` and `check-stage4-source.sh` before `assembleDebug`.
+
+
+## Post-video final wiring hardening — 2026-10-01
+
+The recorded-device failure where a CREATE request stopped at `NO_SKILL_FILE` was traced to the real model not following the file-marker protocol; model loading itself was not the failing component. The final working source now:
+
+- retries one CREATE turn with a format-only `SKILL RECOVERY` contract when the first model reply has no complete required marker artifacts;
+- accepts an accidental markdown fence around marker lines without weakening the artifact validation rules;
+- exposes a visible Gemma 4 E2B / Qwen2.5-Coder 1.5B model switch and blocks switching while the active reply is generating;
+- enables the same deterministic conversation-driven document skills, attachment reader and verified file executor in the coder chat;
+- serializes shared file execution so two chats cannot race the same output directory;
+- keeps the original honest failure path when no verified executor is connected.
+
+Latest local gates: **20,886 / 20,886 JVM checks passed**, **2,500 / 2,500 Stage 4 deep write tasks successful**, and Stage 4 source/race sanity **PASS**. Android APK/device smoke validation remains dependent on an Android SDK/Gradle/adb environment and is not claimed from this container.

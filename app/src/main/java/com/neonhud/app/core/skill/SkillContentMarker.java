@@ -107,7 +107,7 @@ public final class SkillContentMarker {
         List<Artifact> out = new ArrayList<Artifact>();
         int i = 0;
         while (i < lines.length) {
-            String line = lines[i].trim();
+            String line = normalizeMarkerLine(lines[i]);
             Matcher sm = START.matcher(line);
             if (!sm.matches()) { i++; continue; }
             if (out.size() >= MAX_MARKERS) return fail("Too many file markers.");
@@ -120,7 +120,7 @@ public final class SkillContentMarker {
             boolean closed = false;
             int bodyChars = 0;
             while (i < lines.length) {
-                String inner = lines[i].trim();
+                String inner = normalizeMarkerLine(lines[i]);
                 if ("[[END_SKILL_FILE]]".equalsIgnoreCase(inner)) { closed = true; i++; break; }
                 if (kind == SkillKind.XLSX) {
                     Matcher sh = SHEET.matcher(inner);
@@ -184,6 +184,17 @@ public final class SkillContentMarker {
             }
         }
         return new ParseResult(out, out.isEmpty() ? "No SKILL_FILE marker was returned by the model." : "");
+    }
+
+    /** Removes one accidental markdown fence wrapped around a marker line. */
+    private static String normalizeMarkerLine(String line) {
+        if (line == null) return "";
+        String s = line.trim();
+        while (s.startsWith("```") && s.endsWith("```") && s.length() >= 6)
+            s = s.substring(3, s.length() - 3).trim();
+        if (s.startsWith("```") && s.length() > 3) s = s.substring(3).trim();
+        if (s.endsWith("```") && s.length() > 3) s = s.substring(0, s.length() - 3).trim();
+        return s;
     }
 
     /** Removes every complete artifact block while leaving normal assistant prose intact. */

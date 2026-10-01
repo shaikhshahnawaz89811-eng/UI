@@ -17,6 +17,7 @@ public final class AllTests {
             SkillRouterTests.run();
             FileSnifferTests.run();
             CoderModuleTests.run();
+            ModelRuntimeTests.run();
             TavilyKeyTests.run();
             WebCoreTests.run();
             ChatWebTests.run();

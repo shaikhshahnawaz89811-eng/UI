@@ -103,6 +103,7 @@ final class SkillRouterTests {
         SkillPlan create = SkillRouter.route("AI par pdf banao", none);
         String note = SkillPrompt.build(create);
         T.check(note.contains("SKILL_FILE"), "create request -> model receives the file marker contract");
+        T.check(note.contains("type=pdf") && note.contains("own line"), "create contract gives exact PDF marker syntax");
         T.check(note.contains("Do not claim the file is ready"), "model cannot claim a file before app verification");
         T.check(note.contains("PDF"), "note names the requested format");
         T.eq("", SkillPrompt.build(SkillRouter.route("namaste", none)), "plain chat gets no extra prompt text");
@@ -118,7 +119,9 @@ final class SkillRouterTests {
         ChatController chat = new ChatController(mm, brain, store);
         mm.requestImport(Fakes.src("g.litertlm", 5)); Fakes.awaitIdle(mm);
         mm.requestLoad(); Fakes.awaitIdle(mm);
-        e.cannedReply = "Theek hai, yeh raha content.";
+        // A valid marker keeps this regression focused on the original prompt contract;
+        // the separate recovery test below covers the no-marker path.
+        e.cannedReply = "[[SKILL_FILE type=pdf title=\"Test\"]]\nhello\n[[END_SKILL_FILE]]";
 
         chat.send("document banao");
         ChatTests.waitIdle(chat);
@@ -150,5 +153,22 @@ final class SkillRouterTests {
         chat.send("document banao");
         ChatTests.waitIdle(chat);
         T.check(e.lastPrompt != null && e.lastPrompt.skillContext.isEmpty(), "skills switched off (coder chat): router does nothing");
+
+        T.section("skill router: CREATE recovery after missing marker");
+        Fakes.FakeEngine recoveryEngine = new Fakes.FakeEngine();
+        ModuleManager recoveryMm = new ModuleManager(recoveryEngine, new Fakes.FakeStorage(), new Fakes.MemStateStore(null));
+        InMemoryStore recoveryStore = new InMemoryStore();
+        ConversationBrain recoveryBrain = new ConversationBrain(recoveryStore, new ConversationBrain.Clock() { public long now() { return System.currentTimeMillis(); } });
+        ChatController recoveryChat = new ChatController(recoveryMm, recoveryBrain, recoveryStore);
+        recoveryMm.requestImport(Fakes.src("g.litertlm", 5)); Fakes.awaitIdle(recoveryMm);
+        recoveryMm.requestLoad(); Fakes.awaitIdle(recoveryMm);
+        recoveryEngine.setReplySequence(
+                "Sure, I will make the PDF for you.",
+                "[[SKILL_FILE type=pdf title=\"Recovered\"]]\nRecovered body\n[[END_SKILL_FILE]]");
+        recoveryChat.send("AI par pdf banao");
+        ChatTests.waitIdle(recoveryChat);
+        T.eq(2, recoveryEngine.generateCalls.get(), "missing marker triggers exactly one recovery generation");
+        T.check(recoveryEngine.lastPrompt != null && recoveryEngine.lastPrompt.skillContext.contains("SKILL RECOVERY"), "recovery prompt is sent to the same active model");
+        T.check(recoveryChat.items().get(recoveryChat.items().size() - 1).text.contains("file execution is not connected"), "without an executor the app still refuses to claim a file");
     }
 }

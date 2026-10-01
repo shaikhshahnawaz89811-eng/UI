@@ -1,5 +1,6 @@
 package com.neonhud.app.core.coder;
 
+import com.neonhud.app.core.engine.Attachment;
 import com.neonhud.app.core.engine.PromptPackage;
 
 import java.util.List;
@@ -38,30 +39,67 @@ public final class CoderPrompt {
     }
 
     public static String user(PromptPackage p) {
-        String current = p.userMessage;
-        StringBuilder out = new StringBuilder();
+        String current = p.userMessage == null ? "" : p.userMessage;
+        int remaining = Math.max(0, MAX_USER_PROMPT_CHARS - current.length());
+
+        StringBuilder prefix = new StringBuilder();
+        String skill = p.skillContext == null ? "" : p.skillContext.trim();
+        if (!skill.isEmpty()) {
+            int cap = Math.min(1800, Math.max(0, remaining - 20));
+            if (cap > 0) {
+                String block = skill.length() > cap ? skill.substring(0, cap) : skill;
+                prefix.append("Skill execution contract:\n").append(block).append("\n\n");
+                remaining = Math.max(0, remaining - block.length() - 28);
+            }
+        }
+
+        String attachmentBlock = attachmentText(p.attachments, Math.min(1500, Math.max(0, remaining - 20)));
+        if (!attachmentBlock.isEmpty()) {
+            prefix.append("Attached file data (read-only context):\n").append(attachmentBlock).append("\n\n");
+            remaining = Math.max(0, remaining - attachmentBlock.length() - 36);
+        }
+
         List<PromptPackage.Turn> turns = p.recentConversation;
-        int budget = MAX_USER_PROMPT_CHARS - current.length() - 64;
-        // newest turns first, stop when the budget is used: the current message must always fit
-        int from = turns.size();
+        if (skill.isEmpty() && (p.attachments == null || p.attachments.isEmpty()) && turns.isEmpty()) {
+            return current;
+        }
+        StringBuilder history = new StringBuilder();
         int used = 0;
         for (int i = turns.size() - 1; i >= 0; i--) {
-            int len = turns.get(i).text.length() + 12;
-            if (used + len > budget) break;
-            used += len;
-            from = i;
+            String piece = (turns.get(i).fromUser ? "User: " : "Assistant: ") + turns.get(i).text + '\n';
+            if (used + piece.length() > Math.max(0, remaining - 30)) break;
+            used += piece.length();
+            history.insert(0, piece);
         }
-        // a history must start with a user turn, otherwise the model sees an answer to nothing
-        while (from < turns.size() && !turns.get(from).fromUser) from++;
-        if (from < turns.size()) {
-            out.append("Earlier in this chat:\n");
-            for (int i = from; i < turns.size(); i++) {
-                PromptPackage.Turn t = turns.get(i);
-                out.append(t.fromUser ? "User: " : "Assistant: ").append(t.text).append('\n');
-            }
-            out.append("\nCurrent message from the user (answer this one):\n");
+        // A trimmed history must start with a user turn.
+        while (history.indexOf("Assistant: ") == 0) {
+            int nl = history.indexOf("\n");
+            if (nl < 0) { history.setLength(0); break; }
+            history.delete(0, nl + 1);
         }
-        out.append(current);
-        return out.toString();
+        if (history.length() > 0) prefix.append("Earlier in this chat:\n").append(history).append('\n');
+
+        // Current message is always appended intact; the UI already caps it below the global prompt budget.
+        String header = "Current message from the user (answer this one):\n";
+        int allowedPrefix = Math.max(0, MAX_USER_PROMPT_CHARS - current.length() - header.length());
+        if (prefix.length() > allowedPrefix) prefix.setLength(allowedPrefix);
+        return prefix.append(header).append(current).toString();
     }
+
+    private static String attachmentText(List<Attachment> attachments, int max) {
+        if (attachments == null || attachments.isEmpty() || max <= 0) return "";
+        StringBuilder b = new StringBuilder();
+        for (Attachment a : attachments) {
+            if (a == null) continue;
+            String part = "FILE: " + a.name + "\n" + (a.text == null ? "" : a.text) + "\n";
+            if (b.length() + part.length() > max) {
+                int room = max - b.length();
+                if (room > 0) b.append(part, 0, Math.min(room, part.length()));
+                break;
+            }
+            b.append(part);
+        }
+        return b.toString().trim();
+    }
+
 }

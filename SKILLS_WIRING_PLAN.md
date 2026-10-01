@@ -112,6 +112,15 @@ The Stage 4 delivery was re-audited end-to-end after the original report was wri
 - **Skill metadata:** the PDF Creator descriptor no longer claims chat is unwired; actual ChatController -> SkillExecution -> PdfCreator wiring is reflected accurately.
 - **CI gates:** GitHub Actions runs the complete JVM regression, Stage 4 Android/source sanity, and deep write/artifact validation (with Python Office validators) before attempting `assembleDebug`.
 
-Final local verification after these fixes: **20,860 checks / 0 failures**, Stage 4 deep execution **2,500/2,500 successful writes**, external DOCX/XLSX/PPTX/PDF validation **PASS**, and Stage 4 source sanity **PASS**.
+Final local verification after these fixes and the recorded-device hardening pass: **20,886 checks / 0 failures**, Stage 4 deep execution **2,500/2,500 successful writes**, external DOCX/XLSX/PPTX/PDF validation **PASS**, and Stage 4 source sanity **PASS**.
 
 The only verification not executable in this container is the Android APK/device smoke test because the Android SDK/compiler and `adb` are not installed. CI contains the build path and all local automated gates, so this remains an environment/device validation item rather than an unimplemented wiring item.
+
+
+## 2026-10-01 post-video completion pass
+
+The live-device recording showed that the first model response could omit the CREATE marker even while the model was loaded. This is handled in the final source by a single recovery generation with a strict marker-only contract; the app still refuses to report a file until the real executor creates and verifies it.
+
+The final wiring also makes the existing model switch usable from the chat UI, keeps switching blocked during generation, enables the shared skills/attachment loader/executor for Qwen coder chat, serializes shared writes, and keeps conversation-based routing/clarification in both chats.
+
+Current checks: **20,886/20,886 JVM checks passed**; **2,500/2,500 deep Stage 4 writes passed**; Stage 4 source/race checks passed. Android build/device smoke test remains an external CI/device validation step because this container has no Android SDK/Gradle/adb.

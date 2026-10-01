@@ -26,15 +26,51 @@ public final class SkillPrompt {
             }
         }
         if (hasCreate(plan)) {
-            sb.append("For each CREATE task, output one block in task order. Do not use markdown code fences inside the block. ");
-            sb.append("DOCX/PDF: [[SKILL_FILE type=docx or type=pdf title=\"Title\"]], then the body, then [[END_SKILL_FILE]]. ");
-            sb.append("XLSX: [[SKILL_FILE type=xlsx title=\"Title\"]], [[SHEET name=\"Sheet1\"]], one row per line with TAB between cells, [[END_SHEET]], [[END_SKILL_FILE]]. ");
-            sb.append("PPTX: [[SKILL_FILE type=pptx title=\"Title\"]], then for every slide [[SLIDE title=\"Title\"]], one bullet per line, [[END_SLIDE]], and finally [[END_SKILL_FILE]]. ");
+            sb.append("For each CREATE task, output exactly one block in task order. Put every marker on its own line. Do not put normal prose inside a file block. Markdown fences are unnecessary. ");
+            for (SkillTask t : plan.tasks) {
+                if (t == null || t.action != SkillTask.Action.CREATE) continue;
+                switch (t.skill) {
+                    case DOCX:
+                        sb.append("WORD example: [[SKILL_FILE type=docx title=\"Title\"]] then body lines then [[END_SKILL_FILE]]. ");
+                        break;
+                    case PDF_CREATOR:
+                        sb.append("PDF example: [[SKILL_FILE type=pdf title=\"Title\"]] then body lines then [[END_SKILL_FILE]]. ");
+                        break;
+                    case XLSX:
+                        sb.append("EXCEL example: [[SKILL_FILE type=xlsx title=\"Title\"]] then [[SHEET name=\"Sheet1\"]], rows with TAB-separated cells, [[END_SHEET]], [[END_SKILL_FILE]]. ");
+                        break;
+                    case PPTX:
+                        sb.append("POWERPOINT example: [[SKILL_FILE type=pptx title=\"Title\"]] then [[SLIDE title=\"Slide 1\"]], one bullet per line, [[END_SLIDE]], [[END_SKILL_FILE]]. ");
+                        break;
+                    default:
+                        break;
+                }
+            }
             sb.append("Keep the requested names, numbers and source facts exactly. Do not claim the file is ready yourself; the app says that only after it creates and verifies the file. ");
         }
         for (String u : plan.unsupported) sb.append("Not possible: ").append(u).append(' ');
         for (String n : plan.notDone) sb.append("Not done: ").append(n).append(". ");
         sb.append("Never claim an unverified file or operation exists.]");
+        return sb.toString();
+    }
+
+
+    /** A second-pass format-only instruction used when the model ignored or malformed the first marker contract. */
+    public static String recovery(SkillPlan plan) {
+        StringBuilder sb = new StringBuilder("[SKILL RECOVERY: The previous model answer was not executable. Do not explain or apologise. Return ONLY valid file marker blocks for the CREATE tasks in this message, in task order. Start each block exactly with [[SKILL_FILE and end with [[END_SKILL_FILE]]. Do not wrap markers in markdown fences. ");
+        if (plan != null) {
+            for (SkillTask t : plan.tasks) {
+                if (t == null || t.action != SkillTask.Action.CREATE) continue;
+                switch (t.skill) {
+                    case DOCX: sb.append("Word: [[SKILL_FILE type=docx title=\"Title\"]] body text [[END_SKILL_FILE]]. "); break;
+                    case PDF_CREATOR: sb.append("PDF: [[SKILL_FILE type=pdf title=\"Title\"]] body text [[END_SKILL_FILE]]. "); break;
+                    case XLSX: sb.append("Excel: [[SKILL_FILE type=xlsx title=\"Title\"]] [[SHEET name=\"Sheet1\"]] row1\trow2 [[END_SHEET]] [[END_SKILL_FILE]]. "); break;
+                    case PPTX: sb.append("PowerPoint: [[SKILL_FILE type=pptx title=\"Title\"]] [[SLIDE title=\"Slide 1\"]] bullet [[END_SLIDE]] [[END_SKILL_FILE]]. "); break;
+                    default: break;
+                }
+            }
+        }
+        sb.append("Use the user's requested topic, names and facts. The application, not you, will report the file as ready.]");
         return sb.toString();
     }
 

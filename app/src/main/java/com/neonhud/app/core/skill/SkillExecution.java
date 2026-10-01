@@ -61,7 +61,7 @@ public final class SkillExecution {
      * Executes one task. For CREATE, artifactOrdinal selects the Nth marker of the same skill kind in the model response,
      * which prevents two same-format CREATE tasks from accidentally producing the first artifact twice.
      */
-    public Result execute(SkillTask task, String modelText, List<Attachment> attachments, Attachment lastOutput, int artifactOrdinal) {
+    public synchronized Result execute(SkillTask task, String modelText, List<Attachment> attachments, Attachment lastOutput, int artifactOrdinal) {
         if (task == null || !task.writes()) return Result.fail("No file-writing task was supplied.");
         if (artifactOrdinal < 0) return Result.fail("Invalid file artifact order.");
         if (task.action == SkillTask.Action.EDIT) {

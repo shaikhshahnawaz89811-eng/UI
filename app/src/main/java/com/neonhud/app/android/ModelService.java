@@ -18,13 +18,14 @@ import com.neonhud.app.core.coder.CoderSpec;
 import com.neonhud.app.core.module.ModuleManager;
 import com.neonhud.app.core.module.ModuleSnapshot;
 import com.neonhud.app.core.module.ModuleState;
+import com.neonhud.app.core.module.ModelRuntimeCoordinator;
 
 /**
  * Foreground service that keeps the process (and so the loaded models / a running reply) alive while the app is in the
- * background. It watches BOTH modules (Gemma and the coder) and stops itself as soon as neither needs it:
- * nothing loaded, nothing importing, no reply running.
+ * background. The runtime coordinator guarantees at most one model is resident; this service stays alive during
+ * imports, handoffs and replies and stops when there is no active/transitioning work.
  */
-public final class ModelService extends Service implements ModuleManager.Listener {
+public final class ModelService extends Service implements ModuleManager.Listener, ModelRuntimeCoordinator.Listener {
 
     private static final String CHANNEL = "gemma_runtime";     // id kept so an existing channel is reused
     private static final int NOTIFICATION_ID = 7;
@@ -50,18 +51,16 @@ public final class ModelService extends Service implements ModuleManager.Listene
         App app = App.get(this);
         app.modules().addListener(this);
         app.coderModules().addListener(this);
+        app.runtime().addListener(this);
         evaluate();
         return START_NOT_STICKY;
     }
 
     private String describe() {
-        App app = App.get(this);
-        boolean gemma = app.modules().state() == ModuleState.LOADED;
-        boolean coder = app.coderModules().state() == ModuleState.LOADED;
-        if (gemma && coder) return "Gemma 4 E2B + " + CoderSpec.SHORT_NAME + " are running offline";
-        if (coder) return CoderSpec.SHORT_NAME + " is running offline";
-        if (gemma) return "Gemma 4 E2B is running offline";
-        return "Offline AI is working on this phone";
+        ModelRuntimeCoordinator.RuntimeSnapshot r = App.get(this).runtime().snapshot();
+        if (r.active == ModelRuntimeCoordinator.Target.CODER) return "Qwen Coder is running offline";
+        if (r.active == ModelRuntimeCoordinator.Target.GEMMA) return "Gemma 4 E2B is running offline";
+        return r.status.isEmpty() ? "Offline AI is working on this phone" : r.status;
     }
 
     private Notification buildNotification(String text) {
@@ -94,18 +93,21 @@ public final class ModelService extends Service implements ModuleManager.Listene
     }
 
     @Override public void onModuleChanged(ModuleSnapshot s) { evaluate(); }
+    @Override public void onRuntimeChanged(ModelRuntimeCoordinator.RuntimeSnapshot s) { evaluate(); }
 
     private synchronized void evaluate() {
         App app = App.get(this);
         ModuleSnapshot g = app.modules().snapshot();
         ModuleSnapshot c = app.coderModules().snapshot();
-        boolean busy = g.inFlight != null || g.replyActive || c.inFlight != null || c.replyActive;
-        boolean needed = busy || g.state == ModuleState.LOADED || c.state == ModuleState.LOADED;
+        ModelRuntimeCoordinator.RuntimeSnapshot r = app.runtime().snapshot();
+        boolean busy = g.inFlight != null || g.replyActive || c.inFlight != null || c.replyActive || r.transitioning;
+        boolean needed = busy || r.active != null;
         if (busy) acquireWake(); else releaseWake();
         if (!needed && foregroundStarted) {
             foregroundStarted = false;
             app.modules().removeListener(this);
             app.coderModules().removeListener(this);
+            app.runtime().removeListener(this);
             releaseWake();
             if (Build.VERSION.SDK_INT >= 24) stopForeground(STOP_FOREGROUND_REMOVE); else stopForeground(true);
             stopSelf();
@@ -141,6 +143,7 @@ public final class ModelService extends Service implements ModuleManager.Listene
         App app = App.get(this);
         app.modules().removeListener(this);
         app.coderModules().removeListener(this);
+        app.runtime().removeListener(this);
         releaseWake();
         super.onDestroy();
     }
