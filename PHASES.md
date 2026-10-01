@@ -95,3 +95,10 @@ Completed:
 - Improved English/Hinglish conversation normalization and entity-aware repeat matching.
 - Preserved `pehle wale` return-topic detection.
 - Full JVM suite: 10,565 checks, 0 failures.
+
+
+## Phase 4 CI compile fix (2026-10-01)
+- Fixed `ChatPage.java` image preview dialog compile error: static method now uses `LinearLayout.VERTICAL` instead of unresolved bare `VERTICAL`.
+- Updated GitHub Actions Gradle setup from 8.13 to 8.14.4 to remove the Gradle deprecation warning for the Kotlin Gradle Plugin.
+- JVM regression after fix: 10,565 checks, 0 failures.
+- Android CI build should be rerun on GitHub Actions; local environment has no Android SDK/toolchain.

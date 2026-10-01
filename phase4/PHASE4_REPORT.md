@@ -50,3 +50,7 @@ The remaining stress misses are primarily deliberately difficult paraphrase/cros
 ## Build note
 
 The pure-Java core and all JVM checks run successfully. An Android Gradle build was not run in this environment because the Android/Gradle SDK toolchain is not installed here; no APK-build result is claimed from this environment.
+
+
+## CI compile fix
+GitHub Actions reported `ChatPage.java:678: cannot find symbol VERTICAL` in the static image-preview helper. The call is now `root.setOrientation(LinearLayout.VERTICAL)`. CI Gradle setup was also moved from 8.13 to 8.14.4.

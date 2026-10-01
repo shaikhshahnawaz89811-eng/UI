@@ -675,7 +675,7 @@ public final class ChatPage extends FrameLayout {
     private static void showImagePreview(Context c, Attachment a) {
         final android.app.Dialog d = new android.app.Dialog(c);
         LinearLayout root = new LinearLayout(c);
-        root.setOrientation(VERTICAL);
+        root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(NeonUi.dp(c, 10), NeonUi.dp(c, 10), NeonUi.dp(c, 10), NeonUi.dp(c, 10));
         root.setBackgroundColor(0xFF07111F);
         ImageView image = new ImageView(c);
