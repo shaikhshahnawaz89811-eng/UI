@@ -337,6 +337,11 @@ public class MainActivity extends Activity implements ModuleManager.Listener, Ch
 
     // ------------------------------------------------------------------ module actions
 
+    // Keep module selection centralized so Settings actions cannot accidentally target the wrong model.
+    private ModuleManager manager(int module) {
+        return module == SettingsPage.CODER ? app.coderModules() : app.modules();
+    }
+
     private void requestNotificationPermissionOnce() {
         if (Build.VERSION.SDK_INT >= 33
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
